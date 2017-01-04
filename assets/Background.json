@@ -1,0 +1,31 @@
+{
+  "x": 0,
+  "y": 0,
+  "cx": 0,
+  "cy": 0,
+  "width": 0,
+  "height": 0,
+  "sx": 1,
+  "rot": 0,
+  "ease": "linear",
+  "duration": 0.16666666666666666,
+  "mood": "Neutral",
+  "moods": [
+    {
+      "name": "gare_by_lowx-daac2nh",
+      "x": 0,
+      "y": 0,
+      "w": 1024,
+      "h": 576,
+      "file": "gare_by_lowx-daac2nh.png"
+    },
+    {
+      "name": "night_forest_by_grammahobbes-da9sfcr",
+      "x": 0,
+      "y": 576,
+      "w": 1024,
+      "h": 600,
+      "file": "night_forest_by_grammahobbes-da9sfcr.jpg"
+    }
+  ]
+}
