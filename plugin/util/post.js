@@ -4,16 +4,11 @@ let types = require('babel-types');
 let body = template(`
 module.exports = function* SCRIPTNAME(INTERPRETER, PROPS) {
   let CACHE;
-  BODY;
-  RESULT;
+  BODY
 }
 `);
 module.exports = (path, state, plugin, { }) => {
-  let RESULT = types.returnStatement(
-    types.isExpressionStatement(path.node.body[path.node.body.length - 1]) ? 
-      path.node.body.splice(-1, 1)[0].expression :
-      types.unaryExpression('void', types.numericLiteral(0))
-    );
+
   path.replaceWith(
     types.program(
       [body({
@@ -21,8 +16,7 @@ module.exports = (path, state, plugin, { }) => {
         INTERPRETER: plugin.identifiers.INTERPRETER,
         PROPS: plugin.identifiers.PROPS,
         BODY: path.node.body,
-        CACHE: plugin.identifiers.CACHE,
-        RESULT
+        CACHE: plugin.identifiers.CACHE
       })]
     )
   )

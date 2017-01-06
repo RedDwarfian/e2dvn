@@ -19,18 +19,6 @@ async.map(
     result,
     (result, defcb) => {
       let definition = {
-        "x": 0,
-        "y": 0,
-        "cx": 0,
-        "cy": 0,
-        "width": 0,
-        "height": 0,
-        "sx": 1,
-        "sx": 1,
-        "rot": 0,
-        "ease": "linear",
-        "duration": 1/6,
-        "mood": "Neutral",
         "moods": []
       };
       let { folder, name, pixels, files } = result;

@@ -1,25 +1,7 @@
 let webpack = require('webpack');
-let Includer = require('../webpack-plugin/Includer'),
-  Imagemin = require('imagemin-webpack-plugin').default;
-let { join } = require('path');
-let compiler = webpack({
-  context: join(__dirname, '../'),
-  entry: {
-    app: './app.entry.js'
-  },
-  output: {
-    path: join(__dirname, '../dist'),
-    filename: '[name].js'
-  },
-  plugins: [
-    new Includer({
-      './assets': './assets/*.png',
-      './': './public/*',
-      './': './package.json'
-    }),
-    new Imagemin()
-  ]
-});
+let compiler = webpack(
+  require('./webpack.config')
+);
 
 compiler.run(function(err, stats) {
   if (err) {
@@ -28,4 +10,4 @@ compiler.run(function(err, stats) {
     return;
   }
   console.log(stats.toString("verbose"));
-})
+});

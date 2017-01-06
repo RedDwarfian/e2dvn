@@ -4,6 +4,8 @@
   "description": "A Visual Novel Framework for JS developers.",
   "main": "index.html",
   "scripts": {
+    "debug": "npm run sprites && npm run dev-server",
+    "dev-server": "node ./build/dev-server",
     "release": "npm run sprites && npm run webpack && npm run nw",
     "sprites": "node ./build/spritesheet-assembler",
     "webpack": "node ./build/webpack",
@@ -18,6 +20,9 @@
     "babel-loader": "^6.2.10",
     "babel-preset-es2015": "^6.18.0",
     "bin-packing": "git+https://github.com/jtenner/bin-packing.git",
+    "ease-functions": "0.0.1",
+    "eventemitter2": "^2.2.1",
+    "express": "^4.14.0",
     "get-pixels": "^3.3.0",
     "glob": "^7.1.1",
     "imagemin-webpack-plugin": "^1.4.4",

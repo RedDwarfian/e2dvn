@@ -1,4 +1,6 @@
 let types = require('babel-types');
+let template = require('babel-template');
+
 module.exports = () => {
   return {
     pre(file, state) {
@@ -13,6 +15,16 @@ module.exports = () => {
       TaggedTemplateExpression(path, state) {
         let { tag: speaker, quasi: spoken } = path.node;
         require('./util/speak')(path, state, this, { speaker, spoken });
+      },
+      AssignmentExpression(path, state) {
+        let { left, operator, right } = path.node;
+        if (operator === "=" && types.isIdentifier(left)) {
+          let { name } = left;
+          switch(name) {
+            case 'inputDisabled':
+              return require('./util/inputDisabled')(path, state, this, { value: right });
+          }
+        }
       },
       CallExpression(path, state) {
         let { callee, arguments: args } = path.node;
@@ -46,7 +58,14 @@ module.exports = () => {
             case 'props':
               return require('./util/props')(path, state, this, {});
             case 'Character':
-              return require('./util/Character')(path, state, this, { name: args[0], color: args[1] });
+              let [actor, color] = args;
+              if (!actor) {
+                actor = types.stringLiteral('undefined');
+              }
+              if (!color) {
+                color = template('[0, 0, 0, 1]')({}).expression;
+              }
+              return require('./util/Character')(path, state, this, { actor, color });
           }
         }
       }

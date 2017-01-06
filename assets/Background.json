@@ -1,15 +1,4 @@
 {
-  "x": 0,
-  "y": 0,
-  "cx": 0,
-  "cy": 0,
-  "width": 0,
-  "height": 0,
-  "sx": 1,
-  "rot": 0,
-  "ease": "linear",
-  "duration": 0.16666666666666666,
-  "mood": "Neutral",
   "moods": [
     {
       "name": "gare_by_lowx-daac2nh",
