@@ -10,12 +10,14 @@ module.exports = function() {
     },
     visitor:{
       CallExpression(path, state) {
+        let err, func;
         if (path.get('callee').isIdentifier()) {
-          try {
-            require('./funcs/' + path.node.callee.name)(path, state, this, path.node.arguments);
-          } catch(err) {
-
+          try{
+            func = require('./funcs/' + path.node.callee.name);
+          } catch (err) {
+            return;
           }
+          func(path, state, this, path.node.arguments);
         }
       }
     }

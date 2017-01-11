@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 19);
+/******/ 	return __webpack_require__(__webpack_require__.s = 28);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -90,7 +90,7 @@ module.exports = {
 		"async": "^2.1.4",
 		"babel-core": "^6.21.0",
 		"babel-loader": "^6.2.10",
-		"babel-plugin-e2dx": "github:e2d/babel-plugin-e2dx",
+		"babel-plugin-e2dx": "github:e2d/e2dx",
 		"babel-preset-es2015": "^6.18.0",
 		"bin-packing": "git+https://github.com/jtenner/bin-packing.git",
 		"crel": "^3.0.0",
@@ -129,7 +129,7 @@ module.exports = {
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
-	"./hexagon/options.js": 18
+	"./hexagon/options.js": 27
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -162,7 +162,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_eventemitter2__);
 
 
-let { window: { width, height, title } } = __webpack_require__(17);
+let { window: { width, height, title } } = __webpack_require__(26);
 
 
 
@@ -177,26 +177,34 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
     this.ctx = this.canvas.getContext('2d');
     __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.initialize(this.ctx);
 
-    this.on('add', showable => this.showables.push(showable));
-    this.on('remove', showable => {
-      let index = this.showables.indexOf(showable);
-      if (index !== -1) {
-        this.showables.splice(index, 1);
-      }
-    });
+    this.onAny((event, value) => this[event](value));
 
-    this.controlTextColor = `rgba(${ this.theme.controlTextColor[0] }, ${ this.theme.controlTextColor[1] }, ${ this.theme.controlTextColor[2] }, ${ this.theme.controlTextColor[3] })`;
-    this.controlTextSelectedColor = `rgba(${ this.theme.controlTextSelectedColor[0] }, ${ this.theme.controlTextSelectedColor[1] }, ${ this.theme.controlTextSelectedColor[2] }, ${ this.theme.controlTextSelectedColor[3] })`;
-    this.controlFont = `${ this.theme.controlTextSize }px ${ this.theme.controlFont }`;
     this.previousMouseState = false;
     return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.raf(() => {
       this.update();
       this.render();
     });
   }
+  add(showable) {
+    return this.showables.push(showable);
+  }
+  remove(showable) {
+    let index = this.showables.indexOf(showable);
+    if (index !== -1) {
+      this.showables.splice(index, 1);
+    }
+  }
+  push() {
+
+    this.stack.push({
+      showables: this.showables
+    });
+    this.showables = [];
+  }
   update() {
     if (this.theme.ready && !this.windowBackground) {
       this.windowBackground = this.ctx.createPattern(this.theme.windowBackground, 'repeat');
+      this.sliderLine = this.ctx.createPattern(this.theme.slider.line, 'repeat-x');
     }
     this.mouseData = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.mouseData(this.ctx);
     this.regions = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.activeRegions(this.ctx);
@@ -229,7 +237,29 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
     for (i = 0; i < this.showables.length; i++) {
       showable = this.showables[i];
       showable.hover = !!this.regions[showable.id];
-      pointer = pointer || showable.hover;
+
+      if (showable.type === 'button' || showable.type === 'choice' || showable.type === 'slider' || showable.type === 'checkbox') {
+        pointer = pointer || showable.hover;
+      }
+
+      if (showable.type === 'textarea') {
+        showable.textIndex += showable.speed;
+        if (showable.textIndex > showable.text.length) {
+          showable.textIndex = showable.text.length;
+        }
+      }
+
+      if (showable.type === 'slider' && showable.active) {
+        let val = showable.value;
+
+        showable.value = (this.mouseData.x - showable.x - this.theme.slider.pillActive.width * 0.5) / (showable.width - this.theme.slider.pillActive.width);
+
+        showable.value = Math.max(0, Math.min(1, showable.value));
+        pointer = true;
+        if (val !== showable.value) {
+          this.emit('value', showable);
+        }
+      }
     }
     this.previousMouseState = this.mouseData.state;
     this.canvas.style.cursor = pointer ? 'pointer' : 'default';
@@ -239,7 +269,7 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
       return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.render(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clearRect(width, height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(width * 0.5, height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
         textAlign: 'center',
         textBaseline: 'middle'
-      }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText('Now Loading!', 0, 0))), this.ctx);
+      }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText('Now Loading!'))), this.ctx);
     }
     let result = [];
     let texture;
@@ -250,21 +280,91 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
         case "checkbox":
           texture = this.theme.checkbox[(showable.checked ? '' : 'un') + 'checked' + (showable.active && showable.hover ? 'Active' : '')];
           result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width + this.theme.checkbox.textPadding, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
-            font: this.controlFont,
+            font: this.theme.controlFont,
             textBaseline: 'middle'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text, 0, 0))))));
+          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.theme.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text))))));
           break;
 
         case "button":
           texture = this.theme.button[(showable.selected ? '' : 'un') + 'selected' + (showable.active && showable.hover ? 'Active' : '')];
           result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width * 0.5, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
-            font: this.controlFont,
+            font: this.theme.controlFont,
             textAlign: 'center',
             textBaseline: 'middle'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.selected ? this.controlTextSelectedColor : this.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text, 0, 0))))));
+          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.selected ? this.theme.controlTextSelectedColor : this.theme.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text))))));
+          break;
+
+        case "slider":
+          texture = this.theme.slider['pill' + (showable.active ? 'Active' : '')];
+          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.slider.capLeft), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(this.theme.slider.capLeft.width, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.sliderLine, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillRect(showable.width - this.theme.slider.capRight.width, this.theme.slider.line.height))), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.width - this.theme.slider.capRight.width, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.slider.capRight)), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate((showable.width - texture.width) * showable.value, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height))));
+          break;
+
+        case "choice":
+          texture = showable.selected ? this.theme.choice.selected : showable.active ? this.theme.choice.active : this.theme.choice.choice;
+          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(width * 0.5 - texture.width * 0.5, showable.number * this.theme.choice.margin + (showable.number - 1) * texture.height, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width * 0.5, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
+            font: this.theme.choiceFont,
+            textAlign: 'center',
+            textBaseline: 'middle'
+          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.selected ? this.theme.choiceTextSelectedColor : this.theme.choiceTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text))))));
+          break;
+
+        case "textarea":
+          texture = this.theme.textarea.texture;
+
+          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.textarea.texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.speakerColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
+            font: this.theme.textarea.speakerBoxFont,
+            textBaseline: 'top'
+          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.speaker, this.theme.textarea.speakerBox[0], this.theme.textarea.speakerBox[1]))), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.theme.textarea.color, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
+            font: this.theme.textarea.textFont,
+            textBaseline: 'top'
+          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clip(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.rect(this.theme.textarea.textBox[0], this.theme.textarea.textBox[1], this.theme.textarea.textBox[2], this.theme.textarea.textBox[3]), this.calculateLines(showable, this.theme.textarea))))));
+          break;
       }
     }
-    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.render(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clearRect(width, height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.windowBackground, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillRect(width, height)), result, this.ctx);
+    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.render(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clearRect(width, height), result, this.ctx);
+  }
+  calculateLines(showable) {
+    let workingText = showable.text.slice(0, showable.textIndex).trim().replace('\r\n', '\n').replace('\r', '');
+    let result = [];
+    let index = [];
+    let i;
+    let lastIndex = 0;
+    let testIndex = 0;
+    let previousTestIndex = 0;
+    let testText = "";
+    let ctx = this.ctx;
+    let count = 0;
+    let forceBreak;
+    for (i = 0; i < workingText.length; i++) {
+      switch (workingText[i]) {
+        case " ":
+        case "\t":
+          index.push([i, 0]);
+          break;
+        case "\n":
+          index.push([i, 1]);
+      }
+    }
+    index.push([workingText.length, 0]);
+    let tempFont = ctx.font;
+    ctx.font = this.theme.textarea.textFont;
+
+    for (i = 0; i < index.length; i++) {
+      [testIndex, forceBreak] = index[i];
+      testText = workingText.slice(lastIndex, testIndex).trim();
+
+      if (forceBreak === 1 || ctx.measureText(testText).width > this.theme.textarea.textBox[2]) {
+        result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(forceBreak ? testText : workingText.slice(lastIndex, previousTestIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
+        count += 1;
+        lastIndex = forceBreak ? testIndex : previousTestIndex;
+      }
+
+      previousTestIndex = testIndex;
+    }
+
+    result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(workingText.slice(lastIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
+    ctx.font = tempFont;
+    return result;
   }
 };
 
@@ -3238,19 +3338,19 @@ module.exports = __webpack_require__.p + "d914e858b7c298b0a20b94f93e292df9.otf";
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "8e916fc8b0e2261e6a92bf18275c6831.png";
+module.exports = __webpack_require__.p + "f804308dc39269f2d8598cd4c624f2e5.png";
 
 /***/ },
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "1fdfa706beb4e9a8446152a718dcbc03.png";
+module.exports = __webpack_require__.p + "8ed860e0a4295c9848a2e0b371911d26.png";
 
 /***/ },
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "2205120069e0ab3dae87b347500e8e92.png";
+module.exports = __webpack_require__.p + "6945396538d40c9a482819c24aea29d8.png";
 
 /***/ },
 /* 10 */
@@ -3262,7 +3362,7 @@ module.exports = __webpack_require__.p + "21d9f4aa255119fbb2de413e3b4bf5c7.png";
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "01b769aae5e11a0e01f22046110064ad.png";
+module.exports = __webpack_require__.p + "948e761208b6194f85d7b1cb4f99d8f5.png";
 
 /***/ },
 /* 12 */
@@ -3274,7 +3374,7 @@ module.exports = __webpack_require__.p + "77a783281291fc3a8cf997a75a2847bb.png";
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "f5fdaf17d3ff7d4d7b8c2a8d44f0664c.png";
+module.exports = __webpack_require__.p + "4cb8eccb7ed09b83dd89ec457426e8b8.png";
 
 /***/ },
 /* 14 */
@@ -3286,10 +3386,64 @@ module.exports = __webpack_require__.p + "9e8ee288e7ec6a83777f49fb0797bd1f.png";
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "1119ab1d181f49e13930be9e0741d8f7.png";
+module.exports = __webpack_require__.p + "aeb420d44a89d2608fc6b4a5f7ad7d72.png";
 
 /***/ },
 /* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "9597bc24c48ef34de81cbf5603ab1c39.png";
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "cedaddace229519a597a54d8bd414faa.png";
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "a62e9e3038dadd90d13228c9261b6dd9.png";
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "d4ca38a742d93f71222a274020589d02.png";
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "78f7188cbdbbcdc4355116dfaa0e62eb.png";
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "c4c2ce7fdc6f86bc1ba126434fae13f2.png";
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "4aea8fa323b346e84263e030fe663abb.png";
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "0f23bfe04db99ae954c3b96aeee74ec5.png";
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "b8f13d1d51878cfd05214f9310f113cd.png";
+
+/***/ },
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 (function(){function m(a,b){document.addEventListener?a.addEventListener("scroll",b,!1):a.attachEvent("scroll",b)}function n(a){document.body?a():document.addEventListener?document.addEventListener("DOMContentLoaded",function c(){document.removeEventListener("DOMContentLoaded",c);a()}):document.attachEvent("onreadystatechange",function l(){if("interactive"==document.readyState||"complete"==document.readyState)document.detachEvent("onreadystatechange",l),a()})};function t(a){this.a=document.createElement("div");this.a.setAttribute("aria-hidden","true");this.a.appendChild(document.createTextNode(a));this.b=document.createElement("span");this.c=document.createElement("span");this.h=document.createElement("span");this.f=document.createElement("span");this.g=-1;this.b.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";this.c.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";
@@ -3302,7 +3456,7 @@ w=q.a.offsetWidth;H();z(f,function(a){g=a;e()});x(f,J(c,'"'+c.family+'",sans-ser
 
 
 /***/ },
-/* 17 */
+/* 26 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -3325,7 +3479,7 @@ module.exports = {
 		"async": "^2.1.4",
 		"babel-core": "^6.21.0",
 		"babel-loader": "^6.2.10",
-		"babel-plugin-e2dx": "github:e2d/babel-plugin-e2dx",
+		"babel-plugin-e2dx": "github:e2d/e2dx",
 		"babel-preset-es2015": "^6.18.0",
 		"bin-packing": "git+https://github.com/jtenner/bin-packing.git",
 		"crel": "^3.0.0",
@@ -3360,13 +3514,28 @@ module.exports = {
 };
 
 /***/ },
-/* 18 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 let options = {
   [Symbol.for('count')]: 0,
   [Symbol.for('loaded')]: 0,
   ready: false
+};
+
+let _hue = (p, q, t) => {
+  if (t < 0) t += 1;
+  if (t > 1) t -= 1;
+  if (t < 1 / 6) return p + (q - p) * 6 * t;
+  if (t < 1 / 2) return q;
+  if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+  return p;
+};
+
+let hsla = (h, s, l, a) => {
+  var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  var p = 2 * l - q;
+  return [Math.round(__hue(p, q, h + 1 / 3) * 255), Math.round(__hue(p, q, h) * 255), Math.round(__hue(p, q, h - 1 / 3) * 255), 1];
 };
 
 let _createImage = src => {
@@ -3384,7 +3553,7 @@ let _createImage = src => {
 };
 
 let _loadFont = (name, src) => {
-  let FontFaceObserver = __webpack_require__(16);
+  let FontFaceObserver = __webpack_require__(25);
 
   let font = new FontFaceObserver(name);
   let ff = `
@@ -3413,16 +3582,22 @@ let _loadFont = (name, src) => {
 };
 
 //section: controls
-
+let selectedColor = `rgba(194,128,255,1)`;
+let normalColor = `rgba(155,154,255,1)`;
 //title text
 options.titleTextSize = 32;
-options.titleTextColor = [194, 128, 255, 1];;
+options.titleTextColor = selectedColor;
 
 options.controlTextSize = 26;
-_loadFont('Puritin', __webpack_require__(6));
-options.controlFont = 'Puritan';
-options.controlTextColor = [155, 154, 255, 1];
-options.controlTextSelectedColor = [194, 128, 255, 1];
+_loadFont('Puritan', __webpack_require__(6));
+options.controlFont = `${ options.controlTextSize }px Puritan`;
+options.controlTextColor = normalColor;
+options.controlTextSelectedColor = selectedColor;
+
+options.choiceTextSize = 40;
+options.choiceFont = `${ options.choiceTextSize }px Puritan`;
+options.choiceTextColor = normalColor;
+options.choiceTextSelectedColor = selectedColor;
 
 options.checkbox = {
   unchecked: _createImage(__webpack_require__(14)),
@@ -3438,19 +3613,43 @@ options.button = {
   selected: _createImage(__webpack_require__(8)),
   selectedActive: _createImage(__webpack_require__(7))
 };
-/*
+
 options.slider = {
-  background: url('./slider-background.png'),
-  pill: url('./slider-pill.png'),
-  pillActive: url('./slider-pill-active.png'),
-  sliderMargin: 4
+  capLeft: _createImage(__webpack_require__(18)),
+  capRight: _createImage(__webpack_require__(19)),
+  pill: _createImage(__webpack_require__(22)),
+  pillActive: _createImage(__webpack_require__(21)),
+  line: _createImage(__webpack_require__(20))
 };
-*/
-options.windowBackground = _createImage(__webpack_require__(15));
+
+options.choice = {
+  choice: _createImage(__webpack_require__(17)),
+  active: _createImage(__webpack_require__(15)),
+  selected: _createImage(__webpack_require__(16)),
+  margin: 30
+};
+
+let textareaFont = 'Puritan',
+    textareaSpeakerFont = textareaFont,
+    textareaFontSize = 20,
+    speakerBoxFontSize = 20;
+options.textarea = {
+  texture: _createImage(__webpack_require__(23)),
+  speakerBox: [10, 10, 380, 20],
+  speakerBoxFontSize: speakerBoxFontSize,
+  speakerBoxFont: `bold ${ speakerBoxFontSize }px ${ textareaSpeakerFont }`,
+  textBox: [10, 46, 780, 150],
+  textFontSize: textareaFontSize,
+  textFont: `${ textareaFontSize }px ${ textareaFont }`,
+  textLeading: 10,
+  color: normalColor
+};
+
+options.windowBackground = _createImage(__webpack_require__(24));
 module.exports = options;
 
 /***/ },
-/* 19 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 let package = __webpack_require__(0);
@@ -3462,49 +3661,22 @@ let renderer = new Renderer(theme);
 
 renderer.emit('add', {
   id: 'test',
-  type: 'checkbox',
-  checked: false,
+  type: 'textarea',
   active: false,
   hover: false,
-  x: package.window.width * 0.5,
+  x: 0,
   y: package.window.height * 0.5,
-  text: 'testing'
-});
-
-let choices = [100, 200, 300].map((y, index) => ({
-  id: 'test' + y,
-  type: 'button',
-  selected: false,
-  active: false,
-  hover: false,
-  x: 50,
-  y: y,
-  text: 'testing' + index
-}));
-
-choices.forEach((choice) => renderer.emit('add', choice));
-
-renderer.on('click', (showable) => {
-  if (choices.includes(showable)) {
-    for(let i = 0; i < choices.length; i++) {
-      let choice = choices[i];
-      choice.selected = choice === showable;
-    }
-  } else {
-    showable.checked = !showable.checked;
-  }
-});
-
-
-renderer.emit('add', {
-  id: 'test-slider',
-  type: 'slider',
-  value: 70,
-  active: false,
-  hover: false,
-  x: 100,
-  y: 100
-});
+  text: `
+    Bacon ipsum
+    dolor sit
+    emet. Bacon ipsum dolor amet officia prosciutto chuck est, pig pastrami aliqua incididunt. Ea nisi dolor, occaecat in quis pancetta venison sausage enim velit. Culpa shank leberkas meatball tenderloin. Ad ham dolore, excepteur short loin ullamco landjaeger reprehenderit adipisicing.
+  `,
+  textIndex: 0,
+  speed: 1,
+  speaker: 'Speaker!',
+  speakerColor: 'red',
+  lines: []
+})
 
 /***/ }
 /******/ ]);

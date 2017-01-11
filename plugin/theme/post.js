@@ -7,6 +7,26 @@ let options = {
   [Symbol.for('loaded')]: 0,
   ready: false
 };
+
+let HUE = (p, q, t) => {
+  if(t < 0) t += 1;
+  if(t > 1) t -= 1;
+  if(t < 1/6) return p + (q - p) * 6 * t;
+  if(t < 1/2) return q;
+  if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+  return p;
+};
+let hsla = (h, s, l, a) => {
+  var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  var p = 2 * l - q;
+  return [
+    Math.round(__hue(p, q, h + 1/3) * 255),
+    Math.round(__hue(p, q, h) * 255),
+    Math.round(__hue(p, q, h - 1/3) * 255),
+    1
+  ];
+};
+
 let CREATEIMAGE = (src) => {
   let img = new Image();
   img.src = src;
@@ -51,7 +71,8 @@ module.exports = (path, state, plugin, { }) => {
   let bodyResult = body({
     BODY: path.node.body,
     CREATEIMAGE: plugin.identifiers.CREATEIMAGE,
-    LOADFONT: plugin.identifiers.LOADFONT
+    LOADFONT: plugin.identifiers.LOADFONT,
+    HUE: plugin.identifiers.HUE
   });
   path.replaceWith(
     types.program(
