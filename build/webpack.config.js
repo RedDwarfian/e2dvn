@@ -13,7 +13,7 @@ module.exports = {
   },
   plugins: [
     new Includer({
-      './assets': './assets/*.png',
+      //'./assets': './assets/*.png',
       './': './public/*',
       './': './package.json'
     }),

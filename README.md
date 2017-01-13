@@ -42,4 +42,50 @@ renderer.emit('add', {
   y: package.window.height * 0.5,
   text: 'testing'
 });
+
+//textarea
+renderer.emit('add', {
+  id: 'test',
+  type: 'textarea',
+  active: false,
+  hover: false,
+  x: 0,
+  y: package.window.height * 0.5,
+  text: `
+    Bacon ipsum
+    dolor sit
+    emet. Bacon ipsum dolor amet officia prosciutto chuck est, pig pastrami aliqua incididunt. Ea nisi dolor, occaecat in quis pancetta venison sausage enim velit. Culpa shank leberkas meatball tenderloin. Ad ham dolore, excepteur short loin ullamco landjaeger reprehenderit adipisicing.
+  `,
+  textIndex: 0,
+  speed: 1,
+  speaker: 'Speaker!',
+  speakerColor: 'red',
+  lines: []
+});
+
+
+let texture = new Image();
+texture.src = require('file-loader!./assets/Aya.png');
+texture.onload = () => renderer.emit('add', {
+  type: 'actor',
+  x: 0,
+  y: 0,
+  alpha: 1,
+  cx: 0,
+  cy: 0,
+  sx: 1,
+  sy: 1,
+  definition: require('json-loader!./assets/Aya.json'),
+  rotation: 0,
+  start: Date.now(),
+  duration: 2000,
+  ease: 'quadInOut',
+  texture,
+  mood: 'Sad',
+  previousTransform: [1, 0, 0, 1, 0, 0, 1],
+  transform: [1.1, 0, 0, 1.1, 100, 100, 0.5],
+  interpolated: [0, 0, 0, 0, 0, 0, 0],
+  view: [],
+  dirty: true
+});
 ```

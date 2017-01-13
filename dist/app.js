@@ -63,11 +63,36 @@
 /******/ 	__webpack_require__.p = "";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 28);
+/******/ 	return __webpack_require__(__webpack_require__.s = 37);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+var map = {
+	"./main.js": 32,
+	"./options.js": 33
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 0;
+
+
+/***/ },
+/* 1 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -91,6 +116,8 @@ module.exports = {
 		"babel-core": "^6.21.0",
 		"babel-loader": "^6.2.10",
 		"babel-plugin-e2dx": "github:e2d/e2dx",
+		"babel-plugin-minify-dead-code-elimination": "^0.1.1",
+		"babel-plugin-transform-inline-functions": "^1.0.1",
 		"babel-preset-es2015": "^6.18.0",
 		"bin-packing": "git+https://github.com/jtenner/bin-packing.git",
 		"crel": "^3.0.0",
@@ -125,11 +152,12 @@ module.exports = {
 };
 
 /***/ },
-/* 1 */
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
-	"./hexagon/options.js": 27
+	"./act-1/test.js": 34,
+	"./main.js": 35
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -145,24 +173,48 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 1;
+webpackContext.id = 2;
 
 
 /***/ },
-/* 2 */
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+var map = {
+	"./hexagon/options.js": 36
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 3;
+
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_e2d__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_crel__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_eventemitter2__);
 
 
-let { window: { width, height, title } } = __webpack_require__(26);
+let { window: { width, height, title } } = __webpack_require__(31);
 
 
 
@@ -173,20 +225,23 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
     this.showables = [];
     __WEBPACK_IMPORTED_MODULE_1_crel___default()(document.body, { style: 'margin: 0; padding: 0; ' }, __WEBPACK_IMPORTED_MODULE_1_crel___default()('div', { style: `margin: 0 auto; width: ${ width }px; height: ${ height }px;` }, this.canvas = __WEBPACK_IMPORTED_MODULE_1_crel___default()('canvas', { width, height })));
 
-    this.windowBackground = null;
     this.ctx = this.canvas.getContext('2d');
     __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.initialize(this.ctx);
 
-    this.onAny((event, value) => this[event](value));
+    this.onAny((event, value) => this[event] && this[event](value));
 
     this.previousMouseState = false;
-    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.raf(() => {
-      this.update();
-      this.render();
+
+    this.stack = [];
+
+    let self = this;
+    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.raf(function () {
+      self.update();
+      self.render();
     });
   }
   add(showable) {
-    return this.showables.push(showable);
+    return !this.showables.includes(showable) ? this.showables.push(showable) : void 0;
   }
   remove(showable) {
     let index = this.showables.indexOf(showable);
@@ -195,17 +250,27 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
     }
   }
   push() {
-
     this.stack.push({
       showables: this.showables
     });
-    this.showables = [];
+    let img = new Image();
+    img.src = this.canvas.toDataURL();
+    this.showables = [{
+      type: 'background',
+      texture: img
+    }];
+  }
+  pop() {
+    this.showables = this.stack.pop().showables;
   }
   update() {
-    if (this.theme.ready && !this.windowBackground) {
-      this.windowBackground = this.ctx.createPattern(this.theme.windowBackground, 'repeat');
+    if (!this.theme.ready) {
+      return;
+    }
+    if (!this.sliderLine) {
       this.sliderLine = this.ctx.createPattern(this.theme.slider.line, 'repeat-x');
     }
+
     this.mouseData = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.mouseData(this.ctx);
     this.regions = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.activeRegions(this.ctx);
     let i,
@@ -218,6 +283,7 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
         if (this.regions[showable.id]) {
           showable.active = true;
           this.emit('mousedown', showable);
+          showable.dirty = true;
         }
       }
     }
@@ -229,23 +295,30 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
         if (showable.active && showable.hover) {
           this.emit('click', showable);
         }
-        showable.active = false;
+        if (showable.active) {
+          showable.dirty = true;
+          showable.active = false;
+        }
       }
     }
 
-    //hovering
     for (i = 0; i < this.showables.length; i++) {
       showable = this.showables[i];
       showable.hover = !!this.regions[showable.id];
 
+      //hovering
       if (showable.type === 'button' || showable.type === 'choice' || showable.type === 'slider' || showable.type === 'checkbox') {
         pointer = pointer || showable.hover;
       }
 
       if (showable.type === 'textarea') {
+        let index = showable.textIndex;
         showable.textIndex += showable.speed;
         if (showable.textIndex > showable.text.length) {
           showable.textIndex = showable.text.length;
+        }
+        if (index !== showable.textIndex) {
+          showable.dirty = true;
         }
       }
 
@@ -258,6 +331,20 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
         pointer = true;
         if (val !== showable.value) {
           this.emit('value', showable);
+          showable.dirty = true;
+        }
+      }
+
+      if (showable.type === 'actor') {
+        let func = __webpack_require__(5)[showable.ease];
+        let elapsed = Date.now() - showable.start;
+        let ratio = elapsed > showable.duration ? 1 : func(elapsed, showable.duration);
+        for (let j = 0; j < 7; j++) {
+          let value = showable.interpolated[j];
+          showable.interpolated[j] = showable.previousTransform[j] + ratio * (showable.transform[j] - showable.previousTransform[j]);
+          if (!showable.dirty && value !== showable.interpolated[j]) {
+            showable.dirty = true;
+          }
         }
       }
     }
@@ -279,45 +366,53 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
 
         case "checkbox":
           texture = this.theme.checkbox[(showable.checked ? '' : 'un') + 'checked' + (showable.active && showable.hover ? 'Active' : '')];
-          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width + this.theme.checkbox.textPadding, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
+          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width + this.theme.checkbox.textPadding, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
             font: this.theme.controlFont,
             textBaseline: 'middle'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.theme.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text))))));
+          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.theme.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text)))))) : showable.view);
           break;
 
         case "button":
           texture = this.theme.button[(showable.selected ? '' : 'un') + 'selected' + (showable.active && showable.hover ? 'Active' : '')];
-          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width * 0.5, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
+          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width * 0.5, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
             font: this.theme.controlFont,
             textAlign: 'center',
             textBaseline: 'middle'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.selected ? this.theme.controlTextSelectedColor : this.theme.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text))))));
+          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.selected ? this.theme.controlTextSelectedColor : this.theme.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text)))))) : showable.view);
           break;
 
         case "slider":
           texture = this.theme.slider['pill' + (showable.active ? 'Active' : '')];
-          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.slider.capLeft), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(this.theme.slider.capLeft.width, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.sliderLine, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillRect(showable.width - this.theme.slider.capRight.width, this.theme.slider.line.height))), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.width - this.theme.slider.capRight.width, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.slider.capRight)), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate((showable.width - texture.width) * showable.value, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height))));
+          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.slider.capLeft), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(this.theme.slider.capLeft.width, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.sliderLine, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillRect(showable.width - this.theme.slider.capRight.width, this.theme.slider.line.height))), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.width - this.theme.slider.capRight.width, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.slider.capRight)), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate((showable.width - texture.width) * showable.value, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height)))) : showable.view);
           break;
 
         case "choice":
           texture = showable.selected ? this.theme.choice.selected : showable.active ? this.theme.choice.active : this.theme.choice.choice;
-          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(width * 0.5 - texture.width * 0.5, showable.number * this.theme.choice.margin + (showable.number - 1) * texture.height, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width * 0.5, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
+          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(width * 0.5 - texture.width * 0.5, showable.number * this.theme.choice.margin + (showable.number - 1) * texture.height, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width * 0.5, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
             font: this.theme.choiceFont,
             textAlign: 'center',
             textBaseline: 'middle'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.selected ? this.theme.choiceTextSelectedColor : this.theme.choiceTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text))))));
+          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.selected ? this.theme.choiceTextSelectedColor : this.theme.choiceTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text)))))) : showable.view);
           break;
 
         case "textarea":
           texture = this.theme.textarea.texture;
 
-          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.textarea.texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.speakerColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
+          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.textarea.texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.speakerColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
             font: this.theme.textarea.speakerBoxFont,
             textBaseline: 'top'
           }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.speaker, this.theme.textarea.speakerBox[0], this.theme.textarea.speakerBox[1]))), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.theme.textarea.color, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
             font: this.theme.textarea.textFont,
             textBaseline: 'top'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clip(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.rect(this.theme.textarea.textBox[0], this.theme.textarea.textBox[1], this.theme.textarea.textBox[2], this.theme.textarea.textBox[3]), this.calculateLines(showable, this.theme.textarea))))));
+          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clip(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.rect(this.theme.textarea.textBox[0], this.theme.textarea.textBox[1], this.theme.textarea.textBox[2], this.theme.textarea.textBox[3]), this.calculateLines(showable, this.theme.textarea)))))) : showable.view);
+          break;
+
+        case "background":
+          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(showable.texture));
+          break;
+
+        case "actor":
+          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.setTransform(showable.interpolated, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.globalAlpha(showable.interpolated[6], __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(showable.texture, showable.definition.moods[showable.mood].x, showable.definition.moods[showable.mood].y, showable.definition.moods[showable.mood].w, showable.definition.moods[showable.mood].h, 0, 0, showable.definition.moods[showable.mood].w, showable.definition.moods[showable.mood].h)))) : showable.view);
           break;
       }
     }
@@ -369,7 +464,101 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
 };
 
 /***/ },
-/* 3 */
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+let inOut = __webpack_require__(6),
+ inverse = __webpack_require__(7);
+
+let linear = (point, max) => point / max;
+let quadIn = (point, max) => (point /= max, point * point);
+let cubicIn = (point, max) => (point /= max, point * point * point);
+let quartIn = (point, max) => (point /= max, point * point * point * point);
+let quintIn = (point, max) => (point /= max, point * point * point * point);
+let circIn = (point, max) => (point /= max, 1 - Math.sqrt(1 - point * point));
+let sinIn = (point, max) => (point /= max, point -= 1, 1 + Math.sin(Math.PI * point * 0.5));
+let expoIn = (point, max) => (point /= max, point -= 1, point === 0 ? 0 : Math.pow(2, 10 * point));
+let linExpoIn = (point, max) => (point /= max, point -= 1, point * Math.pow(2, point));
+let bounceIn = (point, max) => (point *= 2.5 / max, (1 + Math.floor(point)) / 3 * Math.abs(Math.sin(Math.PI * point)));
+
+
+let quadOut = inverse(quadIn);
+let cubicOut = inverse(cubicIn);
+let quartOut = inverse(quartIn);
+let quintOut = inverse(quintIn);
+let circOut = inverse(circIn);
+let sinOut = inverse(sinIn);
+let expoOut = inverse(expoIn);
+let linExpoOut = inverse(linExpoIn);
+let bounceOut = inverse(bounceIn);
+
+
+let quadInOut = inOut(quadIn, quadOut);
+let cubicInOut = inOut(cubicIn, cubicOut);
+let quartInOut = inOut(quartIn, quartOut);
+let quintInOut = inOut(quintIn, quintOut);
+let circInOut = inOut(circIn, circOut);
+let sinInOut = inOut(sinIn, sinOut);
+let expoInOut = inOut(expoIn, expoOut);
+let linExpoInOut = inOut(linExpoIn, linExpoOut);
+let bounceInOut = inOut(bounceIn, bounceOut);
+
+module.exports = {
+  linear,
+  quadIn,
+  quadOut,
+  quadInOut,
+  cubicIn,
+  cubicOut,
+  cubicInOut,
+  quartIn,
+  quartOut,
+  quartInOut,
+  quintIn,
+  quintOut,
+  quintInOut,
+  circIn,
+  circOut,
+  circInOut,
+  sinIn,
+  sinOut,
+  sinInOut,
+  expoIn,
+  expoOut,
+  expoInOut,
+  linExpoIn,
+  linExpoOut,
+  linExpoInOut,
+  bounceIn,
+  bounceOut,
+  bounceInOut
+};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+module.exports = function inOut(func, inverse) {
+  return  function inOutFunc(point, max) {
+    point /= max;
+    return point / max < 0.5 ?
+      0.5 * func(point,  0.5) :
+      0.5 + 0.5 * inverse(point - 0.5, 0.5);
+  };
+};
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+module.exports = function inverse(func) {
+  return function(point, max) {
+    return 1 - func(max - point, max);
+  };
+};
+
+/***/ },
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 //Copyright (C) 2012 Kory Nunn
@@ -531,7 +720,7 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemit
 
 
 /***/ },
-/* 4 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -1427,8 +1616,12 @@ module.exports = quadraticCurveTo;
 /***/ function(module, exports) {
 
 let raf = (func) => {
-  requestAnimationFrame(() => raf(func));
-  return func();
+  let funcCaller = function() {
+    requestAnimationFrame(funcCaller);
+    func();
+  };
+
+  requestAnimationFrame(funcCaller);
 };
 
 module.exports = raf;
@@ -2601,7 +2794,7 @@ module.exports = {
 });
 
 /***/ },
-/* 5 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -3329,121 +3522,121 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ },
-/* 6 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "d914e858b7c298b0a20b94f93e292df9.otf";
 
 /***/ },
-/* 7 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "f804308dc39269f2d8598cd4c624f2e5.png";
 
 /***/ },
-/* 8 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "8ed860e0a4295c9848a2e0b371911d26.png";
 
 /***/ },
-/* 9 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "6945396538d40c9a482819c24aea29d8.png";
 
 /***/ },
-/* 10 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "21d9f4aa255119fbb2de413e3b4bf5c7.png";
 
 /***/ },
-/* 11 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "948e761208b6194f85d7b1cb4f99d8f5.png";
 
 /***/ },
-/* 12 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "77a783281291fc3a8cf997a75a2847bb.png";
 
 /***/ },
-/* 13 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "4cb8eccb7ed09b83dd89ec457426e8b8.png";
 
 /***/ },
-/* 14 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "9e8ee288e7ec6a83777f49fb0797bd1f.png";
 
 /***/ },
-/* 15 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "aeb420d44a89d2608fc6b4a5f7ad7d72.png";
 
 /***/ },
-/* 16 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "9597bc24c48ef34de81cbf5603ab1c39.png";
 
 /***/ },
-/* 17 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "cedaddace229519a597a54d8bd414faa.png";
 
 /***/ },
-/* 18 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "a62e9e3038dadd90d13228c9261b6dd9.png";
 
 /***/ },
-/* 19 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "d4ca38a742d93f71222a274020589d02.png";
 
 /***/ },
-/* 20 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "78f7188cbdbbcdc4355116dfaa0e62eb.png";
 
 /***/ },
-/* 21 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "c4c2ce7fdc6f86bc1ba126434fae13f2.png";
 
 /***/ },
-/* 22 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "4aea8fa323b346e84263e030fe663abb.png";
 
 /***/ },
-/* 23 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "0f23bfe04db99ae954c3b96aeee74ec5.png";
 
 /***/ },
-/* 24 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "b8f13d1d51878cfd05214f9310f113cd.png";
 
 /***/ },
-/* 25 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 (function(){function m(a,b){document.addEventListener?a.addEventListener("scroll",b,!1):a.attachEvent("scroll",b)}function n(a){document.body?a():document.addEventListener?document.addEventListener("DOMContentLoaded",function c(){document.removeEventListener("DOMContentLoaded",c);a()}):document.attachEvent("onreadystatechange",function l(){if("interactive"==document.readyState||"complete"==document.readyState)document.detachEvent("onreadystatechange",l),a()})};function t(a){this.a=document.createElement("div");this.a.setAttribute("aria-hidden","true");this.a.appendChild(document.createTextNode(a));this.b=document.createElement("span");this.c=document.createElement("span");this.h=document.createElement("span");this.f=document.createElement("span");this.g=-1;this.b.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";this.c.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";
@@ -3456,7 +3649,7 @@ w=q.a.offsetWidth;H();z(f,function(a){g=a;e()});x(f,J(c,'"'+c.family+'",sans-ser
 
 
 /***/ },
-/* 26 */
+/* 31 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -3480,6 +3673,8 @@ module.exports = {
 		"babel-core": "^6.21.0",
 		"babel-loader": "^6.2.10",
 		"babel-plugin-e2dx": "github:e2d/e2dx",
+		"babel-plugin-minify-dead-code-elimination": "^0.1.1",
+		"babel-plugin-transform-inline-functions": "^1.0.1",
 		"babel-preset-es2015": "^6.18.0",
 		"bin-packing": "git+https://github.com/jtenner/bin-packing.git",
 		"crel": "^3.0.0",
@@ -3514,7 +3709,150 @@ module.exports = {
 };
 
 /***/ },
-/* 27 */
+/* 32 */
+/***/ function(module, exports) {
+
+module.exports = function* menu(_interpreter) {
+  let _cache;
+
+  let test = Object.assign({}, {
+    id: '',
+    text: "",
+    type: 'button',
+    x: 0,
+    y: 0,
+    active: false,
+    hover: false,
+    selected: false,
+    view: [],
+    dirty: true
+  }, {});
+
+  let newGame = Object.assign({}, {
+    id: '',
+    text: "",
+    type: 'button',
+    x: 0,
+    y: 0,
+    active: false,
+    hover: false,
+    selected: false,
+    view: [],
+    dirty: true
+  }, {
+    id: 'new-game',
+    x: 100,
+    y: 100,
+    text: 'New Game'
+  });
+
+  let options = Object.assign({}, {
+    id: '',
+    text: "",
+    type: 'button',
+    x: 0,
+    y: 0,
+    active: false,
+    hover: false,
+    selected: false,
+    view: [],
+    dirty: true
+  }, {
+    id: 'options',
+    x: 100,
+    y: 200,
+    text: 'Options'
+  });
+
+  let exit = Object.assign({}, {
+    id: '',
+    text: "",
+    type: 'button',
+    x: 0,
+    y: 0,
+    active: false,
+    hover: false,
+    selected: false,
+    view: [],
+    dirty: true
+  }, {
+    id: 'exit',
+    x: 100,
+    y: 300,
+    text: 'Exit'
+  });
+
+  _cache = newGame, _interpreter.show(_cache), Object.assign(_cache, {});
+  _cache = options, _interpreter.show(_cache), Object.assign(_cache, {});
+  _cache = exit, _interpreter.show(_cache), Object.assign(_cache, {});
+
+  while (true) {
+    switch (_interpreter.clicked && _interpreter.clicked.id) {
+      case 'new-game':
+        _interpreter.queue.push('./main.js'), void 0;
+        return;
+        break;
+
+      case 'options':
+        _interpreter.menu.push(_interpreter.menus('./options.js')(_interpreter, ...[])), yield ['push', void 0], void 0;
+        break;
+    }
+
+    yield ['pause', void 0];
+  }
+};
+
+/***/ },
+/* 33 */
+/***/ function(module, exports) {
+
+module.exports = function* menu(_interpreter) {
+  let _cache;
+
+  let b = Object.assign({}, {
+    id: '',
+    text: "",
+    type: 'button',
+    x: 0,
+    y: 0,
+    active: false,
+    hover: false,
+    selected: false,
+    view: [],
+    dirty: true
+  }, {
+    id: 'test',
+    x: 300,
+    y: 100,
+    text: 'Close'
+  });
+  _cache = b, _interpreter.show(_cache), Object.assign(_cache, {});
+
+  while (true) {
+    switch (_interpreter.clicked && _interpreter.clicked.id) {
+      case 'test':
+        return;
+        break;
+    }
+
+    yield ['pause', void 0];
+  }
+};
+
+/***/ },
+/* 34 */
+/***/ function(module, exports) {
+
+let Aya = Character('Aya');
+
+/***/ },
+/* 35 */
+/***/ function(module, exports) {
+
+queue('./act-1/test.js');
+
+/***/ },
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 let options = {
@@ -3553,7 +3891,7 @@ let _createImage = src => {
 };
 
 let _loadFont = (name, src) => {
-  let FontFaceObserver = __webpack_require__(25);
+  let FontFaceObserver = __webpack_require__(30);
 
   let font = new FontFaceObserver(name);
   let ff = `
@@ -3589,7 +3927,7 @@ options.titleTextSize = 32;
 options.titleTextColor = selectedColor;
 
 options.controlTextSize = 26;
-_loadFont('Puritan', __webpack_require__(6));
+_loadFont('Puritan', __webpack_require__(11));
 options.controlFont = `${ options.controlTextSize }px Puritan`;
 options.controlTextColor = normalColor;
 options.controlTextSelectedColor = selectedColor;
@@ -3600,32 +3938,32 @@ options.choiceTextColor = normalColor;
 options.choiceTextSelectedColor = selectedColor;
 
 options.checkbox = {
-  unchecked: _createImage(__webpack_require__(14)),
-  uncheckedActive: _createImage(__webpack_require__(13)),
-  checked: _createImage(__webpack_require__(12)),
-  checkedActive: _createImage(__webpack_require__(11)),
+  unchecked: _createImage(__webpack_require__(19)),
+  uncheckedActive: _createImage(__webpack_require__(18)),
+  checked: _createImage(__webpack_require__(17)),
+  checkedActive: _createImage(__webpack_require__(16)),
   textPadding: 4
 };
 
 options.button = {
-  unselected: _createImage(__webpack_require__(10)),
-  unselectedActive: _createImage(__webpack_require__(9)),
-  selected: _createImage(__webpack_require__(8)),
-  selectedActive: _createImage(__webpack_require__(7))
+  unselected: _createImage(__webpack_require__(15)),
+  unselectedActive: _createImage(__webpack_require__(14)),
+  selected: _createImage(__webpack_require__(13)),
+  selectedActive: _createImage(__webpack_require__(12))
 };
 
 options.slider = {
-  capLeft: _createImage(__webpack_require__(18)),
-  capRight: _createImage(__webpack_require__(19)),
-  pill: _createImage(__webpack_require__(22)),
-  pillActive: _createImage(__webpack_require__(21)),
-  line: _createImage(__webpack_require__(20))
+  capLeft: _createImage(__webpack_require__(23)),
+  capRight: _createImage(__webpack_require__(24)),
+  pill: _createImage(__webpack_require__(27)),
+  pillActive: _createImage(__webpack_require__(26)),
+  line: _createImage(__webpack_require__(25))
 };
 
 options.choice = {
-  choice: _createImage(__webpack_require__(17)),
-  active: _createImage(__webpack_require__(15)),
-  selected: _createImage(__webpack_require__(16)),
+  choice: _createImage(__webpack_require__(22)),
+  active: _createImage(__webpack_require__(20)),
+  selected: _createImage(__webpack_require__(21)),
   margin: 30
 };
 
@@ -3634,7 +3972,7 @@ let textareaFont = 'Puritan',
     textareaFontSize = 20,
     speakerBoxFontSize = 20;
 options.textarea = {
-  texture: _createImage(__webpack_require__(23)),
+  texture: _createImage(__webpack_require__(28)),
   speakerBox: [10, 10, 380, 20],
   speakerBoxFontSize: speakerBoxFontSize,
   speakerBoxFont: `bold ${ speakerBoxFontSize }px ${ textareaSpeakerFont }`,
@@ -3645,38 +3983,79 @@ options.textarea = {
   color: normalColor
 };
 
-options.windowBackground = _createImage(__webpack_require__(24));
+options.windowBackground = _createImage(__webpack_require__(29));
 module.exports = options;
 
 /***/ },
-/* 28 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-let package = __webpack_require__(0);
-let theme = __webpack_require__(1)("./" + package.story.theme + '/options.js');
-
-let Renderer = __webpack_require__(2);
-
+let package = __webpack_require__(1);
+let theme = __webpack_require__(3)("./" + package.story.theme + '/options.js');
+let story = __webpack_require__(2);
+let Renderer = __webpack_require__(4);
+let menus = __webpack_require__(0);
 let renderer = new Renderer(theme);
+renderer.emit('push');
 
-renderer.emit('add', {
-  id: 'test',
-  type: 'textarea',
-  active: false,
-  hover: false,
-  x: 0,
-  y: package.window.height * 0.5,
-  text: `
-    Bacon ipsum
-    dolor sit
-    emet. Bacon ipsum dolor amet officia prosciutto chuck est, pig pastrami aliqua incididunt. Ea nisi dolor, occaecat in quis pancetta venison sausage enim velit. Culpa shank leberkas meatball tenderloin. Ad ham dolore, excepteur short loin ullamco landjaeger reprehenderit adipisicing.
-  `,
-  textIndex: 0,
-  speed: 1,
-  speaker: 'Speaker!',
-  speakerColor: 'red',
-  lines: []
-})
+
+let interpreter = {
+  show: (item) => renderer.emit('add', item),
+  script: null,
+  clicked: null,
+  queue: [],
+  menus,
+  menu: [],
+  waiting: false
+};
+
+
+interpreter.menu.push(
+  menus('./main.js')(interpreter)
+);
+
+let advance = () => {
+  if (interpreter.waiting) {
+    return;
+  }
+  let target = interpreter.menu.length > 0 ? interpreter.menu[interpreter.menu.length - 1] : interpreter.script;
+
+  let { done, value } = target.next();
+  if (done) {
+    renderer.emit('pop');
+    if (interpreter.menu.length > 0) {
+      interpreter.menu.pop();
+    }
+    if (interpreter.menu.length === 0) {
+      if (interpreter.queue.length === 0) {
+        return console.log("Exit");
+      } else {
+        interpreter.script = story(interpreter.queue.pop());
+      }
+    }
+  }
+  let [type, arg] = value && value.constructor === Array && value.length === 2 ? value : ['continue', null];
+
+  switch(type) {
+    case 'continue':
+      return advance();
+    case 'wait':
+      interpreter.waiting = true;
+      return setTimeout(() => {
+        interpreter.waiting = false;
+        advance();
+      }, arg);
+    case 'push':
+      renderer.emit('push');
+      return advance();
+  }
+}
+
+advance();
+renderer.on('click', (showable) => {
+  interpreter.clicked = showable;
+  return advance();
+});
 
 /***/ }
 /******/ ]);

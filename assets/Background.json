@@ -1,6 +1,6 @@
 {
-  "moods": [
-    {
+  "moods": {
+    "gare_by_lowx-daac2nh": {
       "name": "gare_by_lowx-daac2nh",
       "x": 0,
       "y": 0,
@@ -8,7 +8,7 @@
       "h": 576,
       "file": "gare_by_lowx-daac2nh.png"
     },
-    {
+    "night_forest_by_grammahobbes-da9sfcr": {
       "name": "night_forest_by_grammahobbes-da9sfcr",
       "x": 0,
       "y": 576,
@@ -16,5 +16,5 @@
       "h": 600,
       "file": "night_forest_by_grammahobbes-da9sfcr.jpg"
     }
-  ]
+  }
 }

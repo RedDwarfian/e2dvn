@@ -15,20 +15,23 @@ module.exports = class Interpreter extends EventEmitter2 {
       )
     );
 
-    this.windowBackground = null;
     this.ctx = this.canvas.getContext('2d');
     e2d.initialize(this.ctx);
 
-    this.onAny((event, value) =>this[event](value));
+    this.onAny((event, value) => this[event] && this[event](value));
 
     this.previousMouseState = false;
-    return e2d.raf(() => {
-      this.update();
-      this.render();
+
+    this.stack = [];
+
+    let self = this;
+    return e2d.raf(function () {
+      self.update();
+      self.render();
     });
   }
   add(showable) {
-    return this.showables.push(showable);
+    return !this.showables.includes(showable) ? this.showables.push(showable) : void 0;
   }
   remove(showable) {
     let index = this.showables.indexOf(showable);
@@ -37,17 +40,27 @@ module.exports = class Interpreter extends EventEmitter2 {
     }
   }
   push() {
-
     this.stack.push({
       showables: this.showables
     })
-    this.showables = [];
+    let img = new Image();
+    img.src = this.canvas.toDataURL();
+    this.showables = [{
+      type: 'background',
+      texture: img
+    }];
+  }
+  pop() {
+    this.showables = this.stack.pop().showables;
   }
   update() {
-    if (this.theme.ready && !this.windowBackground) {
-      this.windowBackground = this.ctx.createPattern(this.theme.windowBackground, 'repeat');
+    if (!this.theme.ready) {
+      return;
+    }
+    if (!this.sliderLine) {
       this.sliderLine = this.ctx.createPattern(this.theme.slider.line, 'repeat-x');
     }
+
     this.mouseData = e2d.mouseData(this.ctx);
     this.regions = e2d.activeRegions(this.ctx);
     let i, showable, pointer = false;
@@ -58,6 +71,7 @@ module.exports = class Interpreter extends EventEmitter2 {
         if (this.regions[showable.id]) {
           showable.active = true;
           this.emit('mousedown', showable);
+          showable.dirty = true;
         }
       }
     }
@@ -69,23 +83,30 @@ module.exports = class Interpreter extends EventEmitter2 {
         if (showable.active && showable.hover) {
           this.emit('click', showable);
         }
-        showable.active = false;
+        if (showable.active) {
+          showable.dirty = true;
+          showable.active = false;
+        }
       }
     }
 
-    //hovering
     for(i = 0; i < this.showables.length; i++) {
       showable = this.showables[i];
       showable.hover = !!this.regions[showable.id];
 
+      //hovering
       if (showable.type === 'button' || showable.type === 'choice' || showable.type === 'slider' || showable.type === 'checkbox') {
         pointer = pointer || showable.hover;
       }
 
       if (showable.type === 'textarea') {
+        let index = showable.textIndex;
         showable.textIndex += showable.speed;
         if (showable.textIndex > showable.text.length) {
           showable.textIndex = showable.text.length;
+        }
+        if (index !== showable.textIndex) {
+          showable.dirty = true;
         }
       }
 
@@ -99,6 +120,22 @@ module.exports = class Interpreter extends EventEmitter2 {
         pointer = true;
         if (val !== showable.value) {
           this.emit('value', showable);
+          showable.dirty = true;
+        }
+      }
+
+      if (showable.type === 'actor') {
+        let func = require('../ease/index')[showable.ease];
+        let elapsed = Date.now() - showable.start;
+        let ratio = elapsed > showable.duration ?
+          1 :
+          func(elapsed, showable.duration);
+        for(let j = 0; j < 7; j++) {
+          let value = showable.interpolated[j];
+          showable.interpolated[j] = showable.previousTransform[j] + ratio * (showable.transform[j] - showable.previousTransform[j]);
+          if (!showable.dirty && value !== showable.interpolated[j]) {
+            showable.dirty = true;
+          }
         }
       }
     }
@@ -127,7 +164,7 @@ module.exports = class Interpreter extends EventEmitter2 {
             (showable.checked ? '': 'un') + 'checked' + (showable.active && showable.hover ? 'Active' : '')
           ];
           result.push(
-            <translate x={showable.x} y={showable.y}>
+            showable.dirty ? (showable.dirty = false, showable.view = <translate x={showable.x} y={showable.y}>
               <drawImage img={texture} />
               <hitRect id={showable.id} width={texture.width} height={texture.height} />
               <translate x = {texture.width + this.theme.checkbox.textPadding} y={texture.height * 0.5}>
@@ -137,7 +174,7 @@ module.exports = class Interpreter extends EventEmitter2 {
                   </fillStyle>
                 </textStyle>
               </translate>
-            </translate>
+            </translate>) : showable.view
           );
           break;
 
@@ -146,24 +183,24 @@ module.exports = class Interpreter extends EventEmitter2 {
               (showable.selected ? '': 'un') + 'selected' + (showable.active && showable.hover ? 'Active' : '')
             ];
             result.push(
-              <translate x={showable.x} y={showable.y}>
+              showable.dirty ? (showable.dirty = false, showable.view = <translate x={showable.x} y={showable.y}>
                 <drawImage img={texture} />
                 <hitRect id={showable.id} width={texture.width} height={texture.height} />
-                <translate x = {texture.width * 0.5} y={texture.height * 0.5}>
+                <translate x={texture.width * 0.5} y={texture.height * 0.5}>
                   <textStyle textBaseline="middle" font={this.theme.controlFont} textAlign="center">
                     <fillStyle style={showable.selected ? this.theme.controlTextSelectedColor : this.theme.controlTextColor}>
                       <fillText text={showable.text} />
                     </fillStyle>
                   </textStyle>
                 </translate>
-              </translate>
+              </translate>) : showable.view
             );
             break;
 
           case "slider":
             texture = this.theme.slider['pill' + (showable.active ? 'Active' : '')];
             result.push(
-              <translate x={showable.x} y={showable.y}>
+              showable.dirty ? (showable.dirty = false, showable.view = <translate x={showable.x} y={showable.y}>
                 <drawImage img={this.theme.slider.capLeft} />>
 
                 <translate x={this.theme.slider.capLeft.width} y={0}>
@@ -183,7 +220,7 @@ module.exports = class Interpreter extends EventEmitter2 {
                   <drawImage img={texture}/>
                   <hitRect id={showable.id} width={texture.width} height={texture.height}></hitRect>
                 </translate>
-              </translate>
+              </translate>) : showable.view
             );
             break;
 
@@ -191,7 +228,7 @@ module.exports = class Interpreter extends EventEmitter2 {
             texture = showable.selected ? this.theme.choice.selected :
               showable.active ? this.theme.choice.active : this.theme.choice.choice;
             result.push(
-              <translate
+              showable.dirty ? (showable.dirty = false, showable.view = <translate
                 x={width * 0.5 - texture.width * 0.5}
                 y={showable.number * this.theme.choice.margin + (showable.number - 1) * texture.height} >
                 <drawImage img={texture} />
@@ -203,7 +240,7 @@ module.exports = class Interpreter extends EventEmitter2 {
                     </fillStyle>
                   </textStyle>
                 </translate>
-              </translate>
+              </translate>) : showable.view
             );
             break;
 
@@ -211,7 +248,7 @@ module.exports = class Interpreter extends EventEmitter2 {
             texture = this.theme.textarea.texture;
 
             result.push(
-              <translate x={showable.x} y={showable.y}>
+              showable.dirty ? (showable.dirty = false, showable.view = <translate x={showable.x} y={showable.y}>
                 <drawImage img={this.theme.textarea.texture} />
                 <fillStyle style={showable.speakerColor}>
                   <textStyle font={this.theme.textarea.speakerBoxFont} textBaseline="top">
@@ -236,7 +273,33 @@ module.exports = class Interpreter extends EventEmitter2 {
                     </clip>
                   </textStyle>
                 </fillStyle>
-              </translate>
+            </translate>) : showable.view
+            );
+            break;
+
+          case "background":
+            result.push(
+              <drawImage img={showable.texture} />
+            );
+            break;
+
+          case "actor":
+            result.push(
+              showable.dirty ? (showable.dirty = false, showable.view = <setTransform matrix={showable.interpolated}>
+                <globalAlpha alpha={showable.interpolated[6]}>
+                  <drawImage
+                    img={showable.texture}
+                    x={0}
+                    y={0}
+                    width={showable.definition.moods[showable.mood].w}
+                    height={showable.definition.moods[showable.mood].h}
+                    sx={showable.definition.moods[showable.mood].x}
+                    sy={showable.definition.moods[showable.mood].y}
+                    sWidth={showable.definition.moods[showable.mood].w}
+                    sHeight={showable.definition.moods[showable.mood].h}
+                  />
+                </globalAlpha>
+              </setTransform>) : showable.view
             );
             break;
       }

@@ -19,7 +19,7 @@ async.map(
     result,
     (result, defcb) => {
       let definition = {
-        "moods": []
+        "moods": {}
       };
       let { folder, name, pixels, files } = result;
       let packer = new Packer(10000, 10000);
@@ -41,14 +41,14 @@ async.map(
       for(let rect of rects) {
         fullWidth = Math.max(rect.fit.x + rect.w, fullWidth);
         fullHeight = Math.max(rect.fit.y + rect.h, fullWidth);
-        definition.moods.push({
+        definition.moods[rect.name] = {
           name: rect.name,
           x: rect.fit.x,
           y: rect.fit.y,
           w: rect.w,
           h: rect.h,
           file: rect.file
-        });
+        };
       }
       let finalImage = zeros([fullWidth, fullHeight, 4], 'uint8');
       for (let rect of rects) {

@@ -1,6 +1,6 @@
 {
-  "moods": [
-    {
+  "moods": {
+    "Sad": {
       "name": "Sad",
       "x": 0,
       "y": 0,
@@ -8,7 +8,7 @@
       "h": 605,
       "file": "Sad.png"
     },
-    {
+    "Smirk": {
       "name": "Smirk",
       "x": 292,
       "y": 0,
@@ -16,7 +16,7 @@
       "h": 605,
       "file": "Smirk.png"
     },
-    {
+    "Cry": {
       "name": "Cry",
       "x": 596,
       "y": 0,
@@ -24,7 +24,7 @@
       "h": 599,
       "file": "Cry.png"
     },
-    {
+    "Frown": {
       "name": "Frown",
       "x": 0,
       "y": 605,
@@ -32,7 +32,7 @@
       "h": 605,
       "file": "Frown.png"
     },
-    {
+    "Smile": {
       "name": "Smile",
       "x": 304,
       "y": 605,
@@ -40,7 +40,7 @@
       "h": 605,
       "file": "Smile.png"
     },
-    {
+    "Neutral": {
       "name": "Neutral",
       "x": 596,
       "y": 605,
@@ -48,7 +48,7 @@
       "h": 605,
       "file": "Neutral.png"
     },
-    {
+    "Blush": {
       "name": "Blush",
       "x": 868,
       "y": 0,
@@ -56,7 +56,7 @@
       "h": 599,
       "file": "Blush.png"
     },
-    {
+    "Scared": {
       "name": "Scared",
       "x": 1140,
       "y": 0,
@@ -64,7 +64,7 @@
       "h": 599,
       "file": "Scared.png"
     },
-    {
+    "Shocked": {
       "name": "Shocked",
       "x": 888,
       "y": 605,
@@ -72,7 +72,7 @@
       "h": 605,
       "file": "Shocked.png"
     },
-    {
+    "Smile_Blush": {
       "name": "Smile_Blush",
       "x": 1192,
       "y": 605,
@@ -80,7 +80,7 @@
       "h": 605,
       "file": "Smile_Blush.png"
     },
-    {
+    "Grin": {
       "name": "Grin",
       "x": 0,
       "y": 1210,
@@ -88,7 +88,7 @@
       "h": 610,
       "file": "Grin.png"
     },
-    {
+    "Angry": {
       "name": "Angry",
       "x": 308,
       "y": 1210,
@@ -96,5 +96,5 @@
       "h": 610,
       "file": "Angry.png"
     }
-  ]
+  }
 }

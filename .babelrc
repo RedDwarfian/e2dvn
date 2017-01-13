@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    ["./plugin/menu/transformer", { "filename": "" }]
+  ],
+  "parserOpts": {
+    "allowReturnOutsideFunction": true
+  }
+}
