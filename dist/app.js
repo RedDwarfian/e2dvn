@@ -63,664 +63,11 @@
 /******/ 	__webpack_require__.p = "";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 37);
+/******/ 	return __webpack_require__(__webpack_require__.s = 42);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
-
-var map = {
-	"./main.js": 32,
-	"./options.js": 33
-};
-function webpackContext(req) {
-	return __webpack_require__(webpackContextResolve(req));
-};
-function webpackContextResolve(req) {
-	var id = map[req];
-	if(!(id + 1)) // check for number
-		throw new Error("Cannot find module '" + req + "'.");
-	return id;
-};
-webpackContext.keys = function webpackContextKeys() {
-	return Object.keys(map);
-};
-webpackContext.resolve = webpackContextResolve;
-module.exports = webpackContext;
-webpackContext.id = 0;
-
-
-/***/ },
-/* 1 */
-/***/ function(module, exports) {
-
-module.exports = {
-	"name": "e2dvn",
-	"version": "1.0.0",
-	"description": "A Visual Novel Framework for JS developers.",
-	"main": "index.html",
-	"scripts": {
-		"debug": "npm run sprites && npm run dev-server",
-		"dev-server": "node ./build/dev-server",
-		"release": "npm run sprites && npm run webpack && npm run nw",
-		"sprites": "node ./build/spritesheet-assembler",
-		"webpack": "node ./build/webpack",
-		"nw": "node ./build/nw",
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"author": "Joshua <tenner.joshua@gmail.com>",
-	"license": "ISC",
-	"devDependencies": {
-		"async": "^2.1.4",
-		"babel-core": "^6.21.0",
-		"babel-loader": "^6.2.10",
-		"babel-plugin-e2dx": "github:e2d/e2dx",
-		"babel-plugin-minify-dead-code-elimination": "^0.1.1",
-		"babel-plugin-transform-inline-functions": "^1.0.1",
-		"babel-preset-es2015": "^6.18.0",
-		"bin-packing": "git+https://github.com/jtenner/bin-packing.git",
-		"crel": "^3.0.0",
-		"e2d": "github:e2d/e2d",
-		"ease-functions": "0.0.1",
-		"eventemitter2": "^2.2.1",
-		"express": "^4.14.0",
-		"file-loader": "^0.9.0",
-		"fontfaceobserver": "^2.0.7",
-		"get-pixels": "^3.3.0",
-		"glob": "^7.1.1",
-		"imagemin-webpack-plugin": "^1.4.4",
-		"immutable": "^3.8.1",
-		"json-loader": "^0.5.4",
-		"library-src-plugin": "^1.0.2",
-		"nw-builder": "^3.1.2",
-		"save-pixels": "^2.3.4",
-		"webpack": "^2.2.0-rc.3",
-		"zeros": "^1.0.0"
-	},
-	"window": {
-		"width": 800,
-		"height": 600,
-		"resizable": false,
-		"title": "Gensokyo Beat Street"
-	},
-	"story": {
-		"name": "Gensokyo Beat Street",
-		"theme": "hexagon"
-	},
-	"dependencies": {}
-};
-
-/***/ },
-/* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-var map = {
-	"./act-1/test.js": 34,
-	"./main.js": 35
-};
-function webpackContext(req) {
-	return __webpack_require__(webpackContextResolve(req));
-};
-function webpackContextResolve(req) {
-	var id = map[req];
-	if(!(id + 1)) // check for number
-		throw new Error("Cannot find module '" + req + "'.");
-	return id;
-};
-webpackContext.keys = function webpackContextKeys() {
-	return Object.keys(map);
-};
-webpackContext.resolve = webpackContextResolve;
-module.exports = webpackContext;
-webpackContext.id = 2;
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-var map = {
-	"./hexagon/options.js": 36
-};
-function webpackContext(req) {
-	return __webpack_require__(webpackContextResolve(req));
-};
-function webpackContextResolve(req) {
-	var id = map[req];
-	if(!(id + 1)) // check for number
-		throw new Error("Cannot find module '" + req + "'.");
-	return id;
-};
-webpackContext.keys = function webpackContextKeys() {
-	return Object.keys(map);
-};
-webpackContext.resolve = webpackContextResolve;
-module.exports = webpackContext;
-webpackContext.id = 3;
-
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_e2d__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_crel__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_eventemitter2__);
-
-
-let { window: { width, height, title } } = __webpack_require__(31);
-
-
-
-module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default.a {
-  constructor(theme) {
-    super();
-    this.theme = theme;
-    this.showables = [];
-    __WEBPACK_IMPORTED_MODULE_1_crel___default()(document.body, { style: 'margin: 0; padding: 0; ' }, __WEBPACK_IMPORTED_MODULE_1_crel___default()('div', { style: `margin: 0 auto; width: ${ width }px; height: ${ height }px;` }, this.canvas = __WEBPACK_IMPORTED_MODULE_1_crel___default()('canvas', { width, height })));
-
-    this.ctx = this.canvas.getContext('2d');
-    __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.initialize(this.ctx);
-
-    this.onAny((event, value) => this[event] && this[event](value));
-
-    this.previousMouseState = false;
-
-    this.stack = [];
-
-    let self = this;
-    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.raf(function () {
-      self.update();
-      self.render();
-    });
-  }
-  add(showable) {
-    return !this.showables.includes(showable) ? this.showables.push(showable) : void 0;
-  }
-  remove(showable) {
-    let index = this.showables.indexOf(showable);
-    if (index !== -1) {
-      this.showables.splice(index, 1);
-    }
-  }
-  push() {
-    this.stack.push({
-      showables: this.showables
-    });
-    let img = new Image();
-    img.src = this.canvas.toDataURL();
-    this.showables = [{
-      type: 'background',
-      texture: img
-    }];
-  }
-  pop() {
-    this.showables = this.stack.pop().showables;
-  }
-  update() {
-    if (!this.theme.ready) {
-      return;
-    }
-    if (!this.sliderLine) {
-      this.sliderLine = this.ctx.createPattern(this.theme.slider.line, 'repeat-x');
-    }
-
-    this.mouseData = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.mouseData(this.ctx);
-    this.regions = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.activeRegions(this.ctx);
-    let i,
-        showable,
-        pointer = false;
-    //click event
-    if (this.mouseData.clicked) {
-      for (i = 0; i < this.showables.length; i++) {
-        showable = this.showables[i];
-        if (this.regions[showable.id]) {
-          showable.active = true;
-          this.emit('mousedown', showable);
-          showable.dirty = true;
-        }
-      }
-    }
-
-    // mouseUp
-    if (this.previousMouseState && !this.mouseData.state) {
-      for (i = 0; i < this.showables.length; i++) {
-        showable = this.showables[i];
-        if (showable.active && showable.hover) {
-          this.emit('click', showable);
-        }
-        if (showable.active) {
-          showable.dirty = true;
-          showable.active = false;
-        }
-      }
-    }
-
-    for (i = 0; i < this.showables.length; i++) {
-      showable = this.showables[i];
-      showable.hover = !!this.regions[showable.id];
-
-      //hovering
-      if (showable.type === 'button' || showable.type === 'choice' || showable.type === 'slider' || showable.type === 'checkbox') {
-        pointer = pointer || showable.hover;
-      }
-
-      if (showable.type === 'textarea') {
-        let index = showable.textIndex;
-        showable.textIndex += showable.speed;
-        if (showable.textIndex > showable.text.length) {
-          showable.textIndex = showable.text.length;
-        }
-        if (index !== showable.textIndex) {
-          showable.dirty = true;
-        }
-      }
-
-      if (showable.type === 'slider' && showable.active) {
-        let val = showable.value;
-
-        showable.value = (this.mouseData.x - showable.x - this.theme.slider.pillActive.width * 0.5) / (showable.width - this.theme.slider.pillActive.width);
-
-        showable.value = Math.max(0, Math.min(1, showable.value));
-        pointer = true;
-        if (val !== showable.value) {
-          this.emit('value', showable);
-          showable.dirty = true;
-        }
-      }
-
-      if (showable.type === 'actor') {
-        let func = __webpack_require__(5)[showable.ease];
-        let elapsed = Date.now() - showable.start;
-        let ratio = elapsed > showable.duration ? 1 : func(elapsed, showable.duration);
-        for (let j = 0; j < 7; j++) {
-          let value = showable.interpolated[j];
-          showable.interpolated[j] = showable.previousTransform[j] + ratio * (showable.transform[j] - showable.previousTransform[j]);
-          if (!showable.dirty && value !== showable.interpolated[j]) {
-            showable.dirty = true;
-          }
-        }
-      }
-    }
-    this.previousMouseState = this.mouseData.state;
-    this.canvas.style.cursor = pointer ? 'pointer' : 'default';
-  }
-  render() {
-    if (!this.theme.ready) {
-      return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.render(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clearRect(width, height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(width * 0.5, height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
-        textAlign: 'center',
-        textBaseline: 'middle'
-      }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText('Now Loading!'))), this.ctx);
-    }
-    let result = [];
-    let texture;
-    for (let i = 0; i < this.showables.length; i++) {
-      let showable = this.showables[i];
-      switch (showable.type) {
-
-        case "checkbox":
-          texture = this.theme.checkbox[(showable.checked ? '' : 'un') + 'checked' + (showable.active && showable.hover ? 'Active' : '')];
-          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width + this.theme.checkbox.textPadding, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
-            font: this.theme.controlFont,
-            textBaseline: 'middle'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.theme.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text)))))) : showable.view);
-          break;
-
-        case "button":
-          texture = this.theme.button[(showable.selected ? '' : 'un') + 'selected' + (showable.active && showable.hover ? 'Active' : '')];
-          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width * 0.5, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
-            font: this.theme.controlFont,
-            textAlign: 'center',
-            textBaseline: 'middle'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.selected ? this.theme.controlTextSelectedColor : this.theme.controlTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text)))))) : showable.view);
-          break;
-
-        case "slider":
-          texture = this.theme.slider['pill' + (showable.active ? 'Active' : '')];
-          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.slider.capLeft), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(this.theme.slider.capLeft.width, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.sliderLine, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillRect(showable.width - this.theme.slider.capRight.width, this.theme.slider.line.height))), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.width - this.theme.slider.capRight.width, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.slider.capRight)), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate((showable.width - texture.width) * showable.value, 0, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height)))) : showable.view);
-          break;
-
-        case "choice":
-          texture = showable.selected ? this.theme.choice.selected : showable.active ? this.theme.choice.active : this.theme.choice.choice;
-          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(width * 0.5 - texture.width * 0.5, showable.number * this.theme.choice.margin + (showable.number - 1) * texture.height, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.hitRect(showable.id, texture.width, texture.height), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(texture.width * 0.5, texture.height * 0.5, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
-            font: this.theme.choiceFont,
-            textAlign: 'center',
-            textBaseline: 'middle'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.selected ? this.theme.choiceTextSelectedColor : this.theme.choiceTextColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.text)))))) : showable.view);
-          break;
-
-        case "textarea":
-          texture = this.theme.textarea.texture;
-
-          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.translate(showable.x, showable.y, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(this.theme.textarea.texture), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(showable.speakerColor, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
-            font: this.theme.textarea.speakerBoxFont,
-            textBaseline: 'top'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(showable.speaker, this.theme.textarea.speakerBox[0], this.theme.textarea.speakerBox[1]))), __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillStyle(this.theme.textarea.color, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.textStyle({
-            font: this.theme.textarea.textFont,
-            textBaseline: 'top'
-          }, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clip(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.rect(this.theme.textarea.textBox[0], this.theme.textarea.textBox[1], this.theme.textarea.textBox[2], this.theme.textarea.textBox[3]), this.calculateLines(showable, this.theme.textarea)))))) : showable.view);
-          break;
-
-        case "background":
-          result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(showable.texture));
-          break;
-
-        case "actor":
-          result.push(showable.dirty ? (showable.dirty = false, showable.view = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.setTransform(showable.interpolated, __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.globalAlpha(showable.interpolated[6], __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.drawImage(showable.texture, showable.definition.moods[showable.mood].x, showable.definition.moods[showable.mood].y, showable.definition.moods[showable.mood].w, showable.definition.moods[showable.mood].h, 0, 0, showable.definition.moods[showable.mood].w, showable.definition.moods[showable.mood].h)))) : showable.view);
-          break;
-      }
-    }
-    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.render(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clearRect(width, height), result, this.ctx);
-  }
-  calculateLines(showable) {
-    let workingText = showable.text.slice(0, showable.textIndex).trim().replace('\r\n', '\n').replace('\r', '');
-    let result = [];
-    let index = [];
-    let i;
-    let lastIndex = 0;
-    let testIndex = 0;
-    let previousTestIndex = 0;
-    let testText = "";
-    let ctx = this.ctx;
-    let count = 0;
-    let forceBreak;
-    for (i = 0; i < workingText.length; i++) {
-      switch (workingText[i]) {
-        case " ":
-        case "\t":
-          index.push([i, 0]);
-          break;
-        case "\n":
-          index.push([i, 1]);
-      }
-    }
-    index.push([workingText.length, 0]);
-    let tempFont = ctx.font;
-    ctx.font = this.theme.textarea.textFont;
-
-    for (i = 0; i < index.length; i++) {
-      [testIndex, forceBreak] = index[i];
-      testText = workingText.slice(lastIndex, testIndex).trim();
-
-      if (forceBreak === 1 || ctx.measureText(testText).width > this.theme.textarea.textBox[2]) {
-        result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(forceBreak ? testText : workingText.slice(lastIndex, previousTestIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
-        count += 1;
-        lastIndex = forceBreak ? testIndex : previousTestIndex;
-      }
-
-      previousTestIndex = testIndex;
-    }
-
-    result.push(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.fillText(workingText.slice(lastIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
-    ctx.font = tempFont;
-    return result;
-  }
-};
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-let inOut = __webpack_require__(6),
- inverse = __webpack_require__(7);
-
-let linear = (point, max) => point / max;
-let quadIn = (point, max) => (point /= max, point * point);
-let cubicIn = (point, max) => (point /= max, point * point * point);
-let quartIn = (point, max) => (point /= max, point * point * point * point);
-let quintIn = (point, max) => (point /= max, point * point * point * point);
-let circIn = (point, max) => (point /= max, 1 - Math.sqrt(1 - point * point));
-let sinIn = (point, max) => (point /= max, point -= 1, 1 + Math.sin(Math.PI * point * 0.5));
-let expoIn = (point, max) => (point /= max, point -= 1, point === 0 ? 0 : Math.pow(2, 10 * point));
-let linExpoIn = (point, max) => (point /= max, point -= 1, point * Math.pow(2, point));
-let bounceIn = (point, max) => (point *= 2.5 / max, (1 + Math.floor(point)) / 3 * Math.abs(Math.sin(Math.PI * point)));
-
-
-let quadOut = inverse(quadIn);
-let cubicOut = inverse(cubicIn);
-let quartOut = inverse(quartIn);
-let quintOut = inverse(quintIn);
-let circOut = inverse(circIn);
-let sinOut = inverse(sinIn);
-let expoOut = inverse(expoIn);
-let linExpoOut = inverse(linExpoIn);
-let bounceOut = inverse(bounceIn);
-
-
-let quadInOut = inOut(quadIn, quadOut);
-let cubicInOut = inOut(cubicIn, cubicOut);
-let quartInOut = inOut(quartIn, quartOut);
-let quintInOut = inOut(quintIn, quintOut);
-let circInOut = inOut(circIn, circOut);
-let sinInOut = inOut(sinIn, sinOut);
-let expoInOut = inOut(expoIn, expoOut);
-let linExpoInOut = inOut(linExpoIn, linExpoOut);
-let bounceInOut = inOut(bounceIn, bounceOut);
-
-module.exports = {
-  linear,
-  quadIn,
-  quadOut,
-  quadInOut,
-  cubicIn,
-  cubicOut,
-  cubicInOut,
-  quartIn,
-  quartOut,
-  quartInOut,
-  quintIn,
-  quintOut,
-  quintInOut,
-  circIn,
-  circOut,
-  circInOut,
-  sinIn,
-  sinOut,
-  sinInOut,
-  expoIn,
-  expoOut,
-  expoInOut,
-  linExpoIn,
-  linExpoOut,
-  linExpoInOut,
-  bounceIn,
-  bounceOut,
-  bounceInOut
-};
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-module.exports = function inOut(func, inverse) {
-  return  function inOutFunc(point, max) {
-    point /= max;
-    return point / max < 0.5 ?
-      0.5 * func(point,  0.5) :
-      0.5 + 0.5 * inverse(point - 0.5, 0.5);
-  };
-};
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-module.exports = function inverse(func) {
-  return function(point, max) {
-    return 1 - func(max - point, max);
-  };
-};
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-//Copyright (C) 2012 Kory Nunn
-
-//Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-//The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-/*
-
-    This code is not formatted for readability, but rather run-speed and to assist compilers.
-
-    However, the code's intention should be transparent.
-
-    *** IE SUPPORT ***
-
-    If you require this library to work in IE7, add the following after declaring crel.
-
-    var testDiv = document.createElement('div'),
-        testLabel = document.createElement('label');
-
-    testDiv.setAttribute('class', 'a');
-    testDiv['className'] !== 'a' ? crel.attrMap['class'] = 'className':undefined;
-    testDiv.setAttribute('name','a');
-    testDiv['name'] !== 'a' ? crel.attrMap['name'] = function(element, value){
-        element.id = value;
-    }:undefined;
-
-
-    testLabel.setAttribute('for', 'a');
-    testLabel['htmlFor'] !== 'a' ? crel.attrMap['for'] = 'htmlFor':undefined;
-
-
-
-*/
-
-(function (root, factory) {
-    if (true) {
-        module.exports = factory();
-    } else if (typeof define === 'function' && define.amd) {
-        define(factory);
-    } else {
-        root.crel = factory();
-    }
-}(this, function () {
-    var fn = 'function',
-        obj = 'object',
-        nodeType = 'nodeType',
-        textContent = 'textContent',
-        setAttribute = 'setAttribute',
-        attrMapString = 'attrMap',
-        isNodeString = 'isNode',
-        isElementString = 'isElement',
-        d = typeof document === obj ? document : {},
-        isType = function(a, type){
-            return typeof a === type;
-        },
-        isNode = typeof Node === fn ? function (object) {
-            return object instanceof Node;
-        } :
-        // in IE <= 8 Node is an object, obviously..
-        function(object){
-            return object &&
-                isType(object, obj) &&
-                (nodeType in object) &&
-                isType(object.ownerDocument,obj);
-        },
-        isElement = function (object) {
-            return crel[isNodeString](object) && object[nodeType] === 1;
-        },
-        isArray = function(a){
-            return a instanceof Array;
-        },
-        appendChild = function(element, child) {
-          if(!crel[isNodeString](child)){
-              child = d.createTextNode(child);
-          }
-          element.appendChild(child);
-        };
-
-
-    function crel(){
-        var args = arguments, //Note: assigned to a variable to assist compilers. Saves about 40 bytes in closure compiler. Has negligable effect on performance.
-            element = args[0],
-            child,
-            settings = args[1],
-            childIndex = 2,
-            argumentsLength = args.length,
-            attributeMap = crel[attrMapString];
-
-        element = crel[isElementString](element) ? element : d.createElement(element);
-        // shortcut
-        if(argumentsLength === 1){
-            return element;
-        }
-
-        if(!isType(settings,obj) || crel[isNodeString](settings) || isArray(settings)) {
-            --childIndex;
-            settings = null;
-        }
-
-        // shortcut if there is only one child that is a string
-        if((argumentsLength - childIndex) === 1 && isType(args[childIndex], 'string') && element[textContent] !== undefined){
-            element[textContent] = args[childIndex];
-        }else{
-            for(; childIndex < argumentsLength; ++childIndex){
-                child = args[childIndex];
-
-                if(child == null){
-                    continue;
-                }
-
-                if (isArray(child)) {
-                  for (var i=0; i < child.length; ++i) {
-                    appendChild(element, child[i]);
-                  }
-                } else {
-                  appendChild(element, child);
-                }
-            }
-        }
-
-        for(var key in settings){
-            if(!attributeMap[key]){
-                element[setAttribute](key, settings[key]);
-            }else{
-                var attr = attributeMap[key];
-                if(typeof attr === fn){
-                    attr(element, settings[key]);
-                }else{
-                    element[setAttribute](attr, settings[key]);
-                }
-            }
-        }
-
-        return element;
-    }
-
-    // Used for mapping one kind of attribute to the supported version of that in bad browsers.
-    crel[attrMapString] = {};
-
-    crel[isElementString] = isElement;
-
-    crel[isNodeString] = isNode;
-
-    if(typeof Proxy !== 'undefined'){
-        crel.proxy = new Proxy(crel, {
-            get: function(target, key){
-                !(key in crel) && (crel[key] = crel.bind(null, key));
-                return crel[key];
-            }
-        });
-    }
-
-    return crel;
-}));
-
-
-/***/ },
-/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -1906,6 +1253,7 @@ module.exports = (...args) => {
     }
 
     if (isTransformDirty) {
+      isTransformDirty = false;
       ctx.setTransform(
         transformStack[transformStackIndex - 6],
         transformStack[transformStackIndex - 5],
@@ -2794,7 +2142,808 @@ module.exports = {
 });
 
 /***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+let z = -1;
+let e2d = __webpack_require__(0);
+module.exports = class Showable {
+  constructor(props) {
+    Object.assign(this, {
+      id: props.id,
+      position: {
+        x: props.x || 0,
+        y: props.y || 0,
+        rot: props.rot || 0,
+        sx: typeof props.sx === 'number' ? props.sx : 1,
+        sy: typeof props.sy === 'number' ? props.sy : 1,
+        cx: props.cx || 0,
+        cy: props.cy || 0,
+        a: typeof props.a === 'number' ? props.a : 1,
+        z: ++z
+      },
+      last: {
+        x: props.x || 0,
+        y: props.y || 0,
+        rot: props.rot || 0,
+        sx: typeof props.sx === 'number' ? props.sx : 1,
+        sy: typeof props.sy === 'number' ? props.sy : 1,
+        cx: props.cx || 0,
+        cy: props.cy || 0,
+        a: typeof props.a === 'number' ? props.a : 1,
+        z: z
+      },
+      ease: 'quadInOut',
+      duration: 400,
+      start: Date.now(),
+      dirty: true,
+      ratio: 1,
+      previousRatio: 0.99,
+      active: false,
+      previousActive: false,
+      hover: false,
+      pointer: false,
+      hiding: false,
+      view: []
+    });
+  }
+  update() {
+    let ease = __webpack_require__(10)[this.ease];
+    this.ratio = 1;
+    if (Date.now() <= this.start + this.duration) {
+      this.ratio = ease(Date.now() - this.start, this.duration);
+    }
+    this.dirty = this.dirty || this.previousRatio !== this.ratio;
+    this.previousRatio = this.ratio;
+  }
+  render(...children) {
+    let x = this.last.x + this.ratio * (this.position.x - this.last.x),
+        y = this.last.y + this.ratio * (this.position.y - this.last.y),
+        sx = this.last.sx + this.ratio * (this.position.sx - this.last.sx),
+        sy = this.last.sy + this.ratio * (this.position.sy - this.last.sy),
+        rot = this.last.rot + this.ratio * (this.position.rot - this.last.rot),
+        cx = this.last.cx + this.ratio * (this.position.cx - this.last.cx),
+        cy = this.last.cy + this.ratio * (this.position.cy - this.last.cy),
+        a = this.last.a + this.ratio * (this.position.a - this.last.a);
+    return e2d.translate(x, y, e2d.rotate(rot, e2d.scale(sx, sy, e2d.translate(-cx, -cy, e2d.globalAlpha(a, children)))));
+  }
+};
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+let Showable = __webpack_require__(1);
+let e2d = __webpack_require__(0);
+
+module.exports = class Textarea extends Showable {
+  constructor(props, theme) {
+    super(props);
+    Object.assign(this, {
+      theme: theme,
+      speaker: '',
+      previousSpeaker: '',
+      speakerColor: '',
+      text: props.text || "",
+      textIndex: 0,
+      texture: theme.textarea.texture,
+      previousTextIndex: -1,
+      speed: 1,
+      ctx: props.ctx,
+      dirty: true
+    });
+  }
+  update() {
+    if (!this.theme.ready) {
+      return;
+    }
+
+    this.textIndex += this.speed;
+    if (this.textIndex > this.text.length) {
+      this.textIndex = this.text.length;
+    }
+    if (this.previousTextIndex !== this.textIndex) {
+      this.dirty = true;
+    }
+    this.previousTextIndex = this.textIndex;
+    if (this.speaker !== this.previousSpeaker) {
+      this.dirty = true;
+    }
+    this.previousSpeaker = this.speaker;
+    return super.update();
+  }
+  calculateLines() {
+    let workingText = this.text.slice(0, this.textIndex).trim().replace('\r\n', '\n').replace('\r', '');
+    let result = [];
+    let index = [];
+    let i;
+    let lastIndex = 0;
+    let testIndex = 0;
+    let previousTestIndex = 0;
+    let testText = "";
+    let ctx = this.ctx;
+    let count = 0;
+    let forceBreak;
+    for (i = 0; i < workingText.length; i++) {
+      switch (workingText[i]) {
+        case " ":
+        case "\t":
+          index.push([i, 0]);
+          break;
+        case "\n":
+          index.push([i, 1]);
+      }
+    }
+    index.push([workingText.length, 0]);
+    let tempFont = ctx.font;
+    ctx.font = this.theme.textarea.textFont;
+
+    for (i = 0; i < index.length; i++) {
+      [testIndex, forceBreak] = index[i];
+      testText = workingText.slice(lastIndex, testIndex).trim();
+
+      if (forceBreak === 1 || this.ctx.measureText(testText).width > this.theme.textarea.textBox[2]) {
+        result.push(e2d.fillText(forceBreak ? testText : workingText.slice(lastIndex, previousTestIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
+        count += 1;
+        lastIndex = forceBreak ? testIndex : previousTestIndex;
+      }
+
+      previousTestIndex = testIndex;
+    }
+
+    result.push(e2d.fillText(workingText.slice(lastIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
+    ctx.font = tempFont;
+    return result;
+  }
+  render() {
+    return super.render(e2d.drawImage(this.theme.textarea.texture), e2d.fillStyle(this.speakerColor, e2d.textStyle({
+      font: this.theme.textarea.speakerBoxFont,
+      textBaseline: 'top'
+    }, e2d.fillText(this.speaker, this.theme.textarea.speakerBox[0], this.theme.textarea.speakerBox[1]))), e2d.fillStyle(this.theme.textarea.color, e2d.textStyle({
+      font: this.theme.textarea.textFont,
+      textBaseline: 'top'
+    }, e2d.clip(e2d.rect(this.theme.textarea.textBox[0], this.theme.textarea.textBox[1], this.theme.textarea.textBox[2], this.theme.textarea.textBox[3]), this.calculateLines(this, this.theme.textarea)))));
+  }
+};
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+var map = {
+	"./main.js": 36,
+	"./options.js": 37
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 3;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+module.exports = {
+	"name": "e2dvn",
+	"version": "1.0.0",
+	"description": "A Visual Novel Framework for JS developers.",
+	"main": "index.html",
+	"scripts": {
+		"debug": "npm run sprites && npm run dev-server",
+		"dev-server": "node ./build/dev-server",
+		"release": "npm run sprites && npm run webpack && npm run nw",
+		"sprites": "node ./build/spritesheet-assembler",
+		"webpack": "node ./build/webpack",
+		"nw": "node ./build/nw",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Joshua <tenner.joshua@gmail.com>",
+	"license": "ISC",
+	"devDependencies": {
+		"async": "^2.1.4",
+		"babel-core": "^6.21.0",
+		"babel-loader": "^6.2.10",
+		"babel-plugin-e2dx": "github:e2d/e2dx",
+		"babel-plugin-minify-dead-code-elimination": "^0.1.1",
+		"babel-plugin-transform-inline-functions": "^1.0.1",
+		"babel-preset-es2015": "^6.18.0",
+		"bin-packing": "git+https://github.com/jtenner/bin-packing.git",
+		"crel": "^3.0.0",
+		"e2d": "github:e2d/e2d",
+		"ease-functions": "0.0.1",
+		"eventemitter2": "^2.2.1",
+		"express": "^4.14.0",
+		"file-loader": "^0.9.0",
+		"fontfaceobserver": "^2.0.7",
+		"get-pixels": "^3.3.0",
+		"glob": "^7.1.1",
+		"imagemin-webpack-plugin": "^1.4.4",
+		"immutable": "^3.8.1",
+		"json-loader": "^0.5.4",
+		"library-src-plugin": "^1.0.2",
+		"nw-builder": "^3.1.2",
+		"save-pixels": "^2.3.4",
+		"webpack": "^2.2.0-rc.3",
+		"zeros": "^1.0.0"
+	},
+	"window": {
+		"width": 800,
+		"height": 600,
+		"resizable": false,
+		"title": "Gensokyo Beat Street"
+	},
+	"story": {
+		"name": "Gensokyo Beat Street",
+		"theme": "hexagon"
+	},
+	"dependencies": {}
+};
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+var map = {
+	"./act-1/test.js": 39,
+	"./main.js": 40
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 5;
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+var map = {
+	"./hexagon/options.js": 41
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 6;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+let Showable = __webpack_require__(1);
+let e2d = __webpack_require__(0);
+
+module.exports = class Button extends Showable {
+  constructor(props, theme) {
+    super(props);
+    Object.assign(this, {
+      texture: null,
+      previousTexture: null,
+      selected: props.selected || false,
+      previousSelected: props.selected || false,
+      theme: theme,
+      text: props.text,
+      dirty: true
+    });
+  }
+  update() {
+    if (!this.theme.ready) {
+      return;
+    }
+    if (this.active !== this.previousActive) {
+      this.dirty = true;
+    }
+    this.previousActive = this.active;
+
+    if (this.previousSelected !== this.selected) {
+      this.dirty = true;
+    }
+    this.previousSelected = this.selected;
+
+    this.texture = this.theme.button[(this.selected ? '' : 'un') + 'selected' + (this.active && this.hover ? 'Active' : '')];
+    if (this.texture !== this.previousTexture) {
+      this.dirty = true;
+    }
+    this.previousTexture = this.texture;
+    this.pointer = this.hover;
+    return super.update();
+  }
+  render() {
+    return super.render(e2d.hitRect(this.id, this.texture.width, this.texture.height), e2d.drawImage(this.texture), e2d.translate(this.texture.width * 0.5, this.texture.height * 0.5, e2d.textStyle({
+      font: this.theme.controlFont,
+      textAlign: 'center',
+      textBaseline: 'middle'
+    }, e2d.fillStyle(this.selected ? this.theme.controlTextSelectedColor : this.theme.controlTextColor, e2d.fillText(this.text)))));
+  }
+};
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+let Showable = __webpack_require__(1);
+let e2d = __webpack_require__(0);
+
+module.exports = class Checkbox extends Showable {
+  constructor(props, theme) {
+    super(props);
+    Object.assign(this, {
+      texture: null,
+      previousTexture: null,
+      checked: props.checked || false,
+      previousChecked: props.checked || false,
+      theme: theme,
+      text: props.text
+    });
+  }
+  update() {
+    if (!this.theme.ready) {
+      return;
+    }
+    if (this.active !== this.previousActive) {
+      this.dirty = true;
+    }
+    this.previousActive = this.active;
+
+    if (this.previousChecked !== this.checked) {
+      this.dirty = true;
+    }
+    this.previousChecked = this.checked;
+
+    this.texture = this.theme.checkbox[(this.checked ? '' : 'un') + 'checked' + (this.active && this.hover ? 'Active' : '')];
+
+    if (this.texture !== this.previousTexture) {
+      this.dirty = true;
+    }
+    this.previousTexture = this.texture;
+    this.pointer = this.hover;
+    return super.update();
+  }
+  render() {
+    return super.render(e2d.drawImage(this.texture), e2d.hitRect(this.id, this.texture.width, this.texture.height), e2d.translate(this.texture.width + this.theme.checkbox.textPadding, this.texture.height * 0.5, e2d.textStyle({
+      font: this.theme.controlFont,
+      textBaseline: 'middle'
+    }, e2d.fillStyle(this.theme.controlTextColor, e2d.fillText(this.text)))));
+  }
+};
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_e2d__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_crel__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_eventemitter2__);
+
+
+let { window: { width, height, title } } = __webpack_require__(35);
+let Background = __webpack_require__(38);
+let sortFunc = (left, right) => left.position.z < right.position.z ? -1 : 1;
+
+
+module.exports = class Renderer extends __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default.a {
+  constructor(theme) {
+    super();
+    this.theme = theme;
+    this.showables = [];
+    this.statics = [];
+    __WEBPACK_IMPORTED_MODULE_1_crel___default()(document.body, { style: 'margin: 0; padding: 0; ' }, __WEBPACK_IMPORTED_MODULE_1_crel___default()('div', { style: `margin: 0 auto; width: ${ width }px; height: ${ height }px;` }, this.canvas = __WEBPACK_IMPORTED_MODULE_1_crel___default()('canvas', { width, height })));
+
+    this.ctx = this.canvas.getContext('2d');
+    __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.initialize(this.ctx);
+
+    this.onAny((event, value) => this[event] && this[event](value));
+
+    this.previousMouseState = false;
+
+    this.stack = [];
+
+    this.mouseData = null;
+    this.regions = null;
+
+    let self = this;
+    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.raf(function () {
+      self.emit('check-waiting');
+      self.update();
+      self.render();
+    });
+  }
+  add(showable) {
+    return !this.showables.includes(showable) ? this.showables.push(showable) : void 0;
+  }
+  remove(showable) {
+    if (this.showables.includes(showable)) {
+      this.showables.splice(this.showables.indexOf(showable), 1);
+    }
+  }
+  static(showable) {
+    return !this.statics.includes(showable) ? this.statics.push(showable) : void 0;
+  }
+  push() {
+    this.stack.push({
+      showables: this.showables
+    });
+    let img = new Image();
+    img.src = this.canvas.toDataURL();
+    this.showables = [new Background({ id: 'bg', texture: img })];
+  }
+  pop() {
+    this.showables = this.stack.pop().showables;
+  }
+  update() {
+    if (!this.theme.ready) {
+      return;
+    }
+    let showables = this.showables.concat(this.statics);
+    showables.sort(sortFunc);
+
+    this.mouseData = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.mouseData(this.ctx);
+    this.regions = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.activeRegions(this.ctx);
+
+    let i,
+        showable,
+        pointer = false;
+
+    for (i = 0; i < showables.length; i++) {
+      showable = showables[i];
+      showable.hover = !!this.regions[showable.id];
+    }
+
+    //click event
+    if (this.mouseData.clicked) {
+      for (i = 0; i < showables.length; i++) {
+        showable = showables[i];
+        if (this.regions[showable.id]) {
+          showable.active = true;
+          this.emit('mousedown', showable);
+        }
+      }
+    }
+
+    // mouseUp
+    if (this.previousMouseState && !this.mouseData.state) {
+      for (i = 0; i < showables.length; i++) {
+        showable = showables[i];
+        if (showable.active && showable.hover) {
+          this.emit('click', showable);
+        }
+        if (showable.active) {
+          showable.active = false;
+        }
+      }
+      this.emit('advance');
+    }
+
+    for (i = 0; i < showables.length; i++) {
+      let showable = showables[i];
+      showable.update();
+      if (showable.hiding && showable.ratio === 1) {
+        let index = this.showables.indexOf(showable);
+        if (index !== -1) {
+          this.showables.splice(index, 1);
+          i -= 1;
+        }
+        continue;
+      }
+      pointer = pointer || showables[i].pointer;
+    }
+
+    this.previousMouseState = this.mouseData.state;
+    this.canvas.style.cursor = pointer ? 'pointer' : 'default';
+    this.renderables = showables;
+  }
+  render() {
+    if (!this.theme.ready) {
+      return;
+    }
+    let result = [],
+        showable;
+    for (let i = 0; i < this.renderables.length; i++) {
+      showable = this.renderables[i];
+      result.push(showable.dirty ? (showable.dirty = false, showable.view = showable.render()) : showable.view);
+    }
+
+    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.render(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clearRect(this.canvas.width, this.canvas.height), result, this.ctx);
+  }
+};
+
+/***/ },
 /* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+let inOut = __webpack_require__(11),
+ inverse = __webpack_require__(12);
+
+let linear = (point, max) => point / max;
+let quadIn = (point, max) => (point /= max, point * point);
+let cubicIn = (point, max) => (point /= max, point * point * point);
+let quartIn = (point, max) => (point /= max, point * point * point * point);
+let quintIn = (point, max) => (point /= max, point * point * point * point);
+let circIn = (point, max) => (point /= max, 1 - Math.sqrt(1 - point * point));
+let sinIn = (point, max) => (point /= max, point -= 1, 1 + Math.sin(Math.PI * point * 0.5));
+let expoIn = (point, max) => (point /= max, point -= 1, point === 0 ? 0 : Math.pow(2, 10 * point));
+let linExpoIn = (point, max) => (point /= max, point -= 1, point * Math.pow(2, point));
+let bounceIn = (point, max) => (point *= 2.5 / max, (1 + Math.floor(point)) / 3 * Math.abs(Math.sin(Math.PI * point)));
+
+
+let quadOut = inverse(quadIn);
+let cubicOut = inverse(cubicIn);
+let quartOut = inverse(quartIn);
+let quintOut = inverse(quintIn);
+let circOut = inverse(circIn);
+let sinOut = inverse(sinIn);
+let expoOut = inverse(expoIn);
+let linExpoOut = inverse(linExpoIn);
+let bounceOut = inverse(bounceIn);
+
+
+let quadInOut = inOut(quadIn, quadOut);
+let cubicInOut = inOut(cubicIn, cubicOut);
+let quartInOut = inOut(quartIn, quartOut);
+let quintInOut = inOut(quintIn, quintOut);
+let circInOut = inOut(circIn, circOut);
+let sinInOut = inOut(sinIn, sinOut);
+let expoInOut = inOut(expoIn, expoOut);
+let linExpoInOut = inOut(linExpoIn, linExpoOut);
+let bounceInOut = inOut(bounceIn, bounceOut);
+
+module.exports = {
+  linear,
+  quadIn,
+  quadOut,
+  quadInOut,
+  cubicIn,
+  cubicOut,
+  cubicInOut,
+  quartIn,
+  quartOut,
+  quartInOut,
+  quintIn,
+  quintOut,
+  quintInOut,
+  circIn,
+  circOut,
+  circInOut,
+  sinIn,
+  sinOut,
+  sinInOut,
+  expoIn,
+  expoOut,
+  expoInOut,
+  linExpoIn,
+  linExpoOut,
+  linExpoInOut,
+  bounceIn,
+  bounceOut,
+  bounceInOut
+};
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+module.exports = function inOut(func, inverse) {
+  return  function inOutFunc(point, max) {
+    point /= max;
+    return point < 0.5 ?
+      0.5 * func(point,  0.5) :
+      0.5 + 0.5 * inverse(point - 0.5, 0.5);
+  };
+};
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+module.exports = function inverse(func) {
+  return function(point, max) {
+    return 1 - func(max - point, max);
+  };
+};
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+//Copyright (C) 2012 Kory Nunn
+
+//Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+//The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+/*
+
+    This code is not formatted for readability, but rather run-speed and to assist compilers.
+
+    However, the code's intention should be transparent.
+
+    *** IE SUPPORT ***
+
+    If you require this library to work in IE7, add the following after declaring crel.
+
+    var testDiv = document.createElement('div'),
+        testLabel = document.createElement('label');
+
+    testDiv.setAttribute('class', 'a');
+    testDiv['className'] !== 'a' ? crel.attrMap['class'] = 'className':undefined;
+    testDiv.setAttribute('name','a');
+    testDiv['name'] !== 'a' ? crel.attrMap['name'] = function(element, value){
+        element.id = value;
+    }:undefined;
+
+
+    testLabel.setAttribute('for', 'a');
+    testLabel['htmlFor'] !== 'a' ? crel.attrMap['for'] = 'htmlFor':undefined;
+
+
+
+*/
+
+(function (root, factory) {
+    if (true) {
+        module.exports = factory();
+    } else if (typeof define === 'function' && define.amd) {
+        define(factory);
+    } else {
+        root.crel = factory();
+    }
+}(this, function () {
+    var fn = 'function',
+        obj = 'object',
+        nodeType = 'nodeType',
+        textContent = 'textContent',
+        setAttribute = 'setAttribute',
+        attrMapString = 'attrMap',
+        isNodeString = 'isNode',
+        isElementString = 'isElement',
+        d = typeof document === obj ? document : {},
+        isType = function(a, type){
+            return typeof a === type;
+        },
+        isNode = typeof Node === fn ? function (object) {
+            return object instanceof Node;
+        } :
+        // in IE <= 8 Node is an object, obviously..
+        function(object){
+            return object &&
+                isType(object, obj) &&
+                (nodeType in object) &&
+                isType(object.ownerDocument,obj);
+        },
+        isElement = function (object) {
+            return crel[isNodeString](object) && object[nodeType] === 1;
+        },
+        isArray = function(a){
+            return a instanceof Array;
+        },
+        appendChild = function(element, child) {
+          if(!crel[isNodeString](child)){
+              child = d.createTextNode(child);
+          }
+          element.appendChild(child);
+        };
+
+
+    function crel(){
+        var args = arguments, //Note: assigned to a variable to assist compilers. Saves about 40 bytes in closure compiler. Has negligable effect on performance.
+            element = args[0],
+            child,
+            settings = args[1],
+            childIndex = 2,
+            argumentsLength = args.length,
+            attributeMap = crel[attrMapString];
+
+        element = crel[isElementString](element) ? element : d.createElement(element);
+        // shortcut
+        if(argumentsLength === 1){
+            return element;
+        }
+
+        if(!isType(settings,obj) || crel[isNodeString](settings) || isArray(settings)) {
+            --childIndex;
+            settings = null;
+        }
+
+        // shortcut if there is only one child that is a string
+        if((argumentsLength - childIndex) === 1 && isType(args[childIndex], 'string') && element[textContent] !== undefined){
+            element[textContent] = args[childIndex];
+        }else{
+            for(; childIndex < argumentsLength; ++childIndex){
+                child = args[childIndex];
+
+                if(child == null){
+                    continue;
+                }
+
+                if (isArray(child)) {
+                  for (var i=0; i < child.length; ++i) {
+                    appendChild(element, child[i]);
+                  }
+                } else {
+                  appendChild(element, child);
+                }
+            }
+        }
+
+        for(var key in settings){
+            if(!attributeMap[key]){
+                element[setAttribute](key, settings[key]);
+            }else{
+                var attr = attributeMap[key];
+                if(typeof attr === fn){
+                    attr(element, settings[key]);
+                }else{
+                    element[setAttribute](attr, settings[key]);
+                }
+            }
+        }
+
+        return element;
+    }
+
+    // Used for mapping one kind of attribute to the supported version of that in bad browsers.
+    crel[attrMapString] = {};
+
+    crel[isElementString] = isElement;
+
+    crel[isNodeString] = isNode;
+
+    if(typeof Proxy !== 'undefined'){
+        crel.proxy = new Proxy(crel, {
+            get: function(target, key){
+                !(key in crel) && (crel[key] = crel.bind(null, key));
+                return crel[key];
+            }
+        });
+    }
+
+    return crel;
+}));
+
+
+/***/ },
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -3522,121 +3671,121 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ },
-/* 11 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "d914e858b7c298b0a20b94f93e292df9.otf";
 
 /***/ },
-/* 12 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "f804308dc39269f2d8598cd4c624f2e5.png";
 
 /***/ },
-/* 13 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "8ed860e0a4295c9848a2e0b371911d26.png";
 
 /***/ },
-/* 14 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "6945396538d40c9a482819c24aea29d8.png";
 
 /***/ },
-/* 15 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "21d9f4aa255119fbb2de413e3b4bf5c7.png";
 
 /***/ },
-/* 16 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "948e761208b6194f85d7b1cb4f99d8f5.png";
 
 /***/ },
-/* 17 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "77a783281291fc3a8cf997a75a2847bb.png";
 
 /***/ },
-/* 18 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "4cb8eccb7ed09b83dd89ec457426e8b8.png";
 
 /***/ },
-/* 19 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "9e8ee288e7ec6a83777f49fb0797bd1f.png";
 
 /***/ },
-/* 20 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "aeb420d44a89d2608fc6b4a5f7ad7d72.png";
 
 /***/ },
-/* 21 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "9597bc24c48ef34de81cbf5603ab1c39.png";
 
 /***/ },
-/* 22 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "cedaddace229519a597a54d8bd414faa.png";
 
 /***/ },
-/* 23 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "a62e9e3038dadd90d13228c9261b6dd9.png";
 
 /***/ },
-/* 24 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "d4ca38a742d93f71222a274020589d02.png";
 
 /***/ },
-/* 25 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "78f7188cbdbbcdc4355116dfaa0e62eb.png";
 
 /***/ },
-/* 26 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "c4c2ce7fdc6f86bc1ba126434fae13f2.png";
 
 /***/ },
-/* 27 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "4aea8fa323b346e84263e030fe663abb.png";
 
 /***/ },
-/* 28 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "0f23bfe04db99ae954c3b96aeee74ec5.png";
 
 /***/ },
-/* 29 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "b8f13d1d51878cfd05214f9310f113cd.png";
 
 /***/ },
-/* 30 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 (function(){function m(a,b){document.addEventListener?a.addEventListener("scroll",b,!1):a.attachEvent("scroll",b)}function n(a){document.body?a():document.addEventListener?document.addEventListener("DOMContentLoaded",function c(){document.removeEventListener("DOMContentLoaded",c);a()}):document.attachEvent("onreadystatechange",function l(){if("interactive"==document.readyState||"complete"==document.readyState)document.detachEvent("onreadystatechange",l),a()})};function t(a){this.a=document.createElement("div");this.a.setAttribute("aria-hidden","true");this.a.appendChild(document.createTextNode(a));this.b=document.createElement("span");this.c=document.createElement("span");this.h=document.createElement("span");this.f=document.createElement("span");this.g=-1;this.b.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";this.c.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";
@@ -3649,7 +3798,7 @@ w=q.a.offsetWidth;H();z(f,function(a){g=a;e()});x(f,J(c,'"'+c.family+'",sans-ser
 
 
 /***/ },
-/* 31 */
+/* 35 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -3709,92 +3858,39 @@ module.exports = {
 };
 
 /***/ },
-/* 32 */
+/* 36 */
 /***/ function(module, exports) {
 
 module.exports = function* menu(_interpreter) {
   let _cache;
 
-  let test = Object.assign({}, {
-    id: '',
-    text: "",
-    type: 'button',
-    x: 0,
-    y: 0,
-    active: false,
-    hover: false,
-    selected: false,
-    view: [],
-    dirty: true
-  }, {});
+  let Aya = {
+    name: 'Aya',
+    color: 'Yellow'
+  };
+  _cache = _interpreter.tb, Object.assign(_cache.last, _cache.position), _interpreter.show(_cache, {
+    a: 1
+  }), _cache.start = Date.now(), _cache.hiding = false, _cache;
 
-  let newGame = Object.assign({}, {
-    id: '',
-    text: "",
-    type: 'button',
-    x: 0,
-    y: 0,
-    active: false,
-    hover: false,
-    selected: false,
-    view: [],
-    dirty: true
-  }, {
-    id: 'new-game',
-    x: 100,
-    y: 100,
-    text: 'New Game'
-  });
-
-  let options = Object.assign({}, {
-    id: '',
-    text: "",
-    type: 'button',
-    x: 0,
-    y: 0,
-    active: false,
-    hover: false,
-    selected: false,
-    view: [],
-    dirty: true
-  }, {
-    id: 'options',
-    x: 100,
-    y: 200,
-    text: 'Options'
-  });
-
-  let exit = Object.assign({}, {
-    id: '',
-    text: "",
-    type: 'button',
-    x: 0,
-    y: 0,
-    active: false,
-    hover: false,
-    selected: false,
-    view: [],
-    dirty: true
-  }, {
-    id: 'exit',
-    x: 100,
-    y: 300,
-    text: 'Exit'
-  });
-
-  _cache = newGame, _interpreter.show(_cache), Object.assign(_cache, {});
-  _cache = options, _interpreter.show(_cache), Object.assign(_cache, {});
-  _cache = exit, _interpreter.show(_cache), Object.assign(_cache, {});
+  _cache = [Aya || "", `Bacon ipsum dolor amet pork belly jowl brisket burgdoggen hamburger t-bone short ribs cupim ball tip sirloin. Filet mignon pig boudin shank alcatra porchetta pork chop chicken meatloaf kevin rump shoulder biltong. Pork belly turkey landjaeger bresaola kielbasa pastrami t-bone meatball ham hock pork loin. Meatball biltong t-bone, capicola spare ribs burgdoggen pancetta hamburger boudin tri-tip rump prosciutto pork. Cupim t-bone fatback shankle chuck doner.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+  _cache = [Aya || "", `Ham hock beef kielbasa, shankle pork tail burgdoggen pork loin short ribs salami rump ground round drumstick filet mignon leberkas. Tail jerky pork belly turducken. Flank beef venison burgdoggen tongue ribeye pancetta corned beef meatloaf rump fatback filet mignon. Bresaola biltong short ribs, kevin turkey boudin chicken pork loin beef flank jowl filet mignon tongue tail. Pastrami strip steak bresaola shoulder biltong ball tip ham flank brisket t-bone ribeye venison prosciutto. Hamburger pork belly swine short ribs tongue pork spare ribs cupim. Salami burgdoggen brisket fatback.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+  _cache = [Aya || "", `Bacon ipsum dolor amet pork belly jowl brisket burgdoggen hamburger t-bone short ribs cupim ball tip sirloin. Filet mignon pig boudin shank alcatra porchetta pork chop chicken meatloaf kevin rump shoulder biltong. Pork belly turkey landjaeger bresaola kielbasa pastrami t-bone meatball ham hock pork loin. Meatball biltong t-bone, capicola spare ribs burgdoggen pancetta hamburger boudin tri-tip rump prosciutto pork. Cupim t-bone fatback shankle chuck doner.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+  _cache = [Aya || "", `Ham hock beef kielbasa, shankle pork tail burgdoggen pork loin short ribs salami rump ground round drumstick filet mignon leberkas. Tail jerky pork belly turducken. Flank beef venison burgdoggen tongue ribeye pancetta corned beef meatloaf rump fatback filet mignon. Bresaola biltong short ribs, kevin turkey boudin chicken pork loin beef flank jowl filet mignon tongue tail. Pastrami strip steak bresaola shoulder biltong ball tip ham flank brisket t-bone ribeye venison prosciutto. Hamburger pork belly swine short ribs tongue pork spare ribs cupim. Salami burgdoggen brisket fatback.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+  _cache = [Aya || "", `Bacon ipsum dolor amet pork belly jowl brisket burgdoggen hamburger t-bone short ribs cupim ball tip sirloin. Filet mignon pig boudin shank alcatra porchetta pork chop chicken meatloaf kevin rump shoulder biltong. Pork belly turkey landjaeger bresaola kielbasa pastrami t-bone meatball ham hock pork loin. Meatball biltong t-bone, capicola spare ribs burgdoggen pancetta hamburger boudin tri-tip rump prosciutto pork. Cupim t-bone fatback shankle chuck doner.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+  _cache = [Aya || "", `Ham hock beef kielbasa, shankle pork tail burgdoggen pork loin short ribs salami rump ground round drumstick filet mignon leberkas. Tail jerky pork belly turducken. Flank beef venison burgdoggen tongue ribeye pancetta corned beef meatloaf rump fatback filet mignon. Bresaola biltong short ribs, kevin turkey boudin chicken pork loin beef flank jowl filet mignon tongue tail. Pastrami strip steak bresaola shoulder biltong ball tip ham flank brisket t-bone ribeye venison prosciutto. Hamburger pork belly swine short ribs tongue pork spare ribs cupim. Salami burgdoggen brisket fatback.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+  _cache = [Aya || "", `Bacon ipsum dolor amet pork belly jowl brisket burgdoggen hamburger t-bone short ribs cupim ball tip sirloin. Filet mignon pig boudin shank alcatra porchetta pork chop chicken meatloaf kevin rump shoulder biltong. Pork belly turkey landjaeger bresaola kielbasa pastrami t-bone meatball ham hock pork loin. Meatball biltong t-bone, capicola spare ribs burgdoggen pancetta hamburger boudin tri-tip rump prosciutto pork. Cupim t-bone fatback shankle chuck doner.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+  _cache = [Aya || "", `Ham hock beef kielbasa, shankle pork tail burgdoggen pork loin short ribs salami rump ground round drumstick filet mignon leberkas. Tail jerky pork belly turducken. Flank beef venison burgdoggen tongue ribeye pancetta corned beef meatloaf rump fatback filet mignon. Bresaola biltong short ribs, kevin turkey boudin chicken pork loin beef flank jowl filet mignon tongue tail. Pastrami strip steak bresaola shoulder biltong ball tip ham flank brisket t-bone ribeye venison prosciutto. Hamburger pork belly swine short ribs tongue pork spare ribs cupim. Salami burgdoggen brisket fatback.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
 
   while (true) {
     switch (_interpreter.clicked && _interpreter.clicked.id) {
       case 'new-game':
-        _interpreter.queue.push('./main.js'), void 0;
-        return;
+        _cache = newGame, Object.assign(_cache.last, _cache.position), _interpreter.show(_cache, { x: 200, y: 200 }), _cache.start = Date.now(), _cache.hiding = false, _cache;
+        _interpreter.wait = Date.now() + 400, _interpreter.waiting = true, yield ['pause', void 0], void 0;
+        _cache = newGame, Object.assign(_cache.last, _cache.position), _interpreter.show(_cache, { a: 0 }), _cache.start = Date.now(), _cache.hiding = true, _cache;
         break;
 
-      case 'options':
-        _interpreter.menu.push(_interpreter.menus('./options.js')(_interpreter, ...[])), yield ['push', void 0], void 0;
+      case 'cb':
+        cb.checked = !cb.checked;
         break;
     }
 
@@ -3803,30 +3899,19 @@ module.exports = function* menu(_interpreter) {
 };
 
 /***/ },
-/* 33 */
+/* 37 */
 /***/ function(module, exports) {
 
 module.exports = function* menu(_interpreter) {
   let _cache;
 
-  let b = Object.assign({}, {
-    id: '',
-    text: "",
-    type: 'button',
-    x: 0,
-    y: 0,
-    active: false,
-    hover: false,
-    selected: false,
-    view: [],
-    dirty: true
-  }, {
+  let b = new _interpreter.Button({
     id: 'test',
     x: 300,
     y: 100,
     text: 'Close'
-  });
-  _cache = b, _interpreter.show(_cache), Object.assign(_cache, {});
+  }, _interpreter.theme);
+  _cache = b, Object.assign(_cache.last, _cache.position), _interpreter.show(_cache, {}), _cache.start = Date.now(), _cache.hiding = false, _cache;
 
   while (true) {
     switch (_interpreter.clicked && _interpreter.clicked.id) {
@@ -3840,19 +3925,38 @@ module.exports = function* menu(_interpreter) {
 };
 
 /***/ },
-/* 34 */
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+let Showable = __webpack_require__(1);
+let e2d = __webpack_require__(0);
+module.exports = class Background extends Showable {
+  constructor(props) {
+    super(props);
+    this.texture = props.texture;
+  }
+  update() {
+    return super.update();
+  }
+  render() {
+    return super.render(e2d.drawImage(this.texture));
+  }
+};
+
+/***/ },
+/* 39 */
 /***/ function(module, exports) {
 
 let Aya = Character('Aya');
 
 /***/ },
-/* 35 */
+/* 40 */
 /***/ function(module, exports) {
 
 queue('./act-1/test.js');
 
 /***/ },
-/* 36 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 let options = {
@@ -3891,7 +3995,7 @@ let _createImage = src => {
 };
 
 let _loadFont = (name, src) => {
-  let FontFaceObserver = __webpack_require__(30);
+  let FontFaceObserver = __webpack_require__(34);
 
   let font = new FontFaceObserver(name);
   let ff = `
@@ -3927,7 +4031,7 @@ options.titleTextSize = 32;
 options.titleTextColor = selectedColor;
 
 options.controlTextSize = 26;
-_loadFont('Puritan', __webpack_require__(11));
+_loadFont('Puritan', __webpack_require__(15));
 options.controlFont = `${ options.controlTextSize }px Puritan`;
 options.controlTextColor = normalColor;
 options.controlTextSelectedColor = selectedColor;
@@ -3938,32 +4042,32 @@ options.choiceTextColor = normalColor;
 options.choiceTextSelectedColor = selectedColor;
 
 options.checkbox = {
-  unchecked: _createImage(__webpack_require__(19)),
-  uncheckedActive: _createImage(__webpack_require__(18)),
-  checked: _createImage(__webpack_require__(17)),
-  checkedActive: _createImage(__webpack_require__(16)),
+  unchecked: _createImage(__webpack_require__(23)),
+  uncheckedActive: _createImage(__webpack_require__(22)),
+  checked: _createImage(__webpack_require__(21)),
+  checkedActive: _createImage(__webpack_require__(20)),
   textPadding: 4
 };
 
 options.button = {
-  unselected: _createImage(__webpack_require__(15)),
-  unselectedActive: _createImage(__webpack_require__(14)),
-  selected: _createImage(__webpack_require__(13)),
-  selectedActive: _createImage(__webpack_require__(12))
+  unselected: _createImage(__webpack_require__(19)),
+  unselectedActive: _createImage(__webpack_require__(18)),
+  selected: _createImage(__webpack_require__(17)),
+  selectedActive: _createImage(__webpack_require__(16))
 };
 
 options.slider = {
-  capLeft: _createImage(__webpack_require__(23)),
-  capRight: _createImage(__webpack_require__(24)),
-  pill: _createImage(__webpack_require__(27)),
-  pillActive: _createImage(__webpack_require__(26)),
-  line: _createImage(__webpack_require__(25))
+  capLeft: _createImage(__webpack_require__(27)),
+  capRight: _createImage(__webpack_require__(28)),
+  pill: _createImage(__webpack_require__(31)),
+  pillActive: _createImage(__webpack_require__(30)),
+  line: _createImage(__webpack_require__(29))
 };
 
 options.choice = {
-  choice: _createImage(__webpack_require__(22)),
-  active: _createImage(__webpack_require__(20)),
-  selected: _createImage(__webpack_require__(21)),
+  choice: _createImage(__webpack_require__(26)),
+  active: _createImage(__webpack_require__(24)),
+  selected: _createImage(__webpack_require__(25)),
   margin: 30
 };
 
@@ -3972,7 +4076,7 @@ let textareaFont = 'Puritan',
     textareaFontSize = 20,
     speakerBoxFontSize = 20;
 options.textarea = {
-  texture: _createImage(__webpack_require__(28)),
+  texture: _createImage(__webpack_require__(32)),
   speakerBox: [10, 10, 380, 20],
   speakerBoxFontSize: speakerBoxFontSize,
   speakerBoxFont: `bold ${ speakerBoxFontSize }px ${ textareaSpeakerFont }`,
@@ -3983,30 +4087,46 @@ options.textarea = {
   color: normalColor
 };
 
-options.windowBackground = _createImage(__webpack_require__(29));
+options.windowBackground = _createImage(__webpack_require__(33));
 module.exports = options;
 
 /***/ },
-/* 37 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
-let package = __webpack_require__(1);
-let theme = __webpack_require__(3)("./" + package.story.theme + '/options.js');
-let story = __webpack_require__(2);
-let Renderer = __webpack_require__(4);
-let menus = __webpack_require__(0);
+let package = __webpack_require__(4);
+let theme = __webpack_require__(6)("./" + package.story.theme + '/options.js');
+let story = __webpack_require__(5);
+let Renderer = __webpack_require__(9);
+let menus = __webpack_require__(3);
 let renderer = new Renderer(theme);
+let Textarea = __webpack_require__(2);
 renderer.emit('push');
 
 
 let interpreter = {
-  show: (item) => renderer.emit('add', item),
+  show: (item, props) => {
+    renderer.emit('add', item);
+    for(let name in props) {
+      if (item.hasOwnProperty(name)) {
+        item[name] = props[name];
+      }
+      if (item.position.hasOwnProperty(name)) {
+        item.position[name] = props[name];
+      }
+    }
+  },
   script: null,
   clicked: null,
   queue: [],
   menus,
   menu: [],
-  waiting: false
+  wait: Date.now(),
+  waiting: false,
+  theme,
+  Button: __webpack_require__(7),
+  Checkbox: __webpack_require__(8),
+  Textarea: __webpack_require__(2)
 };
 
 
@@ -4015,8 +4135,15 @@ interpreter.menu.push(
 );
 
 let advance = () => {
+  if (interpreter.tb.textIndex !== interpreter.tb.text.length) {
+    return interpreter.tb.textIndex = interpreter.tb.text.length;
+  }
+
   if (interpreter.waiting) {
-    return;
+    if (interpreter.wait >= Date.now()) {
+      return;
+    }
+    interpreter.waiting = false;
   }
   let target = interpreter.menu.length > 0 ? interpreter.menu[interpreter.menu.length - 1] : interpreter.script;
 
@@ -4039,23 +4166,37 @@ let advance = () => {
   switch(type) {
     case 'continue':
       return advance();
-    case 'wait':
-      interpreter.waiting = true;
-      return setTimeout(() => {
-        interpreter.waiting = false;
-        advance();
-      }, arg);
+    case 'pause':
+      return;
     case 'push':
       renderer.emit('push');
       return advance();
   }
 }
 
-advance();
+
 renderer.on('click', (showable) => {
   interpreter.clicked = showable;
-  return advance();
 });
+renderer.on('check-waiting', () => {
+  if (interpreter.waiting && interpreter.wait <= Date.now()) {
+    return advance();
+  }
+});
+renderer.on('advance', advance);
+
+
+let tb = new Textarea({
+  id: 'text',
+  y: package.window.height,
+  cy: theme.textarea.texture.height,
+  a: 0,
+  ctx: renderer.ctx
+}, theme);
+interpreter.tb = tb;
+renderer.emit('static', tb);
+
+advance();
 
 /***/ }
 /******/ ]);

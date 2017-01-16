@@ -4,17 +4,33 @@ let story = require.context('./webpack-loader/story-loader!./story/', true, /\.j
 let Renderer = require('./webpack-loader/renderer-loader!./renderer/index.jsx');
 let menus = require.context('./webpack-loader/menu-loader!./menu/', true, /\.js$/i);
 let renderer = new Renderer(theme);
+let Textarea = require('./webpack-loader/renderer-loader!./renderer/controls/Textarea.jsx');
 renderer.emit('push');
 
 
 let interpreter = {
-  show: (item) => renderer.emit('add', item),
+  show: (item, props) => {
+    renderer.emit('add', item);
+    for(let name in props) {
+      if (item.hasOwnProperty(name)) {
+        item[name] = props[name];
+      }
+      if (item.position.hasOwnProperty(name)) {
+        item.position[name] = props[name];
+      }
+    }
+  },
   script: null,
   clicked: null,
   queue: [],
   menus,
   menu: [],
-  waiting: false
+  wait: Date.now(),
+  waiting: false,
+  theme,
+  Button: require('./webpack-loader/renderer-loader!./renderer/controls/Button.jsx'),
+  Checkbox: require('./webpack-loader/renderer-loader!./renderer/controls/Checkbox.jsx'),
+  Textarea: require('./webpack-loader/renderer-loader!./renderer/controls/Textarea.jsx')
 };
 
 
@@ -23,8 +39,15 @@ interpreter.menu.push(
 );
 
 let advance = () => {
+  if (interpreter.tb.textIndex !== interpreter.tb.text.length) {
+    return interpreter.tb.textIndex = interpreter.tb.text.length;
+  }
+
   if (interpreter.waiting) {
-    return;
+    if (interpreter.wait >= Date.now()) {
+      return;
+    }
+    interpreter.waiting = false;
   }
   let target = interpreter.menu.length > 0 ? interpreter.menu[interpreter.menu.length - 1] : interpreter.script;
 
@@ -47,20 +70,34 @@ let advance = () => {
   switch(type) {
     case 'continue':
       return advance();
-    case 'wait':
-      interpreter.waiting = true;
-      return setTimeout(() => {
-        interpreter.waiting = false;
-        advance();
-      }, arg);
+    case 'pause':
+      return;
     case 'push':
       renderer.emit('push');
       return advance();
   }
 }
 
-advance();
+
 renderer.on('click', (showable) => {
   interpreter.clicked = showable;
-  return advance();
 });
+renderer.on('check-waiting', () => {
+  if (interpreter.waiting && interpreter.wait <= Date.now()) {
+    return advance();
+  }
+});
+renderer.on('advance', advance);
+
+
+let tb = new Textarea({
+  id: 'text',
+  y: package.window.height,
+  cy: theme.textarea.texture.height,
+  a: 0,
+  ctx: renderer.ctx
+}, theme);
+interpreter.tb = tb;
+renderer.emit('static', tb);
+
+advance();

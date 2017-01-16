@@ -24,6 +24,14 @@ module.exports = (path, state, plugin, args) => {
           types.numericLiteral(0)
         )
       ])
+    ),
+    PAUSE: types.yieldExpression(
+      types.arrayExpression([
+        types.stringLiteral('pause'),
+        types.unaryExpression('void',
+          types.numericLiteral(0)
+        )
+      ])
     )
   }
 };

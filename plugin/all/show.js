@@ -3,14 +3,16 @@ let types = require('babel-types');
 let buttonTemplate = template(`
   !(
     CACHE = TARGET,
-    INTERPRETER.show(CACHE),
-    Object.assign(CACHE, PROPS)
+    Object.assign(CACHE.last, CACHE.position),
+    INTERPRETER.show(CACHE, PROPS),
+    CACHE.start = Date.now(),
+    CACHE.hiding = false,
+    CACHE
   )
 `);
 
 module.exports = function(path, state, plugin, args) {
   let target = args[0], props = args[1];
-
   return path.replaceWith(
     buttonTemplate(
       Object.assign({}, plugin.identifiers, {

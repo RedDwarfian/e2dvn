@@ -30,6 +30,21 @@ module.exports = function() {
           }
           func(path, state, this, path.node.left, path.node.right, path.node.operator);
         }
+      },
+      Identifier(path, state) {
+        if (path.parentPath.isMemberExpression()) {
+          return;
+        }
+        let func;
+        try {
+          func = require('./identifiers/' + path.node.name);
+        } catch(err) {
+          return;
+        }
+        func(path, state, this);
+      },
+      TaggedTemplateExpression(path, state) {
+        require('../all/says')(path, state, this, [path.node.tag, path.node.quasi])
       }
     }
   }
