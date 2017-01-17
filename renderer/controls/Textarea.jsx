@@ -5,11 +5,12 @@ module.exports = class Textarea extends Showable {
   constructor(props, theme) {
     super(props);
     Object.assign(this, {
+      type: 'textarea',
       theme: theme,
       speaker: '',
-      previousSpeaker: '',
+      previousSpeaker: null,
       speakerColor: '',
-      text: props.text || "",
+      text: '',
       textIndex: 0,
       texture: theme.textarea.texture,
       previousTextIndex: -1,
@@ -17,12 +18,17 @@ module.exports = class Textarea extends Showable {
       ctx: props.ctx,
       dirty: true,
     });
+    this.load(props);
+  }
+  load(props) {
+    this.speaker = props.hasOwnProperty('speaker') ? props.speaker : this.speaker;
+    this.speakerColor = props.hasOwnProperty('speakerColor') ? props.speakerColor : this.speakerColor;
+    this.text = props.hasOwnProperty('text') ? props.text : this.text;
   }
   update() {
     if (!this.theme.ready) {
       return;
     }
-    
     this.textIndex += this.speed;
     if (this.textIndex > this.text.length) {
       this.textIndex = this.text.length;
@@ -119,5 +125,17 @@ module.exports = class Textarea extends Showable {
         </textStyle>
       </fillStyle>
     );
+  }
+  serialize() {
+    return super.serialize({
+      text: this.text,
+      speaker: this.speaker,
+      speakerColor: this.speakerColor
+    });
+  }
+  deserialize(props) {
+    this.load(props);
+    this.textIndex = this.text.length;
+    this.previousTextIndex = -1;
   }
 };

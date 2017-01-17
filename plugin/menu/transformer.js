@@ -6,7 +6,7 @@ module.exports = function() {
     },
     pre(file, state) {
       let { path } = file;
-      require('./pre')(path, state, this, []);
+      require('../all/pre')(path, state, this, []);
     },
     visitor:{
       CallExpression(path, state) {
@@ -43,8 +43,11 @@ module.exports = function() {
         }
         func(path, state, this);
       },
-      TaggedTemplateExpression(path, state) {
-        require('../all/says')(path, state, this, [path.node.tag, path.node.quasi])
+      
+      ReturnStatement: {
+        exit(path, state) {
+          require('../all/return')(path, state, this);
+        }
       }
     }
   }

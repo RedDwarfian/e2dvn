@@ -3,29 +3,9 @@ let e2d = require('e2d');
 module.exports = class Showable {
   constructor(props) {
     Object.assign(this, {
-      id: props.id,
-      position: {
-        x: props.x || 0,
-        y: props.y || 0,
-        rot: props.rot || 0,
-        sx: typeof props.sx === 'number' ? props.sx : 1,
-        sy: typeof props.sy === 'number' ? props.sy : 1,
-        cx: props.cx || 0,
-        cy: props.cy || 0,
-        a: typeof props.a === 'number' ? props.a : 1,
-        z: ++z
-      },
-      last: {
-        x: props.x || 0,
-        y: props.y || 0,
-        rot: props.rot || 0,
-        sx: typeof props.sx === 'number' ? props.sx : 1,
-        sy: typeof props.sy === 'number' ? props.sy : 1,
-        cx: props.cx || 0,
-        cy: props.cy || 0,
-        a: typeof props.a === 'number' ? props.a : 1,
-        z: z
-      },
+      id: '',
+      position: { x: 0, y: 0, rot: 0, sx: 1, sy: 1, cx: 0, cy: 0, a: 1, z: ++z },
+      last: { x: 0, y: 0, rot: 0, sx: 1, sy: 1, cx: 0, cy: 0, a: 1, z },
       ease: 'quadInOut',
       duration: 400,
       start: Date.now(),
@@ -37,9 +17,26 @@ module.exports = class Showable {
       hover: false,
       pointer: false,
       hiding: false,
-      view: []
+      view: [],
+      ready: true
     });
+    this.load(props);
 
+    Object.assign(this.last, this.position);
+  }
+  load(props) {
+    this.id = props.hasOwnProperty('id') ? props.id : this.id;
+    this.position.x = props.hasOwnProperty('x') ? props.x : this.position.x;
+    this.position.y = props.hasOwnProperty('y') ? props.y : this.position.y;
+    this.position.rot = props.hasOwnProperty('rot') ? props.rot : this.position.rot;
+    this.position.sx = props.hasOwnProperty('sx') ? props.sx : this.position.sx;
+    this.position.sy = props.hasOwnProperty('sy') ? props.sy : this.position.sy;
+    this.position.cx = props.hasOwnProperty('cx') ? props.cx : this.position.cx;
+    this.position.cy = props.hasOwnProperty('cy') ? props.cy : this.position.cy;
+    this.position.a = props.hasOwnProperty('a') ? props.a : this.position.a;
+    this.position.z = props.hasOwnProperty('z') ? props.z : this.position.z;
+    this.ease = props.hasOwnProperty('ease') ? props.ease : this.ease;
+    this.duration = props.hasOwnProperty('duration') ? props.duration : this.duration;
   }
   update() {
     let ease = require('../../ease/index')[this.ease];
@@ -73,5 +70,18 @@ module.exports = class Showable {
         </scale>
       </rotate>
     </translate>;
+  }
+  serialize(props) {
+    return Object.assign({}, props, this.position, {
+      id: this.id,
+      type: this.type,
+      ease: this.ease,
+      duration: this.duration
+    });
+  }
+  deserialize(props) {
+    Object.assign(this.last, this.position);
+    this.start = Date.now();
+    this.load(props);
   }
 };

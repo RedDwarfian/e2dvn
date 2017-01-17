@@ -28,7 +28,8 @@ module.exports = class Renderer extends EventEmitter2 {
 
     this.mouseData = null;
     this.regions = null;
-
+    this.active = null;
+    this.story = require.context('../webpack-loader/story-loader!../story/', true, /\.js$/i)
     let self = this;
     return e2d.raf(function () {
       self.emit('check-waiting');
@@ -77,27 +78,38 @@ module.exports = class Renderer extends EventEmitter2 {
 
     //click event
     if (this.mouseData.clicked) {
+      let willAdvance = true;
       for(i = 0; i < showables.length; i++) {
         showable = showables[i];
         if (this.regions[showable.id]) {
           showable.active = true;
+          this.active = showable;
           this.emit('mousedown', showable);
+          willAdvance = false;
         }
+      }
+      if (willAdvance) {
+        this.emit('advance');
       }
     }
 
     // mouseUp
     if (this.previousMouseState && !this.mouseData.state) {
+      let willAdvance = false;
       for(i = 0; i < showables.length; i++) {
         showable = showables[i];
         if (showable.active && showable.hover) {
           this.emit('click', showable);
+          willAdvance = true;
         }
         if (showable.active) {
           showable.active = false;
         }
       }
-      this.emit('advance');
+      this.active = null;
+      if (willAdvance) {
+        this.emit('advance');
+      }
     }
 
     for(i = 0; i < showables.length; i++) {

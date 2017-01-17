@@ -6,7 +6,7 @@ module.exports = function() {
     },
     pre(file, state) {
       let { path } = file;
-      require('./pre')(path, state, this, []);
+      require('../all/pre')(path, state, this, []);
     },
     visitor:{
       CallExpression(path, state) {
@@ -36,8 +36,8 @@ module.exports = function() {
         }
       },
       TaggedTemplateExpression(path, state) {
-        require('./funcs/speak')(path, state, this, [path.node.tag, path.node.quasi]);
-      }
+        require('../all/says')(path, state, this, [path.node.tag, path.node.quasi])
+      },
     }
   }
 }

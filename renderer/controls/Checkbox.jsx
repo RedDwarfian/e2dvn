@@ -5,13 +5,19 @@ module.exports = class Checkbox extends Showable {
   constructor(props, theme) {
     super(props);
     Object.assign(this, {
+      type: 'checkbox',
       texture: null,
       previousTexture: null,
-      checked: props.checked || false,
-      previousChecked: props.checked || false,
+      checked: false,
+      previousChecked: false,
       theme: theme,
-      text: props.text
+      text: ''
     });
+    this.load(props);
+  }
+  load(props) {
+    this.checked = props.hasOwnProperty('checked') ? props.checked : this.checked;
+    this.text = props.hasOwnProperty('text') ? props.text : this.text;
   }
   update() {
     if (!this.theme.ready) {
@@ -50,5 +56,15 @@ module.exports = class Checkbox extends Showable {
         </textStyle>
       </translate>
     );
+  }
+  serialize() {
+    return super.serialize({
+      checked: this.checked,
+      text: this.text
+    });
+  }
+  deserialize(props) {
+    this.load(props);
+    super.deserialize(props);
   }
 };

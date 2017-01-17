@@ -4,6 +4,7 @@ module.exports = class Background extends Showable {
   constructor(props) {
     super(props);
     this.texture = props.texture;
+    this.type = 'background';
   }
   update() {
     return super.update();
@@ -12,5 +13,10 @@ module.exports = class Background extends Showable {
     return super.render(
       <drawImage img={this.texture} />
     );
+  }
+  serialize() {
+    return super.serialize({
+      texture: this.texture
+    });
   }
 };

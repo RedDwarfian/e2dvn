@@ -5,14 +5,22 @@ module.exports = class Button extends Showable {
   constructor(props, theme) {
     super(props);
     Object.assign(this, {
+      type: 'button',
       texture: null,
       previousTexture: null,
-      selected: props.selected || false,
-      previousSelected: props.selected || false,
+      selected: false,
+      previousSelected: false,
       theme: theme,
-      text: props.text,
+      text: '',
+      onclick: function*(){},
       dirty: true
     });
+    this.load(props);
+  }
+  load(props) {
+    this.selected = props.hasOwnProperty('selected') ? props.selected : this.selected;
+    this.text = props.hasOwnProperty('text') ? props.text : this.text;
+    this.onclick = props.hasOwnProperty('onclick') ? props.onclick : this.onclick;
   }
   update() {
     if (!this.theme.ready) {
@@ -50,5 +58,16 @@ module.exports = class Button extends Showable {
         </textStyle>
       </translate>
     );
+  }
+  serialize() {
+    return super.serialize({
+      selected: this.selected,
+      text: this.text,
+      onclick: this.onclick
+    });
+  }
+  deserialize(props) {
+    this.load(props);
+    return super.deserialize(props);
   }
 };

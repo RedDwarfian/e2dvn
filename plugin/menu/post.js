@@ -3,8 +3,10 @@ let template = require('babel-template');
 
 let body = template(`
   module.exports = function* menu(INTERPRETER) {
+    INTERPRETER.push();
     let CACHE;
     BODY
+    INTERPRETER.pop();
   };
 `)
 
