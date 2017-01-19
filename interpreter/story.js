@@ -3,14 +3,15 @@ module.exports = function* story(interpreter, script, seen, state) {
   let slides = [];
   let story = stories(script)(interpreter, state);
   let intent = 1;
-
+  let isDone = false;
   // load current slides
   for(let i = 0; i < seen; i++) {
     let { value, done } = story.next();
     slides.push(
-      interpreter.getShowableState()
+      interpreter.renderer.getState()
     );
     if (done) {
+      isDone = true;
       break;
     }
   }
@@ -20,8 +21,14 @@ module.exports = function* story(interpreter, script, seen, state) {
   
   while(true) {
     slideIndex += intent;
+
     if (slideIndex >= slides.length) {
+      if (isDone) {
+        return ['advance-history', seen];
+      }
+
       let { value: [type, arg], done } = story.next();
+
 
       if (type === 'pause') {
         if (interpreter.historyEnabled) {
@@ -30,19 +37,20 @@ module.exports = function* story(interpreter, script, seen, state) {
           );
         }
         slideIndex = seen = slides.length - 1;
-
-        yield ['pause', seen];
-        continue;
+        isDone = done;
       }
 
-      if (done) {
-        
-      }
-
-      yield [type, seen];
+      intent = yield [type, seen];
       continue;
     }
 
-    if (slideIndex > 0)
+    if (slideIndex < 0) {
+      return ['previous-history', seen];
+    }
+
+    interpreter.renderer.setState(
+      slides[slideIndex]
+    );
+    intent = yield ['pause', seen];
   }
 };

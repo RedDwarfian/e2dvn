@@ -1,4 +1,6 @@
 import EventEmitter2 from 'eventemitter2';
+import { Map } from 'immutable';
+
 let history = require('./history');
 module.exports = class Interpreter extends EventEmitter2 {
   constructor(renderer, theme) {
@@ -7,14 +9,19 @@ module.exports = class Interpreter extends EventEmitter2 {
       script: null,
       queue: [],
       menus: require.context('../webpack-loader/menu-loader!../menu/', true, /\.js$/i),
+      state: Map(),
       renderer,
       theme,
-      menu: [],
+      menu: [
+        require('../webpack-loader/menu-loader!../menu/main')(this)
+      ],
       wait: Date.now(),
       waiting: false,
       Button: require('../webpack-loader/renderer-loader!../renderer/controls/Button.jsx'),
+      Character: require('../webpack-loader/renderer-loader!../renderer/controls/Character.jsx'),
       Checkbox: require('../webpack-loader/renderer-loader!../renderer/controls/Checkbox.jsx'),
-      Textarea: require('../webpack-loader/renderer-loader!../renderer/controls/Textarea.jsx'),
+      NovelBackground: require('../webpack-loader/renderer-loader!../renderer/controls/NovelBackground.jsx'),
+      Choice: null,
       historyEnabled: false
     })
     this.renderer.on('click', (showable) => {
@@ -22,6 +29,11 @@ module.exports = class Interpreter extends EventEmitter2 {
         this.menu.push(showable.onclick());
       }
     });
+    this.renderer.on('mouse-down', () => {
+      if (!this.renderer.active) {
+        this.advance();
+      }
+    })
     this.renderer.on('check-waiting', () => {
       if (this.waiting && this.wait <= Date.now()) {
         return this.advance();
@@ -29,6 +41,7 @@ module.exports = class Interpreter extends EventEmitter2 {
     });
     this.renderer.on('advance', () => this.advance());
     this.renderer.emit('push');
+    this.advance();
   }
   show(item, props) {
     this.renderer.emit('add', item);
@@ -70,7 +83,8 @@ module.exports = class Interpreter extends EventEmitter2 {
         if (this.queue.length === 0) {
           console.log("exit");
         } else {
-          this.script = history(this, [], this.queue.splice(0, this.queue.length), Immutable.map());
+          this.state = Map();
+          this.script = history(this, [], this.queue.splice(0, this.queue.length));
         }
       }
     }
@@ -87,7 +101,7 @@ module.exports = class Interpreter extends EventEmitter2 {
       case 'load':
         this.menu.splice(0, this.menu.length);
         //get the state and load it
-        this.script = history(this, [], this.queue.splice(0, this.queue.length), Immutable.map()); 
+        this.script = history(this, [], this.queue.splice(0, this.queue.length), Immutable.map());
         return this.advance();
     }
 

@@ -9,9 +9,4 @@ code = babel.transform(code, {
   ]
 }).code
 
-code = babel.transform(code, {
-  plugins: [
-    'minify-dead-code-elimination'
-  ]
-}).code
 console.log(code);

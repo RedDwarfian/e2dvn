@@ -1,7 +1,7 @@
 let story = require('./story');
-import Immutable from 'immutable';
+import { Map } from 'immutable';
 
-module.exports = function* history(interpreter, history, queue, state = Immutable.Map()) {
+module.exports = function* history(interpreter, history, queue, state = Map()) {
   history = history.slice();
   let currentIndex = history.length - 1;
   queue = queue.slice();
@@ -10,12 +10,12 @@ module.exports = function* history(interpreter, history, queue, state = Immutabl
   let currentScript = null;
   let intent = 1;
   if (currentIndex === -1) {
-    nextScript = queue.unshift();
+    nextScript = queue.shift();
     seen = 0;
     currentIndex = history.push({
       script: nextScript,
       seen
-    });
+    }) - 1;
   } else {
     nextScript = history[currentIndex].script;
     seen = history[currentIndex].seen;
@@ -31,12 +31,16 @@ module.exports = function* history(interpreter, history, queue, state = Immutabl
 
 
   while(true) {
+    let { mouseData } = interpreter.renderer;
+    if (mouseData.clicked) {
+      intent = 1;
+    }
     let { done, value: [action, arg = void 0] } = currentScript.next(intent);
 
     if (done || action === 'advance-history') {
       currentIndex += 1;
       if (currentIndex >= history.length) {
-        nextScript = queue.unshift();
+        nextScript = queue.shift();
         seen = 0;
       } else {
         nextScript = history[currentIndex].script;
@@ -45,7 +49,7 @@ module.exports = function* history(interpreter, history, queue, state = Immutabl
       if (!nextScript) {
         return ['done', void 0];
       }
-      currentIndex = history.push(nextScript);
+      currentIndex = history.push(nextScript) - 1;
       currentScript = story(interpreter, nextScript, seen, state);
       continue;
     }

@@ -17,7 +17,7 @@ module.exports = class Character extends Showable {
       previousTexture: null,
       definition: null
     })
-    this.load(props)
+    this.load(props);
   }
   load(props) {
     if (props.hasOwnProperty('actor') && props.actor !== this.actor) {

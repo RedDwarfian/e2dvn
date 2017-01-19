@@ -20,8 +20,7 @@ module.exports = class Showable {
       view: [],
       ready: true
     });
-    this.load(props);
-
+    Showable.prototype.load.call(this, props);
     Object.assign(this.last, this.position);
   }
   load(props) {

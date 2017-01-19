@@ -5,13 +5,12 @@ let newGame = Button({
   y: 100,
   text: 'New Game',
   onclick: function*() {
-    show(newGame, { x: 200, y: 200 });
-    wait(400);
-    hide(newGame, { a: 0 });
+    queue(
+      './main.js'
+    )
     test = true;
   }
 });
-
 
 show(newGame, {
   a: 1

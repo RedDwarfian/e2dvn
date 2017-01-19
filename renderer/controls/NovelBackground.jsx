@@ -1,4 +1,4 @@
-let Showable = require('../../webpack-loader/renderer-loader!./Character.jsx');
+let Character = require('../../webpack-loader/renderer-loader!./Character.jsx');
 module.exports= class NovelBackground extends Character {
   constructor(props) {
     props.actor = 'Background';

@@ -32,7 +32,8 @@ module.exports = function() {
         }
       },
       Identifier(path, state) {
-        if (path.parentPath.isMemberExpression()) {
+        
+        if (path.parentPath.isMemberExpression() && path.parentPath.node.property === path.node) {
           return;
         }
         let func;
@@ -43,7 +44,6 @@ module.exports = function() {
         }
         func(path, state, this);
       },
-      
       ReturnStatement: {
         exit(path, state) {
           require('../all/return')(path, state, this);

@@ -5,6 +5,15 @@ let Background = require('../webpack-loader/renderer-loader.js!./controls/Backgr
 let sortFunc = (left, right) => left.position.z < right.position.z ? -1 : 1;
 import EventEmitter2 from 'eventemitter2';
 
+let types = {
+  'background': require('../webpack-loader/renderer-loader!./controls/Background.jsx'),
+  'button': require('../webpack-loader/renderer-loader!./controls/Button.jsx'),
+  'character': require('../webpack-loader/renderer-loader!./controls/Character.jsx'),
+  'checkbox': require('../webpack-loader/renderer-loader!./controls/Checkbox.jsx'),
+  'novelBackground': require('../webpack-loader/renderer-loader!./controls/NovelBackground.jsx'),
+  'textarea': require('../webpack-loader/renderer-loader!./controls/Textarea.jsx'),
+};
+
 module.exports = class Renderer extends EventEmitter2 {
     constructor(theme) {
     super();
@@ -29,7 +38,20 @@ module.exports = class Renderer extends EventEmitter2 {
     this.mouseData = null;
     this.regions = null;
     this.active = null;
-    this.story = require.context('../webpack-loader/story-loader!../story/', true, /\.js$/i)
+    this.story = require.context('../webpack-loader/story-loader!../story/', true, /\.js$/i);
+    let Textarea = types.textarea;
+    this.tb = new Textarea({
+      a: 0,
+      y: height
+    }, theme);
+    this.theme.textarea.texture.addEventListener('load', () => {
+      this.tb.position.cy = this.tb.last.cy = this.theme.textarea.texture.height;
+    });
+
+    this.width = width;
+
+    this.height = height;
+
     let self = this;
     return e2d.raf(function () {
       self.emit('check-waiting');
@@ -44,9 +66,6 @@ module.exports = class Renderer extends EventEmitter2 {
     if (this.showables.includes(showable)) {
       this.showables.splice(this.showables.indexOf(showable), 1);
     }
-  }
-  static(showable) {
-    return !this.statics.includes(showable) ? this.statics.push(showable) : void 0;
   }
   push() {
     this.stack.push({
@@ -119,6 +138,7 @@ module.exports = class Renderer extends EventEmitter2 {
         let index = this.showables.indexOf(showable);
         if (index !== -1) {
           this.showables.splice(index, 1);
+          showables.splice(i, 1);
           i -= 1;
         }
         continue;
@@ -148,5 +168,46 @@ module.exports = class Renderer extends EventEmitter2 {
       <clearRect width={this.canvas.width} height={this.canvas.height}/>
       {result}
     </render>;
+  }
+  getState() {
+    return this.renderables.reduce(
+      (index, r) => index[r.id] = r.serialize(),
+      {}
+    );
+  }
+  find(id) {
+    for(let i = 0; i < this.showables.length; i++) {
+      if (this.showables[i].id === id) {
+        return this.showables[i];
+      }
+    }
+  }
+  setState(state) {
+    let index = {};
+    for (let i = 0; i < this.showables.length; i++) {
+      let showable = this.showables[i];
+      if (state.hasOwnProperty(showable.id)) {
+        showable.deserialize(state[showable.id])
+      } else {
+        this.showables.splice(i, 1);
+        i -= 1;
+      }
+      index[showable.id] = true;
+    }
+
+    let ids = Object.getOwnPropertyNames(state);
+
+    for(let i = 0; i < ids.length; i++) {
+      if (!index[ids[i]]) {
+        let defintion = state[ids[i]];
+        let Constructor = types[
+          defintion.type
+        ];
+        this.showables.push(
+          new Constructor(defintion)
+        );
+      }
+    }
+
   }
 }
