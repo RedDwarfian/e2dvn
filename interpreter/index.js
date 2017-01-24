@@ -43,14 +43,19 @@ module.exports = class Interpreter extends EventEmitter2 {
     this.renderer.emit('push');
     this.advance();
   }
-  show(item, props) {
+  show(item, ...props) {
     this.renderer.emit('add', item);
-    for(let name in props) {
-      if (item.hasOwnProperty(name)) {
-        item[name] = props[name];
-      }
-      if (item.position.hasOwnProperty(name)) {
-        item.position[name] = props[name];
+    return this.apply(item, ...props);
+  }
+  apply(item, ...props) {
+    for(let prop in props) {
+      for(let name in prop) {
+        if (item.hasOwnProperty(name)) {
+          item[name] = props[name];
+        }
+        if (item.position.hasOwnProperty(name)) {
+          item.position[name] = props[name];
+        }
       }
     }
   }

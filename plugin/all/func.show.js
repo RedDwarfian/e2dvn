@@ -4,7 +4,7 @@ let buttonTemplate = template(`
   !(
     TARGET = INTERPRETER.renderer.find(TARGET.id) || TARGET,
     Object.assign(TARGET.last, TARGET.position),
-    INTERPRETER.show(TARGET, PROPS),
+    INTERPRETER.show(TARGET, ...PROPS),
     TARGET.start = Date.now(),
     TARGET.hiding = false,
     TARGET
@@ -12,14 +12,14 @@ let buttonTemplate = template(`
 `);
 
 module.exports = function(path, state, plugin, args) {
-  let target = args[0], props = args[1];
+  let target = args[0];
   if (!types.isIdentifier(target)) {
     return;
   }
   return path.replaceWith(
     buttonTemplate(
       Object.assign({}, plugin.identifiers, {
-        PROPS: props || types.objectExpression([]),
+        PROPS: types.arrayExpression(args.slice(1)),
         TARGET: target
       })
     ).expression.argument

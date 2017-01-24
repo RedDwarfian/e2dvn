@@ -17,11 +17,20 @@ module.exports = (isScript) => ({
           } catch(err) {
             return;
           }
-          func(path, state, this, path.node.arguments);
+          return func(path, state, this, path.node.arguments);
         }
       },
       TaggedTemplateExpression(path, state) {
         return require('./func.says')(path, state, this, [path.node.tag, path.node.quasi]);
       },
+      ReferencedIdentifier(path, state) {
+        let func;
+        try {
+          func = require('./id.' + path.node.name);
+        } catch(err) {
+          return;
+        }
+        return func(path, state, this);
+      }
     }
 })
