@@ -1,12 +1,15 @@
 let fs = require('fs');
 let babel = require('babel-core');
 
-let code = fs.readFileSync('./menu/main.js');
+let code = fs.readFileSync('./story/main.js');
 
 code = babel.transform(code, {
   plugins: [
-    './plugin/menu/transformer.js'
-  ]
+    './plugin/script/transformer.js'
+  ],
+  parserOpts: {
+    allowReturnOutsideFunction: true
+  }
 }).code
 
 console.log(code);

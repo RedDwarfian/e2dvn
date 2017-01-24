@@ -1,90 +1,46 @@
 module.exports = function* menu(_interpreter) {
+  void 0;
+
   let _cache;
 
-  let test = Object.assign({}, {
-    id: '',
-    text: "",
-    type: 'button',
-    x: 0,
-    y: 0,
-    active: false,
-    hover: false,
-    selected: false,
-    view: [],
-    dirty: true
-  }, {});
-
-  let newGame = Object.assign({}, {
-    id: '',
-    text: "",
-    type: 'button',
-    x: 0,
-    y: 0,
-    active: false,
-    hover: false,
-    selected: false,
-    view: [],
-    dirty: true
-  }, {
-    id: 'new-game',
-    x: 100,
-    y: 100,
-    text: 'New Game'
+  let {
+    tb,
+    bg
+  } = _interpreter;
+  let Aya = new _interpreter.Character({
+    id: 'aya',
+    name: 'Aya',
+    actor: 'Aya',
+    a: 0
   });
 
-  let options = Object.assign({}, {
-    id: '',
-    text: "",
-    type: 'button',
-    x: 0,
-    y: 0,
-    active: false,
-    hover: false,
-    selected: false,
-    view: [],
-    dirty: true
-  }, {
-    id: 'options',
-    x: 100,
-    y: 200,
-    text: 'Options'
-  });
-
-  let exit = Object.assign({}, {
-    id: '',
-    text: "",
-    type: 'button',
-    x: 0,
-    y: 0,
-    active: false,
-    hover: false,
-    selected: false,
-    view: [],
-    dirty: true
-  }, {
-    id: 'exit',
-    x: 100,
-    y: 300,
-    text: 'Exit'
-  });
-
-  _cache = newGame, _interpreter.show(_cache), Object.assign(_cache, {});
-  _cache = options, _interpreter.show(_cache), Object.assign(_cache, {});
-  _cache = exit, _interpreter.show(_cache), Object.assign(_cache, {});
-
-  while (true) {
-    switch (_interpreter.clicked && _interpreter.clicked.id) {
-      case 'new-game':
-        _interpreter.queue.push('./main.js'), void 0;
-        return null;
-        break;
-
-      case 'options':
-        _interpreter.menus.push(_interpreter.menus('./options')), yield ['continue', void 0], void 0;
-        break;
+  //start aya here
+  Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, {
+    x: _interpreter.renderer.width * 50 * 0.01,
+    y: _interpreter.renderer.height * 100 * 0.01,
+    cx: {
+      _type: 'computed',
+      unit: 'aw',
+      value: Aya
+    },
+    cy: {
+      _type: 'computed',
+      unit: 'ah',
+      value: Aya
     }
+  }), Aya.start = Date.now(), Aya.hiding = false, Aya;
 
-    yield;
-  }
+  Aya.mood = 'Neutral';
+  bg = _interpreter.renderer.find(bg.id) || bg, Object.assign(bg.last, bg.position), _interpreter.show(bg, {
+    a: 1
+  }), bg.start = Date.now(), bg.hiding = false, bg;
+  Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, {
+    a: 1
+  }), Aya.start = Date.now(), Aya.hiding = false, Aya;
+  tb = _interpreter.renderer.find(tb.id) || tb, Object.assign(tb.last, tb.position), _interpreter.show(tb, {
+    a: 1
+  }), tb.start = Date.now(), tb.hiding = false, tb;
+
+  _cache = [Aya || "", `Hello`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+  void 0;
 };
-

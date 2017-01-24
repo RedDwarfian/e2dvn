@@ -50,14 +50,14 @@ module.exports = class Showable {
     this.previousRatio = this.ratio;
   }
   render(...children) {
-    let x = this.last.x  + this.ratio * (this.position.x - this.last.x),
-      y = this.last.y  + this.ratio * (this.position.y - this.last.y),
-      sx = this.last.sx + this.ratio * (this.position.sx - this.last.sx),
-      sy = this.last.sy + this.ratio * (this.position.sy - this.last.sy),
-      rot = this.last.rot  + this.ratio * (this.position.rot - this.last.rot),
-      cx = this.last.cx + this.ratio * (this.position.cx - this.last.cx),
-      cy = this.last.cy + this.ratio * (this.position.cy - this.last.cy),
-      a = this.last.a  + this.ratio * (this.position.a - this.last.a);
+    let x = this.checkComputed(this.last.x)  + this.ratio * (this.checkComputed(this.position.x) - this.checkComputed(this.last.x)),
+      y = this.checkComputed(this.last.y)  + this.ratio * (this.checkComputed(this.position.y) - this.checkComputed(this.last.y)),
+      sx = this.checkComputed(this.last.sx) + this.ratio * (this.checkComputed(this.position.sx) - this.checkComputed(this.last.sx)),
+      sy = this.checkComputed(this.last.sy) + this.ratio * (this.checkComputed(this.position.sy) - this.checkComputed(this.last.sy)),
+      rot = this.checkComputed(this.last.rot)  + this.ratio * (this.checkComputed(this.position.rot) - this.checkComputed(this.last.rot)),
+      cx = this.checkComputed(this.last.cx) + this.ratio * (this.checkComputed(this.position.cx) - this.checkComputed(this.last.cx)),
+      cy = this.checkComputed(this.last.cy) + this.ratio * (this.checkComputed(this.position.cy) - this.checkComputed(this.last.cy)),
+      a = this.checkComputed(this.last.a)  + this.ratio * (this.checkComputed(this.position.a) - this.checkComputed(this.last.a));
     return <translate x={x} y={y}>
       <rotate angle={rot}>
         <scale x={sx} y={sy}>
@@ -69,6 +69,22 @@ module.exports = class Showable {
         </scale>
       </rotate>
     </translate>;
+  }
+  checkComputed(value) {
+    return value && value._type === 'computed' ?
+      (
+        (
+          value.unit === 'ah' ? this.width :
+          value.unit === 'ah' ? this.height : void 0
+        ) * value.value * 0.01
+      ) :
+      value;
+  }
+  get width() {
+    return this.texture.width;
+  }
+  get height() {
+    return this.texture.height;
   }
   serialize(props) {
     return Object.assign({}, props, this.position, {

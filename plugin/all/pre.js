@@ -1,4 +1,5 @@
 let types = require('babel-types');
+let template = require('babel-template');
 module.exports = (path, state, plugin, args) => {
   plugin.identifiers = [
     'interpreter',
@@ -9,29 +10,13 @@ module.exports = (path, state, plugin, args) => {
   );
   plugin.expressions = {
     CONTINUE: types.yieldExpression(
-      types.arrayExpression([
-        types.stringLiteral('continue'),
-        types.unaryExpression(
-          'void',
-          types.numericLiteral(0)
-        )
-      ])
+      template(`['continue', void 0]`)().expression
     ),
     PUSH: types.yieldExpression(
-      types.arrayExpression([
-        types.stringLiteral('push'),
-        types.unaryExpression('void',
-          types.numericLiteral(0)
-        )
-      ])
+      template(`['push', void 0]`)().expression
     ),
     PAUSE: types.yieldExpression(
-      types.arrayExpression([
-        types.stringLiteral('pause'),
-        types.unaryExpression('void',
-          types.numericLiteral(0)
-        )
-      ])
+      template(`['pause', void 0]`)().expression
     )
   }
 };

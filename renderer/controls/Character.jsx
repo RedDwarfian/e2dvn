@@ -34,6 +34,12 @@ module.exports = class Character extends Showable {
     this.texture.onload = () => this.ready = true;
     this.definition = require('json-loader!../../assets/' + actor + '.json');
   }
+  get width() {
+    return this.defintion.moods[this.mood].w;
+  }
+  get height() {
+    return this.defintion.moods[this.mood].h;
+  }
   update() {
     if (!this.ready) {
       return;

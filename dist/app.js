@@ -2194,15 +2194,24 @@ module.exports = class Showable {
     this.previousRatio = this.ratio;
   }
   render(...children) {
-    let x = this.last.x + this.ratio * (this.position.x - this.last.x),
-        y = this.last.y + this.ratio * (this.position.y - this.last.y),
-        sx = this.last.sx + this.ratio * (this.position.sx - this.last.sx),
-        sy = this.last.sy + this.ratio * (this.position.sy - this.last.sy),
-        rot = this.last.rot + this.ratio * (this.position.rot - this.last.rot),
-        cx = this.last.cx + this.ratio * (this.position.cx - this.last.cx),
-        cy = this.last.cy + this.ratio * (this.position.cy - this.last.cy),
-        a = this.last.a + this.ratio * (this.position.a - this.last.a);
+    let x = this.checkComputed(this.last.x) + this.ratio * (this.checkComputed(this.position.x) - this.checkComputed(this.last.x)),
+        y = this.checkComputed(this.last.y) + this.ratio * (this.checkComputed(this.position.y) - this.checkComputed(this.last.y)),
+        sx = this.checkComputed(this.last.sx) + this.ratio * (this.checkComputed(this.position.sx) - this.checkComputed(this.last.sx)),
+        sy = this.checkComputed(this.last.sy) + this.ratio * (this.checkComputed(this.position.sy) - this.checkComputed(this.last.sy)),
+        rot = this.checkComputed(this.last.rot) + this.ratio * (this.checkComputed(this.position.rot) - this.checkComputed(this.last.rot)),
+        cx = this.checkComputed(this.last.cx) + this.ratio * (this.checkComputed(this.position.cx) - this.checkComputed(this.last.cx)),
+        cy = this.checkComputed(this.last.cy) + this.ratio * (this.checkComputed(this.position.cy) - this.checkComputed(this.last.cy)),
+        a = this.checkComputed(this.last.a) + this.ratio * (this.checkComputed(this.position.a) - this.checkComputed(this.last.a));
     return e2d.translate(x, y, e2d.rotate(rot, e2d.scale(sx, sy, e2d.translate(-cx, -cy, e2d.globalAlpha(a, children)))));
+  }
+  checkComputed(value) {
+    return value && value._type === 'computed' ? (value.unit === 'ah' ? this.width : value.unit === 'ah' ? this.height : void 0) * value.value * 0.01 : value;
+  }
+  get width() {
+    return this.texture.width;
+  }
+  get height() {
+    return this.texture.height;
   }
   serialize(props) {
     return Object.assign({}, props, this.position, {
@@ -2258,6 +2267,12 @@ module.exports = class Character extends Showable {
     this.texture.src = __webpack_require__(15)("./" + actor + '.png');
     this.texture.onload = () => this.ready = true;
     this.definition = __webpack_require__(16)("./" + actor + '.json');
+  }
+  get width() {
+    return this.defintion.moods[this.mood].w;
+  }
+  get height() {
+    return this.defintion.moods[this.mood].h;
   }
   update() {
     if (!this.ready) {
@@ -8601,6 +8616,7 @@ module.exports = class Renderer extends __WEBPACK_IMPORTED_MODULE_2_eventemitter
         let index = this.showables.indexOf(showable);
         if (index !== -1) {
           this.showables.splice(index, 1);
+          showables.splice(i, 1);
           i -= 1;
         }
         continue;
@@ -9724,18 +9740,26 @@ module.exports = function* menu(_interpreter) {
   Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, {
     x: _interpreter.renderer.width * 50 * 0.01,
     y: _interpreter.renderer.height * 100 * 0.01,
-    cx: (_cache = Aya, (_cache.hasOwnProperty('definition') ? _cache.definition.moods[_cache.mood].w : _cache.texture.width) * 0.01),
-    cy: (_cache = Aya, (_cache.hasOwnProperty('definition') ? _cache.definition.moods[_cache.mood].h : _cache.texture.height) * 0.01)
+    cx: {
+      _type: 'computed',
+      unit: 'aw',
+      value: Aya
+    },
+    cy: {
+      _type: 'computed',
+      unit: 'ah',
+      value: Aya
+    }
   }), Aya.start = Date.now(), Aya.hiding = false, Aya;
 
   Aya.mood = 'Neutral';
-  _interpreter.bg = _interpreter.renderer.find(_interpreter.bg.id) || _interpreter.bg, Object.assign(_interpreter.bg.last, _interpreter.bg.position), _interpreter.show(_interpreter.bg, {
+  bg = _interpreter.renderer.find(_interpreter.bg.id) || _interpreter.bg, Object.assign(_interpreter.bg.last, _interpreter.bg.position), _interpreter.show(_interpreter.bg, {
     a: 1
   }), _interpreter.bg.start = Date.now(), _interpreter.bg.hiding = false, _interpreter.bg;
   Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, {
     a: 1
   }), Aya.start = Date.now(), Aya.hiding = false, Aya;
-  _interpreter.tb = _interpreter.renderer.find(_interpreter.tb.id) || _interpreter.tb, Object.assign(_interpreter.tb.last, _interpreter.tb.position), _interpreter.show(_interpreter.tb, {
+  tb = _interpreter.renderer.find(_interpreter.tb.id) || _interpreter.tb, Object.assign(_interpreter.tb.last, _interpreter.tb.position), _interpreter.show(_interpreter.tb, {
     a: 1
   }), _interpreter.tb.start = Date.now(), _interpreter.tb.hiding = false, _interpreter.tb;
 

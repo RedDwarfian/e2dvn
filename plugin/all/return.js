@@ -1,6 +1,6 @@
 let template = require('babel-template');
 let returnTemplate = template(`
-  return (INTERPRETER.pop(), INTERPRETER.returnValue = VALUE, ['continue', void 0]);
+  return (POP, INTERPRETER.returnValue = VALUE, ['continue', void 0]);
 `)
 
 module.exports = (path, state, plugin) => {
@@ -11,7 +11,8 @@ module.exports = (path, state, plugin) => {
   path.replaceWith(
     returnTemplate(
       Object.assign({
-        VALUE: path.node.argument
+        VALUE: path.node.argument,
+        POP: plugin.isScript ? template('void 0')() : template('INTERPRETER.pop()')(plugin.identifiers)
       },
         plugin.identifiers,
         plugin.expressions
