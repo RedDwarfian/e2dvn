@@ -10,6 +10,12 @@ let Aya = Character({
 
 show(bg, visible);
 show(Aya, visible);
-show(tb, visible)
+show(tb, visible);
+
+absoluteCenter;
+stageLeft;
+stageRight;
+inactive;
+active;
 
 Aya`Hello`;
