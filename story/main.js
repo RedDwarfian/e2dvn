@@ -13,6 +13,11 @@ show(Aya, visible, behind(tb));
 show(bg, visible, behind(Aya));
 
 
+rotate(Math.PI);
+rotateTau(0.25);
+rotateDeg(-90);
+
+
 Aya`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus gravida sapien lacus, a tristique diam sodales non. Nam malesuada erat vitae gravida aliquam. Curabitur porta enim ut malesuada vehicula. Quisque ac velit diam. Sed eget lacus aliquam orci sagittis porttitor. Nunc ac pretium nisi, non faucibus arcu. Maecenas ut ultrices ipsum, eget consequat purus. Nunc ullamcorper consequat rutrum. Maecenas id est gravida, sodales nibh sed, bibendum est. Vestibulum nibh diam, ultrices ut arcu et, finibus auctor libero. Vivamus augue quam, porta vel est ut, viverra dapibus risus. Nam quis vestibulum eros, eu eleifend sapien. Nam efficitur orci sit amet porttitor facilisis. Vivamus varius leo ut erat facilisis interdum.`;
 
 show(Aya, left2, mood('Blush'));
