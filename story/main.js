@@ -12,10 +12,8 @@ show(bg, visible);
 show(Aya, visible);
 show(tb, visible);
 
-absoluteCenter;
-stageLeft;
-stageRight;
-inactive;
-active;
+rotate(Math.PI);
+rotateTau(0.25);
+rotateDeg(-90);
 
 Aya`Hello`;

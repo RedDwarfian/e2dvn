@@ -41,62 +41,13 @@ module.exports = function* menu(_interpreter) {
     }]), tb.start = Date.now(), tb.hiding = false, tb;
 
     ({
-        x: _interpreter.renderer.width * 50 * 0.01,
-        y: _interpreter.renderer.height * 50 * 0.01,
-        cx: {
-            _type: 'computed',
-            unit: 'aw',
-            value: 50
-        },
-        cy: {
-            _type: 'computed',
-            unit: 'ah',
-            value: 50
-        }
+        rot: Math.PI
     });
     ({
-        x: _interpreter.renderer.width * 0 * 0.01,
-        y: _interpreter.renderer.height * 100 * 0.01,
-        cx: {
-            _type: 'computed',
-            unit: 'aw',
-            value: 100
-        },
-        cy: {
-            _type: 'computed',
-            unit: 'ah',
-            value: 100
-        }
+        rot: 0.25 * 2 * Math.PI
     });
     ({
-        x: _interpreter.renderer.width * 100 * 0.01,
-        y: _interpreter.renderer.height * 100 * 0.01,
-        cx: {
-            _type: 'computed',
-            unit: 'aw',
-            value: 0
-        },
-        cy: {
-            _type: 'computed',
-            unit: 'ah',
-            value: 100
-        }
-    });
-    ({
-        a: 0.75,
-        cy: {
-            _type: 'computed',
-            unit: 'ah',
-            value: 90
-        }
-    });
-    ({
-        a: 1,
-        cy: {
-            _type: 'computed',
-            unit: 'ah',
-            value: 100
-        }
+        rot: -90 * Math.PI / 180
     });
 
     _cache = [Aya || "", `Hello`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
