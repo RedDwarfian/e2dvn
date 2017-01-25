@@ -9,8 +9,10 @@ module.exports = {
   },
   output: {
     path: join(__dirname, '../dist'),
-    filename: '[name].js'
+    filename: '[name].js',
+    sourceMapFilename: '[file].map'
   },
+  devtool: 'source-map',
   plugins: [
     new Includer({
       //'./assets': './assets/*.png',

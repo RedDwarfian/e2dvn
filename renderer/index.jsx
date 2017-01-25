@@ -106,7 +106,7 @@ module.exports = class Renderer extends EventEmitter2 {
           this.emit('mousedown', showable);
           willAdvance = false;
         }
-        if (!showable.complete) {
+        if (!showable.completed) {
           willAdvance = false;
           showable.autoComplete();
         }
