@@ -1,7 +1,7 @@
 let story = require('./story');
 import { Map } from 'immutable';
 
-module.exports = function* history(interpreter, history, queue, state = Map()) {
+module.exports = function* historyWrapper(interpreter, history, queue, state = Map()) {
   history = history.slice();
   let currentIndex = history.length - 1;
   queue = queue.slice();

@@ -4,8 +4,13 @@ module.exports = function* story(interpreter, script, seen, state) {
   let story = stories(script)(interpreter, state);
   let intent = 1;
   let isDone = false;
+
+  let { value, done } = story.next();
+  slides.push(
+    interpreter.renderer.getState()
+  );
   // load current slides
-  for(let i = 0; i < seen; i++) {
+  for(let i = 1; i < seen; i++) {
     let { value, done } = story.next();
     slides.push(
       interpreter.renderer.getState()
@@ -18,7 +23,7 @@ module.exports = function* story(interpreter, script, seen, state) {
 
   let slideIndex = slides.length - 1;
   intent = yield ['pause', slideIndex];
-  
+
   while(true) {
     slideIndex += intent;
 
