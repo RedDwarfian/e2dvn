@@ -31,7 +31,11 @@ module.exports = class Character extends Showable {
     this.actor = actor;
     this.texture = new Image();
     this.texture.src = require('file-loader!../../assets/' + actor + '.png');
-    this.texture.onload = () => (this.ready = true, this.dirty = true);
+    this.texture.onload = () => {
+      this.ready = true;
+      this.dirty = true;
+      this.start = Date.now();
+    };
     this.definition = require('json-loader!../../assets/' + actor + '.json');
   }
   get width() {

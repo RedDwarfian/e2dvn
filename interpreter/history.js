@@ -1,5 +1,5 @@
 let story = require('./story');
-import { Map } from 'immutable';
+let { Map } = require('immutable');
 
 module.exports = function* historyWrapper(interpreter, history, queue, state = Map()) {
   history = history.slice();

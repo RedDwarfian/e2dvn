@@ -2274,7 +2274,11 @@ module.exports = class Character extends Showable {
     this.actor = actor;
     this.texture = new Image();
     this.texture.src = __webpack_require__(16)("./" + actor + '.png');
-    this.texture.onload = () => (this.ready = true, this.dirty = true);
+    this.texture.onload = () => {
+      this.ready = true;
+      this.dirty = true;
+      this.start = Date.now();
+    };
     this.definition = __webpack_require__(17)("./" + actor + '.json');
   }
   get width() {
@@ -8401,25 +8405,19 @@ module.exports = class Textarea extends Showable {
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_immutable__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_immutable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_immutable__);
-
-
+let { EventEmitter2 } = __webpack_require__(3);
+let { Map } = __webpack_require__(4);
 let NovelBackground = __webpack_require__(10);
 let Textarea = __webpack_require__(11);
 let history = __webpack_require__(21);
-module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemitter2___default.a {
+module.exports = class Interpreter extends EventEmitter2 {
   constructor(renderer, theme) {
     super();
     Object.assign(this, {
       script: null,
       queue: [],
       menus: __webpack_require__(23),
-      state: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_immutable__["Map"])(),
+      state: Map(),
       renderer,
       theme,
       menu: [
@@ -8438,7 +8436,12 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemit
         id: 'bg'
       }),
       tb: new Textarea({
-        id: 'tb'
+        id: 'tb',
+        x: renderer.width * 0.5,
+        y: renderer.height,
+        cx: { _type: 'computed', unit: 'aw', value: 50 },
+        cy: { _type: 'computed', unit: 'ah', value: 100 },
+        a: 0
       }, theme)
     })
     this.renderer.on('click', (showable) => {
@@ -8505,7 +8508,7 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemit
         if (this.queue.length === 0) {
           console.log("exit");
         } else {
-          this.state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_immutable__["Map"])();
+          this.state = Map();
           this.script = history(this, [], this.queue.splice(0, this.queue.length));
         }
       }
@@ -8989,14 +8992,10 @@ module.exports = function inverse(func) {
 /* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_immutable__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_immutable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_immutable__);
 let story = __webpack_require__(22);
+let { Map } = __webpack_require__(4);
 
-
-module.exports = function* historyWrapper(interpreter, history, queue, state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_immutable__["Map"])()) {
+module.exports = function* historyWrapper(interpreter, history, queue, state = Map()) {
   history = history.slice();
   let currentIndex = history.length - 1;
   queue = queue.slice();
@@ -9813,40 +9812,19 @@ module.exports = function* menu(_interpreter) {
 
     tb = _interpreter.renderer.find(tb.id) || tb, Object.assign(tb.last, tb.position), _interpreter.show(tb, ...[{
         a: 1
-    }, {
-        x: _interpreter.renderer.width * 50 * 0.01,
-        y: _interpreter.renderer.height * 100 * 0.01,
-        cx: {
-            _type: 'computed',
-            unit: 'aw',
-            value: 50
-        },
-        cy: {
-            _type: 'computed',
-            unit: 'ah',
-            value: 100
-        }
     }]), tb.start = Date.now(), tb.hiding = false, tb;
     Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, ...[{
         a: 1
     }, {
-        z: tb.z - 1
+        z: tb.position.z - 1
     }]), Aya.start = Date.now(), Aya.hiding = false, Aya;
     bg = _interpreter.renderer.find(bg.id) || bg, Object.assign(bg.last, bg.position), _interpreter.show(bg, ...[{
         a: 1
     }, {
-        z: Aya.z - 1
+        z: Aya.position.z - 1
+    }, {
+        mood: 'night_forest_by_grammahobbes-da9sfcr'
     }]), bg.start = Date.now(), bg.hiding = false, bg;
-
-    ({
-        rot: Math.PI
-    });
-    ({
-        rot: 0.25 * 2 * Math.PI
-    });
-    ({
-        rot: -90 * Math.PI / 180
-    });
 
     _cache = [Aya || "", `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus gravida sapien lacus, a tristique diam sodales non. Nam malesuada erat vitae gravida aliquam. Curabitur porta enim ut malesuada vehicula. Quisque ac velit diam. Sed eget lacus aliquam orci sagittis porttitor. Nunc ac pretium nisi, non faucibus arcu. Maecenas ut ultrices ipsum, eget consequat purus. Nunc ullamcorper consequat rutrum. Maecenas id est gravida, sodales nibh sed, bibendum est. Vestibulum nibh diam, ultrices ut arcu et, finibus auctor libero. Vivamus augue quam, porta vel est ut, viverra dapibus risus. Nam quis vestibulum eros, eu eleifend sapien. Nam efficitur orci sit amet porttitor facilisis. Vivamus varius leo ut erat facilisis interdum.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
 

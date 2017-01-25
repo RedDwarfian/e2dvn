@@ -1,5 +1,5 @@
-import EventEmitter2 from 'eventemitter2';
-import { Map } from 'immutable';
+let { EventEmitter2 } = require('eventemitter2');
+let { Map } = require('immutable');
 let NovelBackground = require('../webpack-loader/renderer-loader!../renderer/controls/NovelBackground.jsx');
 let Textarea = require('../webpack-loader/renderer-loader!../renderer/controls/Textarea.jsx');
 let history = require('./history');
@@ -29,7 +29,12 @@ module.exports = class Interpreter extends EventEmitter2 {
         id: 'bg'
       }),
       tb: new Textarea({
-        id: 'tb'
+        id: 'tb',
+        x: renderer.width * 0.5,
+        y: renderer.height,
+        cx: { _type: 'computed', unit: 'aw', value: 50 },
+        cy: { _type: 'computed', unit: 'ah', value: 100 },
+        a: 0
       }, theme)
     })
     this.renderer.on('click', (showable) => {
