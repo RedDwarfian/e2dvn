@@ -8621,20 +8621,12 @@ webpackContext.id = 14;
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_e2d__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_crel__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_eventemitter2__);
-
-
+let e2d = __webpack_require__(0);
+let crel = __webpack_require__(24);
 let { window: { width, height, title } } = __webpack_require__(62);
 let Background = __webpack_require__(7);
 let sortFunc = (left, right) => left.position.z < right.position.z ? -1 : 1;
-
+let { EventEmitter2 } = __webpack_require__(3);
 
 let types = {
   'background': __webpack_require__(7),
@@ -8645,16 +8637,16 @@ let types = {
   'textarea': __webpack_require__(11)
 };
 
-module.exports = class Renderer extends __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default.a {
+module.exports = class Renderer extends EventEmitter2 {
   constructor(theme) {
     super();
     this.theme = theme;
     this.showables = [];
     this.statics = [];
-    __WEBPACK_IMPORTED_MODULE_1_crel___default()(document.body, { style: 'margin: 0; padding: 0; ' }, __WEBPACK_IMPORTED_MODULE_1_crel___default()('div', { style: `margin: 0 auto; width: ${ width }px; height: ${ height }px;` }, this.canvas = __WEBPACK_IMPORTED_MODULE_1_crel___default()('canvas', { width, height })));
+    crel(document.body, { style: 'margin: 0; padding: 0; ' }, crel('div', { style: `margin: 0 auto; width: ${ width }px; height: ${ height }px;` }, this.canvas = crel('canvas', { width, height })));
 
     this.ctx = this.canvas.getContext('2d');
-    __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.initialize(this.ctx);
+    e2d.initialize(this.ctx);
 
     this.onAny((event, value) => this[event] && this[event](value));
 
@@ -8680,7 +8672,7 @@ module.exports = class Renderer extends __WEBPACK_IMPORTED_MODULE_2_eventemitter
     this.height = height;
 
     let self = this;
-    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.raf(function () {
+    return e2d.raf(function () {
       self.emit('check-waiting');
       self.update();
       self.render();
@@ -8712,8 +8704,8 @@ module.exports = class Renderer extends __WEBPACK_IMPORTED_MODULE_2_eventemitter
     let showables = this.showables.concat(this.statics);
     showables.sort(sortFunc);
 
-    this.mouseData = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.mouseData(this.ctx);
-    this.regions = __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.activeRegions(this.ctx);
+    this.mouseData = e2d.mouseData(this.ctx);
+    this.regions = e2d.activeRegions(this.ctx);
 
     let i,
         showable,
@@ -8794,7 +8786,7 @@ module.exports = class Renderer extends __WEBPACK_IMPORTED_MODULE_2_eventemitter
       result.push(showable.dirty ? (showable.dirty = false, showable.view = showable.render()) : showable.view);
     }
 
-    return __WEBPACK_IMPORTED_MODULE_0_e2d___default.a.render(__WEBPACK_IMPORTED_MODULE_0_e2d___default.a.clearRect(this.canvas.width, this.canvas.height), result, this.ctx);
+    return e2d.render(e2d.clearRect(this.canvas.width, this.canvas.height), result, this.ctx);
   }
   getState() {
     return this.renderables.reduce((index, r) => index[r.id] = r.serialize(), {});

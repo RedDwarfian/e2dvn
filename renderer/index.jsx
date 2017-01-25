@@ -1,9 +1,9 @@
-import e2d from 'e2d';
-import crel from 'crel';
+let e2d = require('e2d');
+let crel = require('crel');
 let { window: { width, height, title } } = require('../package.json');
 let Background = require('../webpack-loader/renderer-loader.js!./controls/Background.jsx');
 let sortFunc = (left, right) => left.position.z < right.position.z ? -1 : 1;
-import EventEmitter2 from 'eventemitter2';
+let { EventEmitter2 } = require('eventemitter2');
 
 let types = {
   'background': require('../webpack-loader/renderer-loader!./controls/Background.jsx'),
