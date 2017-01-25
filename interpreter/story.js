@@ -37,8 +37,8 @@ module.exports = function* story(interpreter, script, seen, state) {
           );
         }
         slideIndex = seen = slides.length - 1;
-        isDone = done;
       }
+      isDone = done;
 
       intent = yield [type, seen];
       continue;

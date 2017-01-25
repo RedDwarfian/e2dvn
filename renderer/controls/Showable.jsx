@@ -47,7 +47,9 @@ module.exports = class Showable {
         this.duration
       );
     }
-    this.dirty = this.dirty || this.previousRatio !== this.ratio;
+    if (this.previousRatio !== this.ratio) {
+      this.dirty = true;
+    }
     this.previousRatio = this.ratio;
   }
   render(...children) {
@@ -75,11 +77,17 @@ module.exports = class Showable {
     return value && value._type === 'computed' ?
       (
         (
-          value.unit === 'ah' ? this.width :
+          value.unit === 'aw' ? this.width :
           value.unit === 'ah' ? this.height : void 0
         ) * value.value * 0.01
       ) :
       value;
+  }
+  get completed() {
+    return this.ratio === 1;
+  }
+  autoComplete() {
+    this.ratio = 1;
   }
   get width() {
     return this.texture.width;

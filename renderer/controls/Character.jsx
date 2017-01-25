@@ -31,14 +31,14 @@ module.exports = class Character extends Showable {
     this.actor = actor;
     this.texture = new Image();
     this.texture.src = require('file-loader!../../assets/' + actor + '.png');
-    this.texture.onload = () => this.ready = true;
+    this.texture.onload = () => (this.ready = true, this.dirty = true);
     this.definition = require('json-loader!../../assets/' + actor + '.json');
   }
   get width() {
-    return this.defintion.moods[this.mood].w;
+    return this.definition.moods[this.mood].w;
   }
   get height() {
-    return this.defintion.moods[this.mood].h;
+    return this.definition.moods[this.mood].h;
   }
   update() {
     if (!this.ready) {
@@ -55,12 +55,13 @@ module.exports = class Character extends Showable {
       this.dirty = true;
     }
     this.previousActor = this.actor;
+    return super.update();
   }
   render() {
     if (!this.ready) {
       return this.view;
     }
-    let mood = this.definition[this.mood];
+    let mood = this.definition.moods[this.mood];
     let width = mood.w;
     let height = mood.h;
     return super.render(
