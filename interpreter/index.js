@@ -29,7 +29,12 @@ module.exports = class Interpreter extends EventEmitter2 {
         id: 'bg'
       }),
       tb: new Textarea({
-        id: 'tb'
+        id: 'tb',
+        x: renderer.width * 0.5,
+        y: renderer.height,
+        cx: { _type: 'computed', unit: 'aw', value: 50 },
+        cy: { _type: 'computed', unit: 'ah', value: 100 },
+        a: 0
       }, theme)
     })
     this.renderer.on('click', (showable) => {

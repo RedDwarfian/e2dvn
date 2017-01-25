@@ -2,7 +2,7 @@ let types = require('babel-types');
 let template = require('babel-template');
 
 let awTemplate = template(`
-  ({ z: VALUE.z - 1 })
+  ({ z: VALUE.position.z - 1 })
 `)
 module.exports = (path, state, plugin, args) => {
   return path.replaceWith(
