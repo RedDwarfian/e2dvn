@@ -31,6 +31,11 @@ module.exports = (isScript) => ({
           return;
         }
         return func(path, state, this);
+      },
+      ReturnStatement: {
+        exit(path, state) {
+          return require('./return')(path, state, this);
+        }
       }
     }
 })

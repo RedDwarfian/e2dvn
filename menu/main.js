@@ -16,7 +16,5 @@ show(newGame, {
   a: 1
 });
 
-pause();
-
 waitFor(test);
 return test;

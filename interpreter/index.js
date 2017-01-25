@@ -1,6 +1,7 @@
 import EventEmitter2 from 'eventemitter2';
 import { Map } from 'immutable';
-
+let NovelBackground = require('../webpack-loader/renderer-loader!../renderer/controls/NovelBackground.jsx');
+let Textarea = require('../webpack-loader/renderer-loader!../renderer/controls/Textarea.jsx');
 let history = require('./history');
 module.exports = class Interpreter extends EventEmitter2 {
   constructor(renderer, theme) {
@@ -20,9 +21,16 @@ module.exports = class Interpreter extends EventEmitter2 {
       Button: require('../webpack-loader/renderer-loader!../renderer/controls/Button.jsx'),
       Character: require('../webpack-loader/renderer-loader!../renderer/controls/Character.jsx'),
       Checkbox: require('../webpack-loader/renderer-loader!../renderer/controls/Checkbox.jsx'),
-      NovelBackground: require('../webpack-loader/renderer-loader!../renderer/controls/NovelBackground.jsx'),
+      NovelBackground,
+      Textarea,
       Choice: null,
-      historyEnabled: false
+      historyEnabled: false,
+      bg: new NovelBackground({
+        id: 'bg'
+      }),
+      tb: new Textarea({
+        id: 'tb'
+      }, theme)
     })
     this.renderer.on('click', (showable) => {
       if (showable.onclick) {

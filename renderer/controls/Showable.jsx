@@ -18,7 +18,8 @@ module.exports = class Showable {
       pointer: false,
       hiding: false,
       view: [],
-      ready: true
+      ready: true,
+      ctx: document.createElement('canvas').getContext('2d')
     });
     Showable.prototype.load.call(this, props);
     Object.assign(this.last, this.position);

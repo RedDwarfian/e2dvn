@@ -2165,7 +2165,8 @@ module.exports = class Showable {
       pointer: false,
       hiding: false,
       view: [],
-      ready: true
+      ready: true,
+      ctx: document.createElement('canvas').getContext('2d')
     });
     Showable.prototype.load.call(this, props);
     Object.assign(this.last, this.position);
@@ -2185,7 +2186,7 @@ module.exports = class Showable {
     this.duration = props.hasOwnProperty('duration') ? props.duration : this.duration;
   }
   update() {
-    let ease = __webpack_require__(17)[this.ease];
+    let ease = __webpack_require__(18)[this.ease];
     this.ratio = 1;
     if (Date.now() <= this.start + this.duration) {
       this.ratio = ease(Date.now() - this.start, this.duration);
@@ -2264,9 +2265,9 @@ module.exports = class Character extends Showable {
     this.ready = false;
     this.actor = actor;
     this.texture = new Image();
-    this.texture.src = __webpack_require__(15)("./" + actor + '.png');
+    this.texture.src = __webpack_require__(16)("./" + actor + '.png');
     this.texture.onload = () => this.ready = true;
-    this.definition = __webpack_require__(16)("./" + actor + '.json');
+    this.definition = __webpack_require__(17)("./" + actor + '.json');
   }
   get width() {
     return this.defintion.moods[this.mood].w;
@@ -8059,8 +8060,12 @@ module.exports = function* menu(_interpreter) {
 
   let _cache;
 
+  let {
+    tb,
+    bg
+  } = _interpreter;
   let test = false;
-  let newGame = new _interpreter.Button({
+  let newGame = (_cache = new _interpreter.Button({
     id: 'new-game',
     x: 100,
     y: 100,
@@ -8069,13 +8074,13 @@ module.exports = function* menu(_interpreter) {
       _interpreter.queue.push('./main.js'), void 0;
       test = true;
     }
-  }, _interpreter.theme);
+  }, _interpreter.theme), _interpreter.apply(_cache, ...[{ id: 'new-game', x: 100, y: 100, text: 'New Game', onclick: function* () {
+      _interpreter.queue.push('./main.js'), void 0;test = true;
+    } }]), Object.assign(_cache.last, _cache.position), _cache);
 
-  newGame = _interpreter.renderer.find(newGame.id) || newGame, Object.assign(newGame.last, newGame.position), _interpreter.show(newGame, {
+  newGame = _interpreter.renderer.find(newGame.id) || newGame, Object.assign(newGame.last, newGame.position), _interpreter.show(newGame, ...[{
     a: 1
-  }), newGame.start = Date.now(), newGame.hiding = false, newGame;
-
-  yield ['pause', void 0], void 0;
+  }]), newGame.start = Date.now(), newGame.hiding = false, newGame;
 
   while (!test) {
     yield ['pause', void 0];
@@ -8266,6 +8271,120 @@ module.exports = class NovelBackground extends Character {
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
+let Showable = __webpack_require__(1);
+let e2d = __webpack_require__(0);
+
+module.exports = class Textarea extends Showable {
+  constructor(props, theme) {
+    super(props);
+    Object.assign(this, {
+      type: 'textarea',
+      theme: theme,
+      speaker: '',
+      previousSpeaker: null,
+      speakerColor: '',
+      text: '',
+      textIndex: 0,
+      texture: theme.textarea.texture,
+      previousTextIndex: -1,
+      speed: 1,
+      dirty: true
+    });
+    this.load(props);
+  }
+  load(props) {
+    this.speaker = props.hasOwnProperty('speaker') ? props.speaker : this.speaker;
+    this.speakerColor = props.hasOwnProperty('speakerColor') ? props.speakerColor : this.speakerColor;
+    this.text = props.hasOwnProperty('text') ? props.text : this.text;
+  }
+  update() {
+    if (!this.theme.ready) {
+      return;
+    }
+    this.textIndex += this.speed;
+    if (this.textIndex > this.text.length) {
+      this.textIndex = this.text.length;
+    }
+    if (this.previousTextIndex !== this.textIndex) {
+      this.dirty = true;
+    }
+    this.previousTextIndex = this.textIndex;
+    if (this.speaker !== this.previousSpeaker) {
+      this.dirty = true;
+    }
+    this.previousSpeaker = this.speaker;
+    return super.update();
+  }
+  calculateLines() {
+    let workingText = this.text.slice(0, this.textIndex).trim().replace('\r\n', '\n').replace('\r', '');
+    let result = [];
+    let index = [];
+    let i;
+    let lastIndex = 0;
+    let testIndex = 0;
+    let previousTestIndex = 0;
+    let testText = "";
+    let ctx = this.ctx;
+    let count = 0;
+    let forceBreak;
+    for (i = 0; i < workingText.length; i++) {
+      switch (workingText[i]) {
+        case " ":
+        case "\t":
+          index.push([i, 0]);
+          break;
+        case "\n":
+          index.push([i, 1]);
+      }
+    }
+    index.push([workingText.length, 0]);
+    let tempFont = ctx.font;
+    ctx.font = this.theme.textarea.textFont;
+
+    for (i = 0; i < index.length; i++) {
+      [testIndex, forceBreak] = index[i];
+      testText = workingText.slice(lastIndex, testIndex).trim();
+
+      if (forceBreak === 1 || this.ctx.measureText(testText).width > this.theme.textarea.textBox[2]) {
+        result.push(e2d.fillText(forceBreak ? testText : workingText.slice(lastIndex, previousTestIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
+        count += 1;
+        lastIndex = forceBreak ? testIndex : previousTestIndex;
+      }
+
+      previousTestIndex = testIndex;
+    }
+
+    result.push(e2d.fillText(workingText.slice(lastIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
+    ctx.font = tempFont;
+    return result;
+  }
+  render() {
+    return super.render(e2d.drawImage(this.theme.textarea.texture), e2d.fillStyle(this.speakerColor, e2d.textStyle({
+      font: this.theme.textarea.speakerBoxFont,
+      textBaseline: 'top'
+    }, e2d.fillText(this.speaker, this.theme.textarea.speakerBox[0], this.theme.textarea.speakerBox[1]))), e2d.fillStyle(this.theme.textarea.color, e2d.textStyle({
+      font: this.theme.textarea.textFont,
+      textBaseline: 'top'
+    }, e2d.clip(e2d.rect(this.theme.textarea.textBox[0], this.theme.textarea.textBox[1], this.theme.textarea.textBox[2], this.theme.textarea.textBox[3]), this.calculateLines(this, this.theme.textarea)))));
+  }
+  serialize() {
+    return super.serialize({
+      text: this.text,
+      speaker: this.speaker,
+      speakerColor: this.speakerColor
+    });
+  }
+  deserialize(props) {
+    this.load(props);
+    this.textIndex = this.text.length;
+    this.previousTextIndex = -1;
+  }
+};
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(3);
@@ -8274,15 +8393,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_immutable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_immutable__);
 
 
-
-let history = __webpack_require__(20);
+let NovelBackground = __webpack_require__(10);
+let Textarea = __webpack_require__(11);
+let history = __webpack_require__(21);
 module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemitter2___default.a {
   constructor(renderer, theme) {
     super();
     Object.assign(this, {
       script: null,
       queue: [],
-      menus: __webpack_require__(22),
+      menus: __webpack_require__(23),
       state: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_immutable__["Map"])(),
       renderer,
       theme,
@@ -8294,9 +8414,16 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemit
       Button: __webpack_require__(8),
       Character: __webpack_require__(2),
       Checkbox: __webpack_require__(9),
-      NovelBackground: __webpack_require__(10),
+      NovelBackground,
+      Textarea,
       Choice: null,
-      historyEnabled: false
+      historyEnabled: false,
+      bg: new NovelBackground({
+        id: 'bg'
+      }),
+      tb: new Textarea({
+        id: 'tb'
+      }, theme)
     })
     this.renderer.on('click', (showable) => {
       if (showable.onclick) {
@@ -8317,14 +8444,19 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemit
     this.renderer.emit('push');
     this.advance();
   }
-  show(item, props) {
+  show(item, ...props) {
     this.renderer.emit('add', item);
-    for(let name in props) {
-      if (item.hasOwnProperty(name)) {
-        item[name] = props[name];
-      }
-      if (item.position.hasOwnProperty(name)) {
-        item.position[name] = props[name];
+    return this.apply(item, ...props);
+  }
+  apply(item, ...props) {
+    for(let prop in props) {
+      for(let name in prop) {
+        if (item.hasOwnProperty(name)) {
+          item[name] = props[name];
+        }
+        if (item.position.hasOwnProperty(name)) {
+          item.position[name] = props[name];
+        }
       }
     }
   }
@@ -8383,7 +8515,7 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemit
 };
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -8443,7 +8575,7 @@ module.exports = {
 };
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
@@ -8463,24 +8595,24 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 13;
+webpackContext.id = 14;
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_e2d___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_e2d__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crel___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_crel__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_eventemitter2__);
 
 
-let { window: { width, height, title } } = __webpack_require__(61);
+let { window: { width, height, title } } = __webpack_require__(62);
 let Background = __webpack_require__(7);
 let sortFunc = (left, right) => left.position.z < right.position.z ? -1 : 1;
 
@@ -8491,7 +8623,7 @@ let types = {
   'character': __webpack_require__(2),
   'checkbox': __webpack_require__(9),
   'novelBackground': __webpack_require__(10),
-  'textarea': __webpack_require__(63)
+  'textarea': __webpack_require__(11)
 };
 
 module.exports = class Renderer extends __WEBPACK_IMPORTED_MODULE_2_eventemitter2___default.a {
@@ -8677,50 +8809,25 @@ module.exports = class Renderer extends __WEBPACK_IMPORTED_MODULE_2_eventemitter
 };
 
 /***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-var map = {
-	"./Aya.png": 24,
-	"./Aya/Angry.png": 25,
-	"./Aya/Blush.png": 26,
-	"./Aya/Cry.png": 27,
-	"./Aya/Frown.png": 28,
-	"./Aya/Grin.png": 29,
-	"./Aya/Neutral.png": 30,
-	"./Aya/Sad.png": 31,
-	"./Aya/Scared.png": 32,
-	"./Aya/Shocked.png": 33,
-	"./Aya/Smile.png": 34,
-	"./Aya/Smile_Blush.png": 35,
-	"./Aya/Smirk.png": 36,
-	"./Background.png": 37,
-	"./Background/gare_by_lowx-daac2nh.png": 38
-};
-function webpackContext(req) {
-	return __webpack_require__(webpackContextResolve(req));
-};
-function webpackContextResolve(req) {
-	var id = map[req];
-	if(!(id + 1)) // check for number
-		throw new Error("Cannot find module '" + req + "'.");
-	return id;
-};
-webpackContext.keys = function webpackContextKeys() {
-	return Object.keys(map);
-};
-webpackContext.resolve = webpackContextResolve;
-module.exports = webpackContext;
-webpackContext.id = 15;
-
-
-/***/ },
 /* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
-	"./Aya.json": 59,
-	"./Background.json": 60
+	"./Aya.png": 25,
+	"./Aya/Angry.png": 26,
+	"./Aya/Blush.png": 27,
+	"./Aya/Cry.png": 28,
+	"./Aya/Frown.png": 29,
+	"./Aya/Grin.png": 30,
+	"./Aya/Neutral.png": 31,
+	"./Aya/Sad.png": 32,
+	"./Aya/Scared.png": 33,
+	"./Aya/Shocked.png": 34,
+	"./Aya/Smile.png": 35,
+	"./Aya/Smile_Blush.png": 36,
+	"./Aya/Smirk.png": 37,
+	"./Background.png": 38,
+	"./Background/gare_by_lowx-daac2nh.png": 39
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -8743,8 +8850,33 @@ webpackContext.id = 16;
 /* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
-let inOut = __webpack_require__(18),
- inverse = __webpack_require__(19);
+var map = {
+	"./Aya.json": 60,
+	"./Background.json": 61
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 17;
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+let inOut = __webpack_require__(19),
+ inverse = __webpack_require__(20);
 
 let linear = (point, max) => point / max;
 let quadIn = (point, max) => (point /= max, point * point);
@@ -8811,7 +8943,7 @@ module.exports = {
 };
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports) {
 
 module.exports = function inOut(func, inverse) {
@@ -8824,7 +8956,7 @@ module.exports = function inOut(func, inverse) {
 };
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports) {
 
 module.exports = function inverse(func) {
@@ -8834,14 +8966,14 @@ module.exports = function inverse(func) {
 };
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_immutable__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_immutable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_immutable__);
-let story = __webpack_require__(21);
+let story = __webpack_require__(22);
 
 
 module.exports = function* history(interpreter, history, queue, state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_immutable__["Map"])()) {
@@ -8918,7 +9050,7 @@ module.exports = function* history(interpreter, history, queue, state = __webpac
 };
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 let stories = __webpack_require__(5);
@@ -8979,12 +9111,12 @@ module.exports = function* story(interpreter, script, seen, state) {
 };
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
 	"./main.js": 6,
-	"./options.js": 62
+	"./options.js": 63
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -9000,11 +9132,11 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 22;
+webpackContext.id = 23;
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 //Copyright (C) 2012 Kory Nunn
@@ -9166,211 +9298,211 @@ webpackContext.id = 22;
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "a9dc67668dfba371fc374294ae7d4559.png";
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "dc99e934802f0ee211fdc91ceaa96e96.png";
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "e1b368cff697617fd4b76af4022605ac.png";
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "b230ef480523ca2ff544152395fdf5f9.png";
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "464a4535710a9ef5a5a1aaa1236b9024.png";
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "7ff6afc6f6bc200dd73e390e4141205b.png";
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "ccd38a20b68ab7f2ead9ddaaad4ba609.png";
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "88ff53224485f9d1c9eaaf46d3f96869.png";
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "a5778b42a2c053efb65fe31014ec8edf.png";
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "cb0ba503142bd4d126f35241740e08ed.png";
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "0cccc7e381ca77d6d4a77fa961228523.png";
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "1a41bb81b1571407920e8854a81e4f9c.png";
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "4ffc71059ee4573abc2b46bda0c5846e.png";
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "7cc5a37560dfe868eb6ccd3e3d6dda84.png";
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "248458496f161b375343c3b550a7eab1.png";
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "d914e858b7c298b0a20b94f93e292df9.otf";
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "f804308dc39269f2d8598cd4c624f2e5.png";
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "8ed860e0a4295c9848a2e0b371911d26.png";
 
 /***/ },
-/* 42 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "6945396538d40c9a482819c24aea29d8.png";
 
 /***/ },
-/* 43 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "21d9f4aa255119fbb2de413e3b4bf5c7.png";
 
 /***/ },
-/* 44 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "948e761208b6194f85d7b1cb4f99d8f5.png";
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "77a783281291fc3a8cf997a75a2847bb.png";
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "4cb8eccb7ed09b83dd89ec457426e8b8.png";
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "9e8ee288e7ec6a83777f49fb0797bd1f.png";
 
 /***/ },
-/* 48 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "aeb420d44a89d2608fc6b4a5f7ad7d72.png";
 
 /***/ },
-/* 49 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "9597bc24c48ef34de81cbf5603ab1c39.png";
 
 /***/ },
-/* 50 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "cedaddace229519a597a54d8bd414faa.png";
 
 /***/ },
-/* 51 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "a62e9e3038dadd90d13228c9261b6dd9.png";
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "d4ca38a742d93f71222a274020589d02.png";
 
 /***/ },
-/* 53 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "78f7188cbdbbcdc4355116dfaa0e62eb.png";
 
 /***/ },
-/* 54 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "c4c2ce7fdc6f86bc1ba126434fae13f2.png";
 
 /***/ },
-/* 55 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "4aea8fa323b346e84263e030fe663abb.png";
 
 /***/ },
-/* 56 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "0f23bfe04db99ae954c3b96aeee74ec5.png";
 
 /***/ },
-/* 57 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "b8f13d1d51878cfd05214f9310f113cd.png";
 
 /***/ },
-/* 58 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 (function(){function m(a,b){document.addEventListener?a.addEventListener("scroll",b,!1):a.attachEvent("scroll",b)}function n(a){document.body?a():document.addEventListener?document.addEventListener("DOMContentLoaded",function c(){document.removeEventListener("DOMContentLoaded",c);a()}):document.attachEvent("onreadystatechange",function l(){if("interactive"==document.readyState||"complete"==document.readyState)document.detachEvent("onreadystatechange",l),a()})};function t(a){this.a=document.createElement("div");this.a.setAttribute("aria-hidden","true");this.a.appendChild(document.createTextNode(a));this.b=document.createElement("span");this.c=document.createElement("span");this.h=document.createElement("span");this.f=document.createElement("span");this.g=-1;this.b.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";this.c.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";
@@ -9383,7 +9515,7 @@ w=q.a.offsetWidth;H();z(f,function(a){g=a;e()});x(f,J(c,'"'+c.family+'",sans-ser
 
 
 /***/ },
-/* 59 */
+/* 60 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -9488,7 +9620,7 @@ module.exports = {
 };
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -9513,7 +9645,7 @@ module.exports = {
 };
 
 /***/ },
-/* 61 */
+/* 62 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -9573,7 +9705,7 @@ module.exports = {
 };
 
 /***/ },
-/* 62 */
+/* 63 */
 /***/ function(module, exports) {
 
 module.exports = function* menu(_interpreter) {
@@ -9581,13 +9713,17 @@ module.exports = function* menu(_interpreter) {
 
   let _cache;
 
-  let b = new _interpreter.Button({
+  let {
+    tb,
+    bg
+  } = _interpreter;
+  let b = (_cache = new _interpreter.Button({
     id: 'test',
     x: 300,
     y: 100,
     text: 'Close'
-  }, _interpreter.theme);
-  b = _interpreter.renderer.find(b.id) || b, Object.assign(b.last, b.position), _interpreter.show(b, {}), b.start = Date.now(), b.hiding = false, b;
+  }, _interpreter.theme), _interpreter.apply(_cache, ...[{ id: 'test', x: 300, y: 100, text: 'Close' }]), Object.assign(_cache.last, _cache.position), _cache);
+  b = _interpreter.renderer.find(b.id) || b, Object.assign(b.last, b.position), _interpreter.show(b, ...[]), b.start = Date.now(), b.hiding = false, b;
   handle({
     'test': () => {
       return;
@@ -9598,128 +9734,20 @@ module.exports = function* menu(_interpreter) {
 };
 
 /***/ },
-/* 63 */
-/***/ function(module, exports, __webpack_require__) {
-
-let Showable = __webpack_require__(1);
-let e2d = __webpack_require__(0);
-
-module.exports = class Textarea extends Showable {
-  constructor(props, theme) {
-    super(props);
-    Object.assign(this, {
-      type: 'textarea',
-      theme: theme,
-      speaker: '',
-      previousSpeaker: null,
-      speakerColor: '',
-      text: '',
-      textIndex: 0,
-      texture: theme.textarea.texture,
-      previousTextIndex: -1,
-      speed: 1,
-      ctx: props.ctx,
-      dirty: true
-    });
-    this.load(props);
-  }
-  load(props) {
-    this.speaker = props.hasOwnProperty('speaker') ? props.speaker : this.speaker;
-    this.speakerColor = props.hasOwnProperty('speakerColor') ? props.speakerColor : this.speakerColor;
-    this.text = props.hasOwnProperty('text') ? props.text : this.text;
-  }
-  update() {
-    if (!this.theme.ready) {
-      return;
-    }
-    this.textIndex += this.speed;
-    if (this.textIndex > this.text.length) {
-      this.textIndex = this.text.length;
-    }
-    if (this.previousTextIndex !== this.textIndex) {
-      this.dirty = true;
-    }
-    this.previousTextIndex = this.textIndex;
-    if (this.speaker !== this.previousSpeaker) {
-      this.dirty = true;
-    }
-    this.previousSpeaker = this.speaker;
-    return super.update();
-  }
-  calculateLines() {
-    let workingText = this.text.slice(0, this.textIndex).trim().replace('\r\n', '\n').replace('\r', '');
-    let result = [];
-    let index = [];
-    let i;
-    let lastIndex = 0;
-    let testIndex = 0;
-    let previousTestIndex = 0;
-    let testText = "";
-    let ctx = this.ctx;
-    let count = 0;
-    let forceBreak;
-    for (i = 0; i < workingText.length; i++) {
-      switch (workingText[i]) {
-        case " ":
-        case "\t":
-          index.push([i, 0]);
-          break;
-        case "\n":
-          index.push([i, 1]);
-      }
-    }
-    index.push([workingText.length, 0]);
-    let tempFont = ctx.font;
-    ctx.font = this.theme.textarea.textFont;
-
-    for (i = 0; i < index.length; i++) {
-      [testIndex, forceBreak] = index[i];
-      testText = workingText.slice(lastIndex, testIndex).trim();
-
-      if (forceBreak === 1 || this.ctx.measureText(testText).width > this.theme.textarea.textBox[2]) {
-        result.push(e2d.fillText(forceBreak ? testText : workingText.slice(lastIndex, previousTestIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
-        count += 1;
-        lastIndex = forceBreak ? testIndex : previousTestIndex;
-      }
-
-      previousTestIndex = testIndex;
-    }
-
-    result.push(e2d.fillText(workingText.slice(lastIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
-    ctx.font = tempFont;
-    return result;
-  }
-  render() {
-    return super.render(e2d.drawImage(this.theme.textarea.texture), e2d.fillStyle(this.speakerColor, e2d.textStyle({
-      font: this.theme.textarea.speakerBoxFont,
-      textBaseline: 'top'
-    }, e2d.fillText(this.speaker, this.theme.textarea.speakerBox[0], this.theme.textarea.speakerBox[1]))), e2d.fillStyle(this.theme.textarea.color, e2d.textStyle({
-      font: this.theme.textarea.textFont,
-      textBaseline: 'top'
-    }, e2d.clip(e2d.rect(this.theme.textarea.textBox[0], this.theme.textarea.textBox[1], this.theme.textarea.textBox[2], this.theme.textarea.textBox[3]), this.calculateLines(this, this.theme.textarea)))));
-  }
-  serialize() {
-    return super.serialize({
-      text: this.text,
-      speaker: this.speaker,
-      speakerColor: this.speakerColor
-    });
-  }
-  deserialize(props) {
-    this.load(props);
-    this.textIndex = this.text.length;
-    this.previousTextIndex = -1;
-  }
-};
-
-/***/ },
 /* 64 */
 /***/ function(module, exports) {
 
 module.exports = function* menu(_interpreter) {
+  void 0;
+
   let _cache;
 
-  let Aya = new _interpreter.Character('Aya');
+  let {
+    tb,
+    bg
+  } = _interpreter;
+  let Aya = (_cache = new _interpreter.Character('Aya'), _interpreter.apply(_cache, ...['Aya']), Object.assign(_cache.last, _cache.position), _cache);
+  void 0;
 };
 
 /***/ },
@@ -9727,43 +9755,108 @@ module.exports = function* menu(_interpreter) {
 /***/ function(module, exports) {
 
 module.exports = function* menu(_interpreter) {
-  let _cache;
+    void 0;
 
-  let Aya = new _interpreter.Character({
-    id: 'aya',
-    name: 'Aya',
-    actor: 'Aya',
-    a: 0
-  });
+    let _cache;
 
-  //start aya here
-  Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, {
-    x: _interpreter.renderer.width * 50 * 0.01,
-    y: _interpreter.renderer.height * 100 * 0.01,
-    cx: {
-      _type: 'computed',
-      unit: 'aw',
-      value: Aya
-    },
-    cy: {
-      _type: 'computed',
-      unit: 'ah',
-      value: Aya
-    }
-  }), Aya.start = Date.now(), Aya.hiding = false, Aya;
+    let {
+        tb,
+        bg
+    } = _interpreter;
+    let Aya = (_cache = new _interpreter.Character({
+        id: 'aya',
+        name: 'Aya',
+        actor: 'Aya'
+    }), _interpreter.apply(_cache, ...[{ id: 'aya', name: 'Aya', actor: 'Aya' }, {
+        x: _interpreter.renderer.width * 50 * 0.01,
+        y: _interpreter.renderer.height * 100 * 0.01,
+        cx: {
+            _type: 'computed',
+            unit: 'aw',
+            value: 50
+        },
+        cy: {
+            _type: 'computed',
+            unit: 'ah',
+            value: 100
+        }
+    }, {
+        mood: 'Neutral'
+    }, {
+        a: 0
+    }]), Object.assign(_cache.last, _cache.position), _cache);
 
-  Aya.mood = 'Neutral';
-  bg = _interpreter.renderer.find(_interpreter.bg.id) || _interpreter.bg, Object.assign(_interpreter.bg.last, _interpreter.bg.position), _interpreter.show(_interpreter.bg, {
-    a: 1
-  }), _interpreter.bg.start = Date.now(), _interpreter.bg.hiding = false, _interpreter.bg;
-  Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, {
-    a: 1
-  }), Aya.start = Date.now(), Aya.hiding = false, Aya;
-  tb = _interpreter.renderer.find(_interpreter.tb.id) || _interpreter.tb, Object.assign(_interpreter.tb.last, _interpreter.tb.position), _interpreter.show(_interpreter.tb, {
-    a: 1
-  }), _interpreter.tb.start = Date.now(), _interpreter.tb.hiding = false, _interpreter.tb;
+    bg = _interpreter.renderer.find(bg.id) || bg, Object.assign(bg.last, bg.position), _interpreter.show(bg, ...[{
+        a: 1
+    }]), bg.start = Date.now(), bg.hiding = false, bg;
+    Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, ...[{
+        a: 1
+    }]), Aya.start = Date.now(), Aya.hiding = false, Aya;
+    tb = _interpreter.renderer.find(tb.id) || tb, Object.assign(tb.last, tb.position), _interpreter.show(tb, ...[{
+        a: 1
+    }]), tb.start = Date.now(), tb.hiding = false, tb;
 
-  _cache = [Aya || "", `Hello`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+    ({
+        x: _interpreter.renderer.width * 50 * 0.01,
+        y: _interpreter.renderer.height * 50 * 0.01,
+        cx: {
+            _type: 'computed',
+            unit: 'aw',
+            value: 50
+        },
+        cy: {
+            _type: 'computed',
+            unit: 'ah',
+            value: 50
+        }
+    });
+    ({
+        x: _interpreter.renderer.width * 0 * 0.01,
+        y: _interpreter.renderer.height * 100 * 0.01,
+        cx: {
+            _type: 'computed',
+            unit: 'aw',
+            value: 100
+        },
+        cy: {
+            _type: 'computed',
+            unit: 'ah',
+            value: 100
+        }
+    });
+    ({
+        x: _interpreter.renderer.width * 100 * 0.01,
+        y: _interpreter.renderer.height * 100 * 0.01,
+        cx: {
+            _type: 'computed',
+            unit: 'aw',
+            value: 0
+        },
+        cy: {
+            _type: 'computed',
+            unit: 'ah',
+            value: 100
+        }
+    });
+    ({
+        a: 0.75,
+        cy: {
+            _type: 'computed',
+            unit: 'ah',
+            value: 90
+        }
+    });
+    ({
+        a: 1,
+        cy: {
+            _type: 'computed',
+            unit: 'ah',
+            value: 100
+        }
+    });
+
+    _cache = [Aya || "", `Hello`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+    void 0;
 };
 
 /***/ },
@@ -9806,7 +9899,7 @@ let _createImage = src => {
 };
 
 let _loadFont = (name, src) => {
-  let FontFaceObserver = __webpack_require__(58);
+  let FontFaceObserver = __webpack_require__(59);
 
   let font = new FontFaceObserver(name);
   let ff = `
@@ -9842,7 +9935,7 @@ options.titleTextSize = 32;
 options.titleTextColor = selectedColor;
 
 options.controlTextSize = 26;
-_loadFont('Puritan', __webpack_require__(39));
+_loadFont('Puritan', __webpack_require__(40));
 options.controlFont = `${ options.controlTextSize }px Puritan`;
 options.controlTextColor = normalColor;
 options.controlTextSelectedColor = selectedColor;
@@ -9853,32 +9946,32 @@ options.choiceTextColor = normalColor;
 options.choiceTextSelectedColor = selectedColor;
 
 options.checkbox = {
-  unchecked: _createImage(__webpack_require__(47)),
-  uncheckedActive: _createImage(__webpack_require__(46)),
-  checked: _createImage(__webpack_require__(45)),
-  checkedActive: _createImage(__webpack_require__(44)),
+  unchecked: _createImage(__webpack_require__(48)),
+  uncheckedActive: _createImage(__webpack_require__(47)),
+  checked: _createImage(__webpack_require__(46)),
+  checkedActive: _createImage(__webpack_require__(45)),
   textPadding: 4
 };
 
 options.button = {
-  unselected: _createImage(__webpack_require__(43)),
-  unselectedActive: _createImage(__webpack_require__(42)),
-  selected: _createImage(__webpack_require__(41)),
-  selectedActive: _createImage(__webpack_require__(40))
+  unselected: _createImage(__webpack_require__(44)),
+  unselectedActive: _createImage(__webpack_require__(43)),
+  selected: _createImage(__webpack_require__(42)),
+  selectedActive: _createImage(__webpack_require__(41))
 };
 
 options.slider = {
-  capLeft: _createImage(__webpack_require__(51)),
-  capRight: _createImage(__webpack_require__(52)),
-  pill: _createImage(__webpack_require__(55)),
-  pillActive: _createImage(__webpack_require__(54)),
-  line: _createImage(__webpack_require__(53))
+  capLeft: _createImage(__webpack_require__(52)),
+  capRight: _createImage(__webpack_require__(53)),
+  pill: _createImage(__webpack_require__(56)),
+  pillActive: _createImage(__webpack_require__(55)),
+  line: _createImage(__webpack_require__(54))
 };
 
 options.choice = {
-  choice: _createImage(__webpack_require__(50)),
-  active: _createImage(__webpack_require__(48)),
-  selected: _createImage(__webpack_require__(49)),
+  choice: _createImage(__webpack_require__(51)),
+  active: _createImage(__webpack_require__(49)),
+  selected: _createImage(__webpack_require__(50)),
   margin: 30
 };
 
@@ -9887,7 +9980,7 @@ let textareaFont = 'Puritan',
     textareaFontSize = 20,
     speakerBoxFontSize = 20;
 options.textarea = {
-  texture: _createImage(__webpack_require__(56)),
+  texture: _createImage(__webpack_require__(57)),
   speakerBox: [10, 10, 380, 20],
   speakerBoxFontSize: speakerBoxFontSize,
   speakerBoxFont: `bold ${ speakerBoxFontSize }px ${ textareaSpeakerFont }`,
@@ -9898,18 +9991,18 @@ options.textarea = {
   color: normalColor
 };
 
-options.windowBackground = _createImage(__webpack_require__(57));
+options.windowBackground = _createImage(__webpack_require__(58));
 module.exports = options;
 
 /***/ },
 /* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
-let Interpreter = __webpack_require__(11);
-let Renderer = __webpack_require__(14);
-let pkg = __webpack_require__(12);
+let Interpreter = __webpack_require__(12);
+let Renderer = __webpack_require__(15);
+let pkg = __webpack_require__(13);
 let r = new Renderer(
-  __webpack_require__(13)("./" + pkg.story.theme + '/options.js')
+  __webpack_require__(14)("./" + pkg.story.theme + '/options.js')
 );
 let i = new Interpreter(r, r.theme);
 

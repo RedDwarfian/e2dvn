@@ -15,7 +15,6 @@ module.exports = class Textarea extends Showable {
       texture: theme.textarea.texture,
       previousTextIndex: -1,
       speed: 1,
-      ctx: props.ctx,
       dirty: true,
     });
     this.load(props);
