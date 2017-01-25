@@ -2274,7 +2274,11 @@ module.exports = class Character extends Showable {
     this.actor = actor;
     this.texture = new Image();
     this.texture.src = __webpack_require__(16)("./" + actor + '.png');
-    this.texture.onload = () => (this.ready = true, this.dirty = true);
+    this.texture.onload = () => {
+      this.ready = true;
+      this.dirty = true;
+      this.start = Date.now();
+    };
     this.definition = __webpack_require__(17)("./" + actor + '.json');
   }
   get width() {
@@ -8401,25 +8405,19 @@ module.exports = class Textarea extends Showable {
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_immutable__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_immutable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_immutable__);
-
-
+let { EventEmitter2 } = __webpack_require__(3);
+let { Map } = __webpack_require__(4);
 let NovelBackground = __webpack_require__(10);
 let Textarea = __webpack_require__(11);
 let history = __webpack_require__(21);
-module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemitter2___default.a {
+module.exports = class Interpreter extends EventEmitter2 {
   constructor(renderer, theme) {
     super();
     Object.assign(this, {
       script: null,
       queue: [],
       menus: __webpack_require__(23),
-      state: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_immutable__["Map"])(),
+      state: Map(),
       renderer,
       theme,
       menu: [
@@ -8510,7 +8508,7 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemit
         if (this.queue.length === 0) {
           console.log("exit");
         } else {
-          this.state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_immutable__["Map"])();
+          this.state = Map();
           this.script = history(this, [], this.queue.splice(0, this.queue.length));
         }
       }
@@ -8994,7 +8992,6 @@ module.exports = function inverse(func) {
 /* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
-"use strict";
 let story = __webpack_require__(22);
 let { Map } = __webpack_require__(4);
 

@@ -1,5 +1,5 @@
-import EventEmitter2 from 'eventemitter2';
-import { Map } from 'immutable';
+let { EventEmitter2 } = require('eventemitter2');
+let { Map } = require('immutable');
 let NovelBackground = require('../webpack-loader/renderer-loader!../renderer/controls/NovelBackground.jsx');
 let Textarea = require('../webpack-loader/renderer-loader!../renderer/controls/Textarea.jsx');
 let history = require('./history');
