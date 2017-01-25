@@ -2191,7 +2191,9 @@ module.exports = class Showable {
     if (Date.now() <= this.start + this.duration) {
       this.ratio = ease(Date.now() - this.start, this.duration);
     }
-    this.dirty = this.dirty || this.previousRatio !== this.ratio;
+    if (this.previousRatio !== this.ratio) {
+      this.dirty = true;
+    }
     this.previousRatio = this.ratio;
   }
   render(...children) {
@@ -2206,7 +2208,13 @@ module.exports = class Showable {
     return e2d.translate(x, y, e2d.rotate(rot, e2d.scale(sx, sy, e2d.translate(-cx, -cy, e2d.globalAlpha(a, children)))));
   }
   checkComputed(value) {
-    return value && value._type === 'computed' ? (value.unit === 'ah' ? this.width : value.unit === 'ah' ? this.height : void 0) * value.value * 0.01 : value;
+    return value && value._type === 'computed' ? (value.unit === 'aw' ? this.width : value.unit === 'ah' ? this.height : void 0) * value.value * 0.01 : value;
+  }
+  get completed() {
+    return this.ratio === 1;
+  }
+  autoComplete() {
+    this.ratio = 1;
   }
   get width() {
     return this.texture.width;
@@ -2266,14 +2274,14 @@ module.exports = class Character extends Showable {
     this.actor = actor;
     this.texture = new Image();
     this.texture.src = __webpack_require__(16)("./" + actor + '.png');
-    this.texture.onload = () => this.ready = true;
+    this.texture.onload = () => (this.ready = true, this.dirty = true);
     this.definition = __webpack_require__(17)("./" + actor + '.json');
   }
   get width() {
-    return this.defintion.moods[this.mood].w;
+    return this.definition.moods[this.mood].w;
   }
   get height() {
-    return this.defintion.moods[this.mood].h;
+    return this.definition.moods[this.mood].h;
   }
   update() {
     if (!this.ready) {
@@ -2290,12 +2298,13 @@ module.exports = class Character extends Showable {
       this.dirty = true;
     }
     this.previousActor = this.actor;
+    return super.update();
   }
   render() {
     if (!this.ready) {
       return this.view;
     }
-    let mood = this.definition[this.mood];
+    let mood = this.definition.moods[this.mood];
     let width = mood.w;
     let height = mood.h;
     return super.render(e2d.drawImage(this.texture, mood.x, mood.y, width, height, 0, 0, width, height));
@@ -8315,6 +8324,13 @@ module.exports = class Textarea extends Showable {
     this.previousSpeaker = this.speaker;
     return super.update();
   }
+  get completed() {
+    return this.ratio === 1 && this.textIndex === this.text.length;
+  }
+  autoComplete() {
+    this.textIndex = this.text.length;
+    return super.autoComplete();
+  }
   calculateLines() {
     let workingText = this.text.slice(0, this.textIndex).trim().replace('\r\n', '\n').replace('\r', '');
     let result = [];
@@ -8449,13 +8465,13 @@ module.exports = class Interpreter extends __WEBPACK_IMPORTED_MODULE_0_eventemit
     return this.apply(item, ...props);
   }
   apply(item, ...props) {
-    for(let prop in props) {
+    for(let prop of props) {
       for(let name in prop) {
         if (item.hasOwnProperty(name)) {
-          item[name] = props[name];
+          item[name] = prop[name];
         }
         if (item.position.hasOwnProperty(name)) {
-          item.position[name] = props[name];
+          item.position[name] = prop[name];
         }
       }
     }
@@ -8715,6 +8731,10 @@ module.exports = class Renderer extends __WEBPACK_IMPORTED_MODULE_2_eventemitter
           this.active = showable;
           this.emit('mousedown', showable);
           willAdvance = false;
+        }
+        if (!showable.complete) {
+          willAdvance = false;
+          showable.autoComplete();
         }
       }
       if (willAdvance) {
@@ -9092,8 +9112,8 @@ module.exports = function* story(interpreter, script, seen, state) {
           );
         }
         slideIndex = seen = slides.length - 1;
-        isDone = done;
       }
+      isDone = done;
 
       intent = yield [type, seen];
       continue;
@@ -9786,19 +9806,11 @@ module.exports = function* menu(_interpreter) {
         a: 0
     }]), Object.assign(_cache.last, _cache.position), _cache);
 
-    bg = _interpreter.renderer.find(bg.id) || bg, Object.assign(bg.last, bg.position), _interpreter.show(bg, ...[{
-        a: 1
-    }]), bg.start = Date.now(), bg.hiding = false, bg;
-    Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, ...[{
-        a: 1
-    }]), Aya.start = Date.now(), Aya.hiding = false, Aya;
     tb = _interpreter.renderer.find(tb.id) || tb, Object.assign(tb.last, tb.position), _interpreter.show(tb, ...[{
         a: 1
-    }]), tb.start = Date.now(), tb.hiding = false, tb;
-
-    ({
+    }, {
         x: _interpreter.renderer.width * 50 * 0.01,
-        y: _interpreter.renderer.height * 50 * 0.01,
+        y: _interpreter.renderer.height * 100 * 0.01,
         cx: {
             _type: 'computed',
             unit: 'aw',
@@ -9807,10 +9819,61 @@ module.exports = function* menu(_interpreter) {
         cy: {
             _type: 'computed',
             unit: 'ah',
-            value: 50
+            value: 100
         }
-    });
-    ({
+    }]), tb.start = Date.now(), tb.hiding = false, tb;
+    Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, ...[{
+        a: 1
+    }, {
+        z: tb.z - 1
+    }]), Aya.start = Date.now(), Aya.hiding = false, Aya;
+    bg = _interpreter.renderer.find(bg.id) || bg, Object.assign(bg.last, bg.position), _interpreter.show(bg, ...[{
+        a: 1
+    }, {
+        z: Aya.z - 1
+    }]), bg.start = Date.now(), bg.hiding = false, bg;
+
+    _cache = [Aya || "", `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus gravida sapien lacus, a tristique diam sodales non. Nam malesuada erat vitae gravida aliquam. Curabitur porta enim ut malesuada vehicula. Quisque ac velit diam. Sed eget lacus aliquam orci sagittis porttitor. Nunc ac pretium nisi, non faucibus arcu. Maecenas ut ultrices ipsum, eget consequat purus. Nunc ullamcorper consequat rutrum. Maecenas id est gravida, sodales nibh sed, bibendum est. Vestibulum nibh diam, ultrices ut arcu et, finibus auctor libero. Vivamus augue quam, porta vel est ut, viverra dapibus risus. Nam quis vestibulum eros, eu eleifend sapien. Nam efficitur orci sit amet porttitor facilisis. Vivamus varius leo ut erat facilisis interdum.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+
+    Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, ...[{
+        x: _interpreter.renderer.width * 33.33 * 0.01,
+        y: _interpreter.renderer.height * 100 * 0.01,
+        cx: {
+            _type: 'computed',
+            unit: 'aw',
+            value: 66.66
+        },
+        cy: {
+            _type: 'computed',
+            unit: 'ah',
+            value: 100
+        }
+    }, {
+        mood: 'Blush'
+    }]), Aya.start = Date.now(), Aya.hiding = false, Aya;
+
+    _cache = [Aya || "", `Sed in risus nec ipsum pellentesque bibendum. Aliquam molestie, libero in dictum faucibus, nibh eros dapibus lacus, volutpat porta nisi eros sed urna. Donec luctus nisl sed leo iaculis tincidunt. Pellentesque efficitur, nulla a fringilla pretium, turpis libero vestibulum ex, eu sollicitudin mauris nunc nec sem. Fusce eu dictum elit, ut sagittis lectus. Donec eget libero ut nunc feugiat faucibus nec at tortor. Nulla lorem erat, congue eget lectus ac, feugiat hendrerit metus. Integer hendrerit auctor viverra.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+
+    Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, ...[{
+        x: _interpreter.renderer.width * 66.66 * 0.01,
+        y: _interpreter.renderer.height * 100 * 0.01,
+        cx: {
+            _type: 'computed',
+            unit: 'aw',
+            value: 33.33
+        },
+        cy: {
+            _type: 'computed',
+            unit: 'ah',
+            value: 100
+        }
+    }, {
+        mood: 'Frown'
+    }]), Aya.start = Date.now(), Aya.hiding = false, Aya;
+
+    _cache = [Aya || "", `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus gravida sapien lacus, a tristique diam sodales non. Nam malesuada erat vitae gravida aliquam. Curabitur porta enim ut malesuada vehicula. Quisque ac velit diam. Sed eget lacus aliquam orci sagittis porttitor. Nunc ac pretium nisi, non faucibus arcu. Maecenas ut ultrices ipsum, eget consequat purus. Nunc ullamcorper consequat rutrum. Maecenas id est gravida, sodales nibh sed, bibendum est. Vestibulum nibh diam, ultrices ut arcu et, finibus auctor libero. Vivamus augue quam, porta vel est ut, viverra dapibus risus. Nam quis vestibulum eros, eu eleifend sapien. Nam efficitur orci sit amet porttitor facilisis. Vivamus varius leo ut erat facilisis interdum.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+
+    Aya = _interpreter.renderer.find(Aya.id) || Aya, Object.assign(Aya.last, Aya.position), _interpreter.show(Aya, ...[{
         x: _interpreter.renderer.width * 0 * 0.01,
         y: _interpreter.renderer.height * 100 * 0.01,
         cx: {
@@ -9823,39 +9886,11 @@ module.exports = function* menu(_interpreter) {
             unit: 'ah',
             value: 100
         }
-    });
-    ({
-        x: _interpreter.renderer.width * 100 * 0.01,
-        y: _interpreter.renderer.height * 100 * 0.01,
-        cx: {
-            _type: 'computed',
-            unit: 'aw',
-            value: 0
-        },
-        cy: {
-            _type: 'computed',
-            unit: 'ah',
-            value: 100
-        }
-    });
-    ({
-        a: 0.75,
-        cy: {
-            _type: 'computed',
-            unit: 'ah',
-            value: 90
-        }
-    });
-    ({
-        a: 1,
-        cy: {
-            _type: 'computed',
-            unit: 'ah',
-            value: 100
-        }
-    });
+    }, {
+        mood: 'Smirk'
+    }]), Aya.start = Date.now(), Aya.hiding = false, Aya;
 
-    _cache = [Aya || "", `Hello`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
+    _cache = [Aya || "", `Sed in risus nec ipsum pellentesque bibendum. Aliquam molestie, libero in dictum faucibus, nibh eros dapibus lacus, volutpat porta nisi eros sed urna. Donec luctus nisl sed leo iaculis tincidunt. Pellentesque efficitur, nulla a fringilla pretium, turpis libero vestibulum ex, eu sollicitudin mauris nunc nec sem. Fusce eu dictum elit, ut sagittis lectus. Donec eget libero ut nunc feugiat faucibus nec at tortor. Nulla lorem erat, congue eget lectus ac, feugiat hendrerit metus. Integer hendrerit auctor viverra.`], _interpreter.tb.speaker = _cache[0].hasOwnProperty('name') ? _cache[0].name : _cache[0], _interpreter.tb.speakerColor = _cache[0].hasOwnProperty('color') ? _cache[0].color : _interpreter.theme.defaultSpeakerColor, _interpreter.tb.text = _cache[1].toString(), _interpreter.tb.textIndex = 0, yield ['pause', void 0], _cache[0];
     void 0;
 };
 

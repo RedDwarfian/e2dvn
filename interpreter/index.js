@@ -56,13 +56,13 @@ module.exports = class Interpreter extends EventEmitter2 {
     return this.apply(item, ...props);
   }
   apply(item, ...props) {
-    for(let prop in props) {
+    for(let prop of props) {
       for(let name in prop) {
         if (item.hasOwnProperty(name)) {
-          item[name] = props[name];
+          item[name] = prop[name];
         }
         if (item.position.hasOwnProperty(name)) {
-          item.position[name] = props[name];
+          item.position[name] = prop[name];
         }
       }
     }

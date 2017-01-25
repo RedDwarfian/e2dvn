@@ -42,6 +42,13 @@ module.exports = class Textarea extends Showable {
     this.previousSpeaker = this.speaker;
     return super.update();
   }
+  get completed() {
+    return this.ratio === 1 && this.textIndex === this.text.length;
+  }
+  autoComplete (){
+    this.textIndex = this.text.length;
+    return super.autoComplete();
+  }
   calculateLines() {
     let workingText = this.text.slice(0, this.textIndex).trim().replace('\r\n', '\n').replace('\r', '');
     let result = [];
