@@ -190,8 +190,7 @@ module.exports = class Renderer extends EventEmitter2 {
             texture = this.theme.slider['pill' + (showable.active ? 'Active' : '')];
             result.push(
               showable.dirty ? (showable.dirty = false, showable.view = <translate x={showable.x} y={showable.y}>
-                <drawImage img={this.theme.slider.capLeft} />>
-
+                <drawImage img={this.theme.slider.capLeft} />
                 <translate x={this.theme.slider.capLeft.width} y={0}>
                   <fillStyle style={this.sliderLine}>
                     <fillRect

@@ -2186,7 +2186,7 @@ module.exports = class Showable {
     this.duration = props.hasOwnProperty('duration') ? props.duration : this.duration;
   }
   update() {
-    let ease = __webpack_require__(18)[this.ease];
+    let ease = __webpack_require__(21)[this.ease];
     this.ratio = 1;
     if (Date.now() <= this.start + this.duration) {
       this.ratio = ease(Date.now() - this.start, this.duration);
@@ -2241,91 +2241,163 @@ module.exports = class Showable {
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-let Showable = __webpack_require__(1);
-let e2d = __webpack_require__(0);
+//Copyright (C) 2012 Kory Nunn
 
-module.exports = class Character extends Showable {
-  constructor(props) {
-    super(props);
-    Object.assign(this, {
-      type: 'character',
-      mood: 'Neutral',
-      previousMood: '',
-      actor: '',
-      previousActor: '',
-      color: '',
-      name: '',
-      ready: true,
-      texture: null,
-      previousTexture: null,
-      definition: null
-    });
-    this.load(props);
-  }
-  load(props) {
-    if (props.hasOwnProperty('actor') && props.actor !== this.actor) {
-      this.setActor(props.actor);
+//Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+//The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+/*
+
+    This code is not formatted for readability, but rather run-speed and to assist compilers.
+
+    However, the code's intention should be transparent.
+
+    *** IE SUPPORT ***
+
+    If you require this library to work in IE7, add the following after declaring crel.
+
+    var testDiv = document.createElement('div'),
+        testLabel = document.createElement('label');
+
+    testDiv.setAttribute('class', 'a');
+    testDiv['className'] !== 'a' ? crel.attrMap['class'] = 'className':undefined;
+    testDiv.setAttribute('name','a');
+    testDiv['name'] !== 'a' ? crel.attrMap['name'] = function(element, value){
+        element.id = value;
+    }:undefined;
+
+
+    testLabel.setAttribute('for', 'a');
+    testLabel['htmlFor'] !== 'a' ? crel.attrMap['for'] = 'htmlFor':undefined;
+
+
+
+*/
+
+(function (root, factory) {
+    if (true) {
+        module.exports = factory();
+    } else if (typeof define === 'function' && define.amd) {
+        define(factory);
+    } else {
+        root.crel = factory();
     }
-    this.displayName = props.hasOwnProperty('displayName') ? props.displayName : this.displayName;
-    this.color = props.hasOwnProperty('color') ? props.color : this.color;
-  }
-  setActor(actor) {
-    this.ready = false;
-    this.actor = actor;
-    this.texture = new Image();
-    this.texture.src = __webpack_require__(16)("./" + actor + '.png');
-    this.texture.onload = () => {
-      this.ready = true;
-      this.dirty = true;
-      this.start = Date.now();
-    };
-    this.definition = __webpack_require__(17)("./" + actor + '.json');
-  }
-  get width() {
-    return this.definition.moods[this.mood].w;
-  }
-  get height() {
-    return this.definition.moods[this.mood].h;
-  }
-  update() {
-    if (!this.ready) {
-      return;
+}(this, function () {
+    var fn = 'function',
+        obj = 'object',
+        nodeType = 'nodeType',
+        textContent = 'textContent',
+        setAttribute = 'setAttribute',
+        attrMapString = 'attrMap',
+        isNodeString = 'isNode',
+        isElementString = 'isElement',
+        d = typeof document === obj ? document : {},
+        isType = function(a, type){
+            return typeof a === type;
+        },
+        isNode = typeof Node === fn ? function (object) {
+            return object instanceof Node;
+        } :
+        // in IE <= 8 Node is an object, obviously..
+        function(object){
+            return object &&
+                isType(object, obj) &&
+                (nodeType in object) &&
+                isType(object.ownerDocument,obj);
+        },
+        isElement = function (object) {
+            return crel[isNodeString](object) && object[nodeType] === 1;
+        },
+        isArray = function(a){
+            return a instanceof Array;
+        },
+        appendChild = function(element, child) {
+          if(!crel[isNodeString](child)){
+              child = d.createTextNode(child);
+          }
+          element.appendChild(child);
+        };
+
+
+    function crel(){
+        var args = arguments, //Note: assigned to a variable to assist compilers. Saves about 40 bytes in closure compiler. Has negligable effect on performance.
+            element = args[0],
+            child,
+            settings = args[1],
+            childIndex = 2,
+            argumentsLength = args.length,
+            attributeMap = crel[attrMapString];
+
+        element = crel[isElementString](element) ? element : d.createElement(element);
+        // shortcut
+        if(argumentsLength === 1){
+            return element;
+        }
+
+        if(!isType(settings,obj) || crel[isNodeString](settings) || isArray(settings)) {
+            --childIndex;
+            settings = null;
+        }
+
+        // shortcut if there is only one child that is a string
+        if((argumentsLength - childIndex) === 1 && isType(args[childIndex], 'string') && element[textContent] !== undefined){
+            element[textContent] = args[childIndex];
+        }else{
+            for(; childIndex < argumentsLength; ++childIndex){
+                child = args[childIndex];
+
+                if(child == null){
+                    continue;
+                }
+
+                if (isArray(child)) {
+                  for (var i=0; i < child.length; ++i) {
+                    appendChild(element, child[i]);
+                  }
+                } else {
+                  appendChild(element, child);
+                }
+            }
+        }
+
+        for(var key in settings){
+            if(!attributeMap[key]){
+                element[setAttribute](key, settings[key]);
+            }else{
+                var attr = attributeMap[key];
+                if(typeof attr === fn){
+                    attr(element, settings[key]);
+                }else{
+                    element[setAttribute](attr, settings[key]);
+                }
+            }
+        }
+
+        return element;
     }
 
-    if (this.mood !== this.previousMood) {
-      this.dirty = true;
-    }
-    this.previousMood = this.mood;
+    // Used for mapping one kind of attribute to the supported version of that in bad browsers.
+    crel[attrMapString] = {};
 
-    if (this.actor !== this.previousActor) {
-      this.setActor(this.actor);
-      this.dirty = true;
+    crel[isElementString] = isElement;
+
+    crel[isNodeString] = isNode;
+
+    if(typeof Proxy !== 'undefined'){
+        crel.proxy = new Proxy(crel, {
+            get: function(target, key){
+                !(key in crel) && (crel[key] = crel.bind(null, key));
+                return crel[key];
+            }
+        });
     }
-    this.previousActor = this.actor;
-    return super.update();
-  }
-  render() {
-    if (!this.ready) {
-      return this.view;
-    }
-    let mood = this.definition.moods[this.mood];
-    let width = mood.w;
-    let height = mood.h;
-    return super.render(e2d.drawImage(this.texture, mood.x, mood.y, width, height, 0, 0, width, height));
-  }
-  serialize() {
-    return super.serialize({
-      mood: this.mood,
-      actor: this.actor,
-      color: this.color,
-      name: this.name
-    });
-  }
-  deserialize(props) {
-    this.load(props);
-    return super.deserialize(props);
-  }
-};
+
+    return crel;
+}));
+
 
 /***/ },
 /* 3 */
@@ -3057,6 +3129,12 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 /***/ },
 /* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "7cc5a37560dfe868eb6ccd3e3d6dda84.png";
+
+/***/ },
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -8040,7 +8118,32 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 }));
 
 /***/ },
-/* 5 */
+/* 6 */
+/***/ function(module, exports) {
+
+module.exports = {
+	"moods": {
+		"gare_by_lowx-daac2nh": {
+			"name": "gare_by_lowx-daac2nh",
+			"x": 0,
+			"y": 0,
+			"w": 1024,
+			"h": 576,
+			"file": "gare_by_lowx-daac2nh.png"
+		},
+		"night_forest_by_grammahobbes-da9sfcr": {
+			"name": "night_forest_by_grammahobbes-da9sfcr",
+			"x": 0,
+			"y": 576,
+			"w": 1024,
+			"h": 600,
+			"file": "night_forest_by_grammahobbes-da9sfcr.jpg"
+		}
+	}
+};
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
@@ -8061,11 +8164,11 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 5;
+webpackContext.id = 7;
 
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports) {
 
 module.exports = function* menu(_interpreter) {
@@ -8105,7 +8208,7 @@ module.exports = function* menu(_interpreter) {
 };
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 let Showable = __webpack_require__(1);
@@ -8130,7 +8233,7 @@ module.exports = class Background extends Showable {
 };
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 let Showable = __webpack_require__(1);
@@ -8200,7 +8303,97 @@ module.exports = class Button extends Showable {
 };
 
 /***/ },
-/* 9 */
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+let Showable = __webpack_require__(1);
+let e2d = __webpack_require__(0);
+
+module.exports = class Character extends Showable {
+  constructor(props) {
+    super(props);
+    Object.assign(this, {
+      type: 'character',
+      mood: 'Neutral',
+      previousMood: '',
+      actor: '',
+      previousActor: '',
+      color: '',
+      name: '',
+      ready: true,
+      texture: null,
+      previousTexture: null,
+      definition: null
+    });
+    this.load(props);
+  }
+  load(props) {
+    if (props.hasOwnProperty('actor') && props.actor !== this.actor) {
+      this.setActor(props.actor);
+    }
+    this.displayName = props.hasOwnProperty('displayName') ? props.displayName : this.displayName;
+    this.color = props.hasOwnProperty('color') ? props.color : this.color;
+  }
+  setActor(actor) {
+    this.ready = false;
+    this.actor = actor;
+    this.texture = new Image();
+    this.texture.src = __webpack_require__(19)("./" + actor + '.png');
+    this.texture.onload = () => {
+      this.ready = true;
+      this.dirty = true;
+      this.start = Date.now();
+    };
+    this.definition = __webpack_require__(20)("./" + actor + '.json');
+  }
+  get width() {
+    return this.definition.moods[this.mood].w;
+  }
+  get height() {
+    return this.definition.moods[this.mood].h;
+  }
+  update() {
+    if (!this.ready) {
+      return;
+    }
+
+    if (this.mood !== this.previousMood) {
+      this.dirty = true;
+    }
+    this.previousMood = this.mood;
+
+    if (this.actor !== this.previousActor) {
+      this.setActor(this.actor);
+      this.dirty = true;
+    }
+    this.previousActor = this.actor;
+    return super.update();
+  }
+  render() {
+    if (!this.ready) {
+      return this.view;
+    }
+    let mood = this.definition.moods[this.mood];
+    let width = mood.w;
+    let height = mood.h;
+    return super.render(e2d.drawImage(this.texture, mood.x, mood.y, width, height, 0, 0, width, height));
+  }
+  serialize() {
+    return super.serialize({
+      mood: this.mood,
+      actor: this.actor,
+      color: this.color,
+      name: this.name
+    });
+  }
+  deserialize(props) {
+    this.load(props);
+    return super.deserialize(props);
+  }
+};
+
+/***/ },
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 let Showable = __webpack_require__(1);
@@ -8266,22 +8459,62 @@ module.exports = class Checkbox extends Showable {
 };
 
 /***/ },
-/* 10 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-let Character = __webpack_require__(2);
-module.exports = class NovelBackground extends Character {
+let Showable = __webpack_require__(1);
+let crel = __webpack_require__(2);
+let e2d = __webpack_require__(0);
+module.exports = class NovelBackground extends Showable {
   constructor(props) {
-    props.actor = 'Background';
     super(props);
-    Object.assign(this, {
-      type: 'novelBackground'
+
+    //must be set as own property otherwise the engine won't set the mood
+    Object.defineProperty(this, 'mood', {
+      get() {
+        return this[Symbol.for('mood')];
+      },
+      set(value) {
+        this.previousMood = this.mood;
+        this[Symbol.for('mood')] = value;
+      },
+      enumerable: true,
+      configurable: false
     });
+
+    Object.assign(this, {
+      ready: false,
+      dirty: true,
+      previousMood: 'black',
+      mood: 'black',
+      definition: __webpack_require__(6),
+      texture: crel('img', {
+        src: __webpack_require__(4)
+      }),
+      renderer: props.renderer
+    });
+    this.texture.onload = () => {
+      this.ready = true;
+      this.dirty = true;
+      this.start = Date.now();
+    };
+  }
+
+  get width() {
+    return this.definition.moods[this.mood] ? this.definition.moods[this.mood].w : this.renderer.width;
+  }
+  get height() {
+    return this.definition.moods[this.mood] ? this.definition.moods[this.mood].h : this.renderer.height;
+  }
+  render() {
+    let previousMood = this.definition.moods[this.previousMood];
+    let mood = this.definition.moods[this.mood];
+    return super.render(e2d.globalAlpha(1 - this.ratio, previousMood ? e2d.drawImage(this.texture, previousMood.x, previousMood.y, previousMood.w, previousMood.h, 0, 0, previousMood.w, previousMood.h) : e2d.fillStyle(this.previousMood, e2d.fillRect(this.renderer.width, this.renderer.height))), e2d.globalAlpha(this.ratio, mood ? e2d.drawImage(this.texture, mood.x, mood.y, mood.w, mood.h, 0, 0, mood.w, mood.h) : e2d.fillStyle(this.mood, e2d.fillRect(this.renderer.width, this.renderer.height))));
   }
 };
 
 /***/ },
-/* 11 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 let Showable = __webpack_require__(1);
@@ -8402,38 +8635,39 @@ module.exports = class Textarea extends Showable {
 };
 
 /***/ },
-/* 12 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 let { EventEmitter2 } = __webpack_require__(3);
-let { Map } = __webpack_require__(4);
-let NovelBackground = __webpack_require__(10);
-let Textarea = __webpack_require__(11);
-let history = __webpack_require__(21);
+let { Map } = __webpack_require__(5);
+let NovelBackground = __webpack_require__(13);
+let Textarea = __webpack_require__(14);
+let history = __webpack_require__(24);
 module.exports = class Interpreter extends EventEmitter2 {
   constructor(renderer, theme) {
     super();
     Object.assign(this, {
       script: null,
       queue: [],
-      menus: __webpack_require__(23),
+      menus: __webpack_require__(26),
       state: Map(),
       renderer,
       theme,
       menu: [
-        __webpack_require__(6)(this)
+        __webpack_require__(8)(this)
       ],
       wait: Date.now(),
       waiting: false,
-      Button: __webpack_require__(8),
-      Character: __webpack_require__(2),
-      Checkbox: __webpack_require__(9),
+      Button: __webpack_require__(10),
+      Character: __webpack_require__(11),
+      Checkbox: __webpack_require__(12),
       NovelBackground,
       Textarea,
       Choice: null,
       historyEnabled: false,
       bg: new NovelBackground({
-        id: 'bg'
+        id: 'nbg',
+        renderer
       }),
       tb: new Textarea({
         id: 'tb',
@@ -8534,7 +8768,7 @@ module.exports = class Interpreter extends EventEmitter2 {
 };
 
 /***/ },
-/* 13 */
+/* 16 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -8594,7 +8828,7 @@ module.exports = {
 };
 
 /***/ },
-/* 14 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
@@ -8614,27 +8848,27 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 14;
+webpackContext.id = 17;
 
 
 /***/ },
-/* 15 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 let e2d = __webpack_require__(0);
-let crel = __webpack_require__(24);
+let crel = __webpack_require__(2);
 let { window: { width, height, title } } = __webpack_require__(62);
-let Background = __webpack_require__(7);
+let Background = __webpack_require__(9);
 let sortFunc = (left, right) => left.position.z < right.position.z ? -1 : 1;
 let { EventEmitter2 } = __webpack_require__(3);
 
 let types = {
-  'background': __webpack_require__(7),
-  'button': __webpack_require__(8),
-  'character': __webpack_require__(2),
-  'checkbox': __webpack_require__(9),
-  'novelBackground': __webpack_require__(10),
-  'textarea': __webpack_require__(11)
+  'background': __webpack_require__(9),
+  'button': __webpack_require__(10),
+  'character': __webpack_require__(11),
+  'checkbox': __webpack_require__(12),
+  'novelBackground': __webpack_require__(13),
+  'textarea': __webpack_require__(14)
 };
 
 module.exports = class Renderer extends EventEmitter2 {
@@ -8642,7 +8876,7 @@ module.exports = class Renderer extends EventEmitter2 {
     super();
     this.theme = theme;
     this.showables = [];
-    this.statics = [];
+
     crel(document.body, { style: 'margin: 0; padding: 0; ' }, crel('div', { style: `margin: 0 auto; width: ${ width }px; height: ${ height }px;` }, this.canvas = crel('canvas', { width, height })));
 
     this.ctx = this.canvas.getContext('2d');
@@ -8657,7 +8891,7 @@ module.exports = class Renderer extends EventEmitter2 {
     this.mouseData = null;
     this.regions = null;
     this.active = null;
-    this.story = __webpack_require__(5);
+    this.story = __webpack_require__(7);
     let Textarea = types.textarea;
     this.tb = new Textarea({
       a: 0,
@@ -8701,7 +8935,7 @@ module.exports = class Renderer extends EventEmitter2 {
     if (!this.theme.ready) {
       return;
     }
-    let showables = this.showables.concat(this.statics);
+    let showables = this.showables;
     showables.sort(sortFunc);
 
     this.mouseData = e2d.mouseData(this.ctx);
@@ -8759,7 +8993,7 @@ module.exports = class Renderer extends EventEmitter2 {
     for (i = 0; i < showables.length; i++) {
       let showable = showables[i];
       showable.update();
-      if (showable.hiding && showable.ratio === 1) {
+      if (showable.hiding && showable.completed) {
         let index = this.showables.indexOf(showable);
         if (index !== -1) {
           this.showables.splice(index, 1);
@@ -8824,25 +9058,25 @@ module.exports = class Renderer extends EventEmitter2 {
 };
 
 /***/ },
-/* 16 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
-	"./Aya.png": 25,
-	"./Aya/Angry.png": 26,
-	"./Aya/Blush.png": 27,
-	"./Aya/Cry.png": 28,
-	"./Aya/Frown.png": 29,
-	"./Aya/Grin.png": 30,
-	"./Aya/Neutral.png": 31,
-	"./Aya/Sad.png": 32,
-	"./Aya/Scared.png": 33,
-	"./Aya/Shocked.png": 34,
-	"./Aya/Smile.png": 35,
-	"./Aya/Smile_Blush.png": 36,
-	"./Aya/Smirk.png": 37,
-	"./Background.png": 38,
-	"./Background/gare_by_lowx-daac2nh.png": 39
+	"./Aya.png": 27,
+	"./Aya/Angry.png": 28,
+	"./Aya/Blush.png": 29,
+	"./Aya/Cry.png": 30,
+	"./Aya/Frown.png": 31,
+	"./Aya/Grin.png": 32,
+	"./Aya/Neutral.png": 33,
+	"./Aya/Sad.png": 34,
+	"./Aya/Scared.png": 35,
+	"./Aya/Shocked.png": 36,
+	"./Aya/Smile.png": 37,
+	"./Aya/Smile_Blush.png": 38,
+	"./Aya/Smirk.png": 39,
+	"./Background.png": 4,
+	"./Background/gare_by_lowx-daac2nh.png": 40
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -8858,16 +9092,16 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 16;
+webpackContext.id = 19;
 
 
 /***/ },
-/* 17 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
-	"./Aya.json": 60,
-	"./Background.json": 61
+	"./Aya.json": 61,
+	"./Background.json": 6
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -8883,15 +9117,15 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 17;
+webpackContext.id = 20;
 
 
 /***/ },
-/* 18 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
-let inOut = __webpack_require__(19),
- inverse = __webpack_require__(20);
+let inOut = __webpack_require__(22),
+ inverse = __webpack_require__(23);
 
 let linear = (point, max) => point / max;
 let quadIn = (point, max) => (point /= max, point * point);
@@ -8958,7 +9192,7 @@ module.exports = {
 };
 
 /***/ },
-/* 19 */
+/* 22 */
 /***/ function(module, exports) {
 
 module.exports = function inOut(func, inverse) {
@@ -8971,7 +9205,7 @@ module.exports = function inOut(func, inverse) {
 };
 
 /***/ },
-/* 20 */
+/* 23 */
 /***/ function(module, exports) {
 
 module.exports = function inverse(func) {
@@ -8981,11 +9215,11 @@ module.exports = function inverse(func) {
 };
 
 /***/ },
-/* 21 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
-let story = __webpack_require__(22);
-let { Map } = __webpack_require__(4);
+let story = __webpack_require__(25);
+let { Map } = __webpack_require__(5);
 
 module.exports = function* historyWrapper(interpreter, history, queue, state = Map()) {
   history = history.slice();
@@ -9061,10 +9295,10 @@ module.exports = function* historyWrapper(interpreter, history, queue, state = M
 };
 
 /***/ },
-/* 22 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
-let stories = __webpack_require__(5);
+let stories = __webpack_require__(7);
 module.exports = function* story(interpreter, script, seen, state) {
   let slides = [];
   let story = stories(script)(interpreter, state);
@@ -9127,11 +9361,11 @@ module.exports = function* story(interpreter, script, seen, state) {
 };
 
 /***/ },
-/* 23 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 var map = {
-	"./main.js": 6,
+	"./main.js": 8,
 	"./options.js": 63
 };
 function webpackContext(req) {
@@ -9148,377 +9382,209 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 23;
+webpackContext.id = 26;
 
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
-//Copyright (C) 2012 Kory Nunn
-
-//Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-//The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-/*
-
-    This code is not formatted for readability, but rather run-speed and to assist compilers.
-
-    However, the code's intention should be transparent.
-
-    *** IE SUPPORT ***
-
-    If you require this library to work in IE7, add the following after declaring crel.
-
-    var testDiv = document.createElement('div'),
-        testLabel = document.createElement('label');
-
-    testDiv.setAttribute('class', 'a');
-    testDiv['className'] !== 'a' ? crel.attrMap['class'] = 'className':undefined;
-    testDiv.setAttribute('name','a');
-    testDiv['name'] !== 'a' ? crel.attrMap['name'] = function(element, value){
-        element.id = value;
-    }:undefined;
-
-
-    testLabel.setAttribute('for', 'a');
-    testLabel['htmlFor'] !== 'a' ? crel.attrMap['for'] = 'htmlFor':undefined;
-
-
-
-*/
-
-(function (root, factory) {
-    if (true) {
-        module.exports = factory();
-    } else if (typeof define === 'function' && define.amd) {
-        define(factory);
-    } else {
-        root.crel = factory();
-    }
-}(this, function () {
-    var fn = 'function',
-        obj = 'object',
-        nodeType = 'nodeType',
-        textContent = 'textContent',
-        setAttribute = 'setAttribute',
-        attrMapString = 'attrMap',
-        isNodeString = 'isNode',
-        isElementString = 'isElement',
-        d = typeof document === obj ? document : {},
-        isType = function(a, type){
-            return typeof a === type;
-        },
-        isNode = typeof Node === fn ? function (object) {
-            return object instanceof Node;
-        } :
-        // in IE <= 8 Node is an object, obviously..
-        function(object){
-            return object &&
-                isType(object, obj) &&
-                (nodeType in object) &&
-                isType(object.ownerDocument,obj);
-        },
-        isElement = function (object) {
-            return crel[isNodeString](object) && object[nodeType] === 1;
-        },
-        isArray = function(a){
-            return a instanceof Array;
-        },
-        appendChild = function(element, child) {
-          if(!crel[isNodeString](child)){
-              child = d.createTextNode(child);
-          }
-          element.appendChild(child);
-        };
-
-
-    function crel(){
-        var args = arguments, //Note: assigned to a variable to assist compilers. Saves about 40 bytes in closure compiler. Has negligable effect on performance.
-            element = args[0],
-            child,
-            settings = args[1],
-            childIndex = 2,
-            argumentsLength = args.length,
-            attributeMap = crel[attrMapString];
-
-        element = crel[isElementString](element) ? element : d.createElement(element);
-        // shortcut
-        if(argumentsLength === 1){
-            return element;
-        }
-
-        if(!isType(settings,obj) || crel[isNodeString](settings) || isArray(settings)) {
-            --childIndex;
-            settings = null;
-        }
-
-        // shortcut if there is only one child that is a string
-        if((argumentsLength - childIndex) === 1 && isType(args[childIndex], 'string') && element[textContent] !== undefined){
-            element[textContent] = args[childIndex];
-        }else{
-            for(; childIndex < argumentsLength; ++childIndex){
-                child = args[childIndex];
-
-                if(child == null){
-                    continue;
-                }
-
-                if (isArray(child)) {
-                  for (var i=0; i < child.length; ++i) {
-                    appendChild(element, child[i]);
-                  }
-                } else {
-                  appendChild(element, child);
-                }
-            }
-        }
-
-        for(var key in settings){
-            if(!attributeMap[key]){
-                element[setAttribute](key, settings[key]);
-            }else{
-                var attr = attributeMap[key];
-                if(typeof attr === fn){
-                    attr(element, settings[key]);
-                }else{
-                    element[setAttribute](attr, settings[key]);
-                }
-            }
-        }
-
-        return element;
-    }
-
-    // Used for mapping one kind of attribute to the supported version of that in bad browsers.
-    crel[attrMapString] = {};
-
-    crel[isElementString] = isElement;
-
-    crel[isNodeString] = isNode;
-
-    if(typeof Proxy !== 'undefined'){
-        crel.proxy = new Proxy(crel, {
-            get: function(target, key){
-                !(key in crel) && (crel[key] = crel.bind(null, key));
-                return crel[key];
-            }
-        });
-    }
-
-    return crel;
-}));
-
-
-/***/ },
-/* 25 */
-/***/ function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "a9dc67668dfba371fc374294ae7d4559.png";
-
-/***/ },
-/* 26 */
-/***/ function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "dc99e934802f0ee211fdc91ceaa96e96.png";
 
 /***/ },
 /* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "e1b368cff697617fd4b76af4022605ac.png";
+module.exports = __webpack_require__.p + "a9dc67668dfba371fc374294ae7d4559.png";
 
 /***/ },
 /* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "b230ef480523ca2ff544152395fdf5f9.png";
+module.exports = __webpack_require__.p + "dc99e934802f0ee211fdc91ceaa96e96.png";
 
 /***/ },
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "464a4535710a9ef5a5a1aaa1236b9024.png";
+module.exports = __webpack_require__.p + "e1b368cff697617fd4b76af4022605ac.png";
 
 /***/ },
 /* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "7ff6afc6f6bc200dd73e390e4141205b.png";
+module.exports = __webpack_require__.p + "b230ef480523ca2ff544152395fdf5f9.png";
 
 /***/ },
 /* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "ccd38a20b68ab7f2ead9ddaaad4ba609.png";
+module.exports = __webpack_require__.p + "464a4535710a9ef5a5a1aaa1236b9024.png";
 
 /***/ },
 /* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "88ff53224485f9d1c9eaaf46d3f96869.png";
+module.exports = __webpack_require__.p + "7ff6afc6f6bc200dd73e390e4141205b.png";
 
 /***/ },
 /* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "a5778b42a2c053efb65fe31014ec8edf.png";
+module.exports = __webpack_require__.p + "ccd38a20b68ab7f2ead9ddaaad4ba609.png";
 
 /***/ },
 /* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "cb0ba503142bd4d126f35241740e08ed.png";
+module.exports = __webpack_require__.p + "88ff53224485f9d1c9eaaf46d3f96869.png";
 
 /***/ },
 /* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0cccc7e381ca77d6d4a77fa961228523.png";
+module.exports = __webpack_require__.p + "a5778b42a2c053efb65fe31014ec8edf.png";
 
 /***/ },
 /* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "1a41bb81b1571407920e8854a81e4f9c.png";
+module.exports = __webpack_require__.p + "cb0ba503142bd4d126f35241740e08ed.png";
 
 /***/ },
 /* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "4ffc71059ee4573abc2b46bda0c5846e.png";
+module.exports = __webpack_require__.p + "0cccc7e381ca77d6d4a77fa961228523.png";
 
 /***/ },
 /* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "7cc5a37560dfe868eb6ccd3e3d6dda84.png";
+module.exports = __webpack_require__.p + "1a41bb81b1571407920e8854a81e4f9c.png";
 
 /***/ },
 /* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "248458496f161b375343c3b550a7eab1.png";
+module.exports = __webpack_require__.p + "4ffc71059ee4573abc2b46bda0c5846e.png";
 
 /***/ },
 /* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "d914e858b7c298b0a20b94f93e292df9.otf";
+module.exports = __webpack_require__.p + "248458496f161b375343c3b550a7eab1.png";
 
 /***/ },
 /* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "f804308dc39269f2d8598cd4c624f2e5.png";
+module.exports = __webpack_require__.p + "d914e858b7c298b0a20b94f93e292df9.otf";
 
 /***/ },
 /* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "8ed860e0a4295c9848a2e0b371911d26.png";
+module.exports = __webpack_require__.p + "f804308dc39269f2d8598cd4c624f2e5.png";
 
 /***/ },
 /* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "6945396538d40c9a482819c24aea29d8.png";
+module.exports = __webpack_require__.p + "8ed860e0a4295c9848a2e0b371911d26.png";
 
 /***/ },
 /* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "21d9f4aa255119fbb2de413e3b4bf5c7.png";
+module.exports = __webpack_require__.p + "6945396538d40c9a482819c24aea29d8.png";
 
 /***/ },
 /* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "948e761208b6194f85d7b1cb4f99d8f5.png";
+module.exports = __webpack_require__.p + "21d9f4aa255119fbb2de413e3b4bf5c7.png";
 
 /***/ },
 /* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "77a783281291fc3a8cf997a75a2847bb.png";
+module.exports = __webpack_require__.p + "948e761208b6194f85d7b1cb4f99d8f5.png";
 
 /***/ },
 /* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "4cb8eccb7ed09b83dd89ec457426e8b8.png";
+module.exports = __webpack_require__.p + "77a783281291fc3a8cf997a75a2847bb.png";
 
 /***/ },
 /* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "9e8ee288e7ec6a83777f49fb0797bd1f.png";
+module.exports = __webpack_require__.p + "4cb8eccb7ed09b83dd89ec457426e8b8.png";
 
 /***/ },
 /* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "aeb420d44a89d2608fc6b4a5f7ad7d72.png";
+module.exports = __webpack_require__.p + "9e8ee288e7ec6a83777f49fb0797bd1f.png";
 
 /***/ },
 /* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "9597bc24c48ef34de81cbf5603ab1c39.png";
+module.exports = __webpack_require__.p + "aeb420d44a89d2608fc6b4a5f7ad7d72.png";
 
 /***/ },
 /* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "cedaddace229519a597a54d8bd414faa.png";
+module.exports = __webpack_require__.p + "9597bc24c48ef34de81cbf5603ab1c39.png";
 
 /***/ },
 /* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "a62e9e3038dadd90d13228c9261b6dd9.png";
+module.exports = __webpack_require__.p + "cedaddace229519a597a54d8bd414faa.png";
 
 /***/ },
 /* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "d4ca38a742d93f71222a274020589d02.png";
+module.exports = __webpack_require__.p + "a62e9e3038dadd90d13228c9261b6dd9.png";
 
 /***/ },
 /* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "78f7188cbdbbcdc4355116dfaa0e62eb.png";
+module.exports = __webpack_require__.p + "d4ca38a742d93f71222a274020589d02.png";
 
 /***/ },
 /* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "c4c2ce7fdc6f86bc1ba126434fae13f2.png";
+module.exports = __webpack_require__.p + "78f7188cbdbbcdc4355116dfaa0e62eb.png";
 
 /***/ },
 /* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "4aea8fa323b346e84263e030fe663abb.png";
+module.exports = __webpack_require__.p + "c4c2ce7fdc6f86bc1ba126434fae13f2.png";
 
 /***/ },
 /* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0f23bfe04db99ae954c3b96aeee74ec5.png";
+module.exports = __webpack_require__.p + "4aea8fa323b346e84263e030fe663abb.png";
 
 /***/ },
 /* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "b8f13d1d51878cfd05214f9310f113cd.png";
+module.exports = __webpack_require__.p + "0f23bfe04db99ae954c3b96aeee74ec5.png";
 
 /***/ },
 /* 59 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "b8f13d1d51878cfd05214f9310f113cd.png";
+
+/***/ },
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 (function(){function m(a,b){document.addEventListener?a.addEventListener("scroll",b,!1):a.attachEvent("scroll",b)}function n(a){document.body?a():document.addEventListener?document.addEventListener("DOMContentLoaded",function c(){document.removeEventListener("DOMContentLoaded",c);a()}):document.attachEvent("onreadystatechange",function l(){if("interactive"==document.readyState||"complete"==document.readyState)document.detachEvent("onreadystatechange",l),a()})};function t(a){this.a=document.createElement("div");this.a.setAttribute("aria-hidden","true");this.a.appendChild(document.createTextNode(a));this.b=document.createElement("span");this.c=document.createElement("span");this.h=document.createElement("span");this.f=document.createElement("span");this.g=-1;this.b.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";this.c.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;";
@@ -9531,7 +9597,7 @@ w=q.a.offsetWidth;H();z(f,function(a){g=a;e()});x(f,J(c,'"'+c.family+'",sans-ser
 
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports) {
 
 module.exports = {
@@ -9631,31 +9697,6 @@ module.exports = {
 			"w": 308,
 			"h": 610,
 			"file": "Angry.png"
-		}
-	}
-};
-
-/***/ },
-/* 61 */
-/***/ function(module, exports) {
-
-module.exports = {
-	"moods": {
-		"gare_by_lowx-daac2nh": {
-			"name": "gare_by_lowx-daac2nh",
-			"x": 0,
-			"y": 0,
-			"w": 1024,
-			"h": 576,
-			"file": "gare_by_lowx-daac2nh.png"
-		},
-		"night_forest_by_grammahobbes-da9sfcr": {
-			"name": "night_forest_by_grammahobbes-da9sfcr",
-			"x": 0,
-			"y": 576,
-			"w": 1024,
-			"h": 600,
-			"file": "night_forest_by_grammahobbes-da9sfcr.jpg"
 		}
 	}
 };
@@ -9919,7 +9960,7 @@ let _createImage = src => {
 };
 
 let _loadFont = (name, src) => {
-  let FontFaceObserver = __webpack_require__(59);
+  let FontFaceObserver = __webpack_require__(60);
 
   let font = new FontFaceObserver(name);
   let ff = `
@@ -9955,7 +9996,7 @@ options.titleTextSize = 32;
 options.titleTextColor = selectedColor;
 
 options.controlTextSize = 26;
-_loadFont('Puritan', __webpack_require__(40));
+_loadFont('Puritan', __webpack_require__(41));
 options.controlFont = `${ options.controlTextSize }px Puritan`;
 options.controlTextColor = normalColor;
 options.controlTextSelectedColor = selectedColor;
@@ -9966,32 +10007,32 @@ options.choiceTextColor = normalColor;
 options.choiceTextSelectedColor = selectedColor;
 
 options.checkbox = {
-  unchecked: _createImage(__webpack_require__(48)),
-  uncheckedActive: _createImage(__webpack_require__(47)),
-  checked: _createImage(__webpack_require__(46)),
-  checkedActive: _createImage(__webpack_require__(45)),
+  unchecked: _createImage(__webpack_require__(49)),
+  uncheckedActive: _createImage(__webpack_require__(48)),
+  checked: _createImage(__webpack_require__(47)),
+  checkedActive: _createImage(__webpack_require__(46)),
   textPadding: 4
 };
 
 options.button = {
-  unselected: _createImage(__webpack_require__(44)),
-  unselectedActive: _createImage(__webpack_require__(43)),
-  selected: _createImage(__webpack_require__(42)),
-  selectedActive: _createImage(__webpack_require__(41))
+  unselected: _createImage(__webpack_require__(45)),
+  unselectedActive: _createImage(__webpack_require__(44)),
+  selected: _createImage(__webpack_require__(43)),
+  selectedActive: _createImage(__webpack_require__(42))
 };
 
 options.slider = {
-  capLeft: _createImage(__webpack_require__(52)),
-  capRight: _createImage(__webpack_require__(53)),
-  pill: _createImage(__webpack_require__(56)),
-  pillActive: _createImage(__webpack_require__(55)),
-  line: _createImage(__webpack_require__(54))
+  capLeft: _createImage(__webpack_require__(53)),
+  capRight: _createImage(__webpack_require__(54)),
+  pill: _createImage(__webpack_require__(57)),
+  pillActive: _createImage(__webpack_require__(56)),
+  line: _createImage(__webpack_require__(55))
 };
 
 options.choice = {
-  choice: _createImage(__webpack_require__(51)),
-  active: _createImage(__webpack_require__(49)),
-  selected: _createImage(__webpack_require__(50)),
+  choice: _createImage(__webpack_require__(52)),
+  active: _createImage(__webpack_require__(50)),
+  selected: _createImage(__webpack_require__(51)),
   margin: 30
 };
 
@@ -10000,7 +10041,7 @@ let textareaFont = 'Puritan',
     textareaFontSize = 20,
     speakerBoxFontSize = 20;
 options.textarea = {
-  texture: _createImage(__webpack_require__(57)),
+  texture: _createImage(__webpack_require__(58)),
   speakerBox: [10, 10, 380, 20],
   speakerBoxFontSize: speakerBoxFontSize,
   speakerBoxFont: `bold ${ speakerBoxFontSize }px ${ textareaSpeakerFont }`,
@@ -10008,21 +10049,21 @@ options.textarea = {
   textFontSize: textareaFontSize,
   textFont: `${ textareaFontSize }px ${ textareaFont }`,
   textLeading: 10,
-  color: normalColor
+  color: `black`
 };
 
-options.windowBackground = _createImage(__webpack_require__(58));
+options.windowBackground = _createImage(__webpack_require__(59));
 module.exports = options;
 
 /***/ },
 /* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
-let Interpreter = __webpack_require__(12);
-let Renderer = __webpack_require__(15);
-let pkg = __webpack_require__(13);
+let Interpreter = __webpack_require__(15);
+let Renderer = __webpack_require__(18);
+let pkg = __webpack_require__(16);
 let r = new Renderer(
-  __webpack_require__(14)("./" + pkg.story.theme + '/options.js')
+  __webpack_require__(17)("./" + pkg.story.theme + '/options.js')
 );
 let i = new Interpreter(r, r.theme);
 
