@@ -60,7 +60,7 @@ options.textarea = {
   textFontSize: textareaFontSize,
   textFont: `${textareaFontSize}px ${textareaFont}`,
   textLeading: 10,
-  color: normalColor
+  color: `black`
 };
 
 options.windowBackground = url('./window-background.png');

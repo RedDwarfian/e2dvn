@@ -1,9 +1,9 @@
-import e2d from 'e2d';
-import crel from 'crel';
+let e2d = require('e2d');
+let crel = require('crel');
 let { window: { width, height, title } } = require('../package.json');
 let Background = require('../webpack-loader/renderer-loader.js!./controls/Background.jsx');
 let sortFunc = (left, right) => left.position.z < right.position.z ? -1 : 1;
-import EventEmitter2 from 'eventemitter2';
+let { EventEmitter2 } = require('eventemitter2');
 
 let types = {
   'background': require('../webpack-loader/renderer-loader!./controls/Background.jsx'),
@@ -19,7 +19,7 @@ module.exports = class Renderer extends EventEmitter2 {
     super();
     this.theme = theme;
     this.showables = [];
-    this.statics = [];
+
     crel(document.body, { style: 'margin: 0; padding: 0; '},
       crel('div', { style: `margin: 0 auto; width: ${width}px; height: ${height}px;` },
         this.canvas = crel('canvas', { width, height })
@@ -82,7 +82,7 @@ module.exports = class Renderer extends EventEmitter2 {
     if (!this.theme.ready) {
       return;
     }
-    let showables = this.showables.concat(this.statics);
+    let showables = this.showables;
     showables.sort(sortFunc);
 
     this.mouseData = e2d.mouseData(this.ctx);
@@ -138,7 +138,7 @@ module.exports = class Renderer extends EventEmitter2 {
     for(i = 0; i < showables.length; i++) {
       let showable = showables[i];
       showable.update();
-      if (showable.hiding && showable.ratio === 1) {
+      if (showable.hiding && showable.completed) {
         let index = this.showables.indexOf(showable);
         if (index !== -1) {
           this.showables.splice(index, 1);

@@ -26,7 +26,8 @@ module.exports = class Interpreter extends EventEmitter2 {
       Choice: null,
       historyEnabled: false,
       bg: new NovelBackground({
-        id: 'bg'
+        id: 'nbg',
+        renderer
       }),
       tb: new Textarea({
         id: 'tb',
