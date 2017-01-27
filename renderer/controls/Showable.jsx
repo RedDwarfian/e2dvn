@@ -53,14 +53,14 @@ module.exports = class Showable {
     this.previousRatio = this.ratio;
   }
   render(...children) {
-    let x = this.checkComputed(this.last.x)  + this.ratio * (this.checkComputed(this.position.x) - this.checkComputed(this.last.x)),
-      y = this.checkComputed(this.last.y)  + this.ratio * (this.checkComputed(this.position.y) - this.checkComputed(this.last.y)),
+    let x = this.checkComputed(this.last.x) + this.ratio * (this.checkComputed(this.position.x) - this.checkComputed(this.last.x)),
+      y = this.checkComputed(this.last.y) + this.ratio * (this.checkComputed(this.position.y) - this.checkComputed(this.last.y)),
       sx = this.checkComputed(this.last.sx) + this.ratio * (this.checkComputed(this.position.sx) - this.checkComputed(this.last.sx)),
       sy = this.checkComputed(this.last.sy) + this.ratio * (this.checkComputed(this.position.sy) - this.checkComputed(this.last.sy)),
-      rot = this.checkComputed(this.last.rot)  + this.ratio * (this.checkComputed(this.position.rot) - this.checkComputed(this.last.rot)),
+      rot = this.checkComputed(this.last.rot) + this.ratio * (this.checkComputed(this.position.rot) - this.checkComputed(this.last.rot)),
       cx = this.checkComputed(this.last.cx) + this.ratio * (this.checkComputed(this.position.cx) - this.checkComputed(this.last.cx)),
       cy = this.checkComputed(this.last.cy) + this.ratio * (this.checkComputed(this.position.cy) - this.checkComputed(this.last.cy)),
-      a = this.checkComputed(this.last.a)  + this.ratio * (this.checkComputed(this.position.a) - this.checkComputed(this.last.a));
+      a = this.checkComputed(this.last.a) + this.ratio * (this.checkComputed(this.position.a) - this.checkComputed(this.last.a));
     return <translate x={x} y={y}>
       <rotate angle={rot}>
         <scale x={sx} y={sy}>
@@ -88,6 +88,7 @@ module.exports = class Showable {
   }
   autoComplete() {
     this.ratio = 1;
+    this.start = Date.now() - this.duration;
   }
   get width() {
     return this.texture.width;

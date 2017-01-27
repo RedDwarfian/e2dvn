@@ -39,14 +39,6 @@ module.exports = class Renderer extends EventEmitter2 {
     this.regions = null;
     this.active = null;
     this.story = require.context('../webpack-loader/story-loader!../story/', true, /\.js$/i);
-    let Textarea = types.textarea;
-    this.tb = new Textarea({
-      a: 0,
-      y: height
-    }, theme);
-    this.theme.textarea.texture.addEventListener('load', () => {
-      this.tb.position.cy = this.tb.last.cy = this.theme.textarea.texture.height;
-    });
 
     this.width = width;
 
@@ -100,7 +92,7 @@ module.exports = class Renderer extends EventEmitter2 {
       let willAdvance = true;
       for(i = 0; i < showables.length; i++) {
         showable = showables[i];
-        if (this.regions[showable.id]) {
+        if (showable.hover) {
           showable.active = true;
           this.active = showable;
           this.emit('mousedown', showable);
@@ -139,32 +131,28 @@ module.exports = class Renderer extends EventEmitter2 {
       let showable = showables[i];
       showable.update();
       if (showable.hiding && showable.completed) {
-        let index = this.showables.indexOf(showable);
-        if (index !== -1) {
-          this.showables.splice(index, 1);
-          showables.splice(i, 1);
-          i -= 1;
-        }
+        showables.splice(i, 1);
+        i -= 1;
+      
         continue;
       }
-      pointer = pointer || showables[i].pointer;
+      pointer = pointer || showable.pointer;
     }
 
     this.previousMouseState = this.mouseData.state;
     this.canvas.style.cursor = pointer ? 'pointer' : 'default';
-    this.renderables = showables;
   }
   render() {
     if (!this.theme.ready) {
       return;
     }
     let result = [], showable;
-    for (let i = 0; i < this.renderables.length; i++) {
-      showable = this.renderables[i];
+    for (let i = 0; i < this.showables.length; i++) {
+      showable = this.showables[i];
       result.push(
         showable.dirty ?
-          (showable.dirty = false, showable.view = showable.render())
-          : showable.view
+          (showable.dirty = false, showable.view = showable.render()) :
+          showable.view
       );
     }
 
@@ -174,8 +162,8 @@ module.exports = class Renderer extends EventEmitter2 {
     </render>;
   }
   getState() {
-    return this.renderables.reduce(
-      (index, r) => index[r.id] = r.serialize(),
+    return this.showables.reduce(
+      (index, r) => (index[r.id] = r.serialize(), index),
       {}
     );
   }
