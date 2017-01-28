@@ -51,6 +51,11 @@ module.exports = class Showable {
       this.dirty = true;
     }
     this.previousRatio = this.ratio;
+    
+    if (this.active !== this.previousActive) {
+      this.dirty = true;
+    }
+    this.previousActive = this.active;
   }
   render(...children) {
     let x = this.checkComputed(this.last.x) + this.ratio * (this.checkComputed(this.position.x) - this.checkComputed(this.last.x)),

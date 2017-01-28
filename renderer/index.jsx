@@ -10,6 +10,7 @@ let types = {
   'button': require('../webpack-loader/renderer-loader!./controls/Button.jsx'),
   'character': require('../webpack-loader/renderer-loader!./controls/Character.jsx'),
   'checkbox': require('../webpack-loader/renderer-loader!./controls/Checkbox.jsx'),
+  'slider': require('../webpack-loader/renderer-loader!./controls/Slider.jsx'),
   'novelBackground': require('../webpack-loader/renderer-loader!./controls/NovelBackground.jsx'),
   'textarea': require('../webpack-loader/renderer-loader!./controls/Textarea.jsx'),
 };
@@ -129,7 +130,7 @@ module.exports = class Renderer extends EventEmitter2 {
 
     for(i = 0; i < showables.length; i++) {
       let showable = showables[i];
-      showable.update();
+      showable.update(this);
       if (showable.hiding && showable.completed) {
         showables.splice(i, 1);
         i -= 1;

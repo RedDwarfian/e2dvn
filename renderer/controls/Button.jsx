@@ -26,10 +26,6 @@ module.exports = class Button extends Showable {
     if (!this.theme.ready) {
       return;
     }
-    if (this.active !== this.previousActive) {
-      this.dirty = true;
-    }
-    this.previousActive = this.active;
 
     if (this.previousSelected !== this.selected) {
       this.dirty = true;
