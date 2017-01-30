@@ -21,6 +21,7 @@ module.exports = class Interpreter extends EventEmitter2 {
       Button: require('../webpack-loader/renderer-loader!../renderer/controls/Button.jsx'),
       Character: require('../webpack-loader/renderer-loader!../renderer/controls/Character.jsx'),
       Checkbox: require('../webpack-loader/renderer-loader!../renderer/controls/Checkbox.jsx'),
+      Slider: require('../webpack-loader/renderer-loader!../renderer/controls/Slider.jsx'),
       NovelBackground,
       Textarea,
       Choice: null,
@@ -41,6 +42,11 @@ module.exports = class Interpreter extends EventEmitter2 {
     this.renderer.on('click', (showable) => {
       if (showable.onclick) {
         this.menu.push(showable.onclick());
+      }
+    });
+    this.renderer.on('value', (showable) => {
+      if (showable.onvalue) {
+        this.menu.push(showable.onvalue());
       }
     });
     this.renderer.on('mouse-down', () => {

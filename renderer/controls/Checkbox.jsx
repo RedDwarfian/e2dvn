@@ -23,10 +23,6 @@ module.exports = class Checkbox extends Showable {
     if (!this.theme.ready) {
       return;
     }
-    if (this.active !== this.previousActive) {
-      this.dirty = true;
-    }
-    this.previousActive = this.active;
 
     if (this.previousChecked !== this.checked) {
       this.dirty = true;
