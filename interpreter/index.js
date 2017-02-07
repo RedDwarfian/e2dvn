@@ -16,6 +16,7 @@ module.exports = class Interpreter extends EventEmitter2 {
       menu: [
         require('../webpack-loader/menu-loader!../menu/main')(this)
       ],
+      event: [],
       wait: Date.now(),
       waiting: false,
       Button: require('../webpack-loader/renderer-loader!../renderer/controls/Button.jsx'),
@@ -41,12 +42,12 @@ module.exports = class Interpreter extends EventEmitter2 {
     })
     this.renderer.on('click', (showable) => {
       if (showable.onclick) {
-        this.menu.push(showable.onclick());
+        this.event.push(showable.onclick());
       }
     });
     this.renderer.on('value', (showable) => {
       if (showable.onvalue) {
-        this.menu.push(showable.onvalue());
+        this.event.push(showable.onvalue());
       }
     });
     this.renderer.on('mouse-down', () => {
@@ -86,7 +87,7 @@ module.exports = class Interpreter extends EventEmitter2 {
     this.renderer.emit('pop');
   }
   advance() {
-    if (this.renderer.active) {
+    if (this.event.length === 0 && this.renderer.active) {
       return;
     }
 
@@ -96,15 +97,16 @@ module.exports = class Interpreter extends EventEmitter2 {
       }
       this.waiting = false;
     }
-    let target = this.menu.length > 0 ? this.menu[this.menu.length - 1] : this.script;
+    let source = this.event.length > 0 ? this.event : this.menu;
+    let target = source.length > 0 ? source[source.length - 1] : this.script;
 
     let { done, value } = target.next();
     if (done) {
       //renderer.emit('pop');
-      if (this.menu.length > 0) {
-        this.menu.pop();
+      if (source.length > 0) {
+        source.pop();
       }
-      if (this.menu.length === 0) {
+      if (source.length === 0 && this.menu.length === 0) {
         if (this.queue.length === 0) {
           console.log("exit");
         } else {
