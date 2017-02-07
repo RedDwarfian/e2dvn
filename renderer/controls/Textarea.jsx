@@ -1,6 +1,6 @@
 let Showable = require('../../webpack-loader/renderer-loader!./Showable.jsx');
 let e2d = require('e2d');
-
+let parser = require('pegjs-loader!../text-parser.pegjs');
 module.exports = class Textarea extends Showable {
   constructor(props, theme) {
     super(props);
@@ -10,13 +10,26 @@ module.exports = class Textarea extends Showable {
       speaker: '',
       previousSpeaker: null,
       speakerColor: '',
-      text: '',
+      lines: [],
       textIndex: 0,
       texture: theme.textarea.texture,
       previousTextIndex: -1,
       speed: 1,
       dirty: true,
     });
+
+    Object.defineProperty(this, 'text', {
+      get() {
+        return this.lines.join('\n');
+      },
+      set(value) {
+        parser.font = this.theme.textarea.textFont;
+        parser.maxWidth = this.theme.textarea.textBox[2];
+        this.lines = parser.parse(value);
+      },
+      configurable: false,
+      enumerable: true
+    })
     this.load(props);
   }
   load(props) {
@@ -50,59 +63,31 @@ module.exports = class Textarea extends Showable {
     return super.autoComplete();
   }
   calculateLines() {
-    let workingText = this.text.slice(0, this.textIndex).trim().replace('\r\n', '\n').replace('\r', '');
-    let result = [];
-    let index = [];
-    let i;
-    let lastIndex = 0;
-    let testIndex = 0;
-    let previousTestIndex = 0;
-    let testText = "";
-    let ctx = this.ctx;
-    let count = 0;
-    let forceBreak;
-    for (i = 0; i < workingText.length; i++) {
-      switch(workingText[i]) {
-        case " ":
-        case "\t":
-          index.push([i, 0]);
-          break;
-        case "\n":
-          index.push([i, 1]);
-      }
-    }
-    index.push([workingText.length, 0]);
-    let tempFont = ctx.font;
-    ctx.font = this.theme.textarea.textFont;
-
-    for (i = 0; i < index.length; i++) {
-      [testIndex, forceBreak] = index[i];
-      testText = workingText.slice(lastIndex, testIndex).trim();
-
-      if (forceBreak === 1 || this.ctx.measureText(testText).width > this.theme.textarea.textBox[2]) {
-        result.push(
+    let currentIndex = 0;
+    let lines = [];
+    for (let i = 0; i < this.lines.length; i++) {
+      let line = this.lines[i];
+      if (line.length + currentIndex > this.textIndex) {
+        line = line.slice(0, this.textIndex - currentIndex);
+        lines.push(
           <fillText
-            text={forceBreak ? testText : workingText.slice(lastIndex, previousTestIndex).trim()}
             x={this.theme.textarea.textBox[0]}
-            y={this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)}
+            y={this.theme.textarea.textLeading * i + i * this.theme.speakerBoxFontSize}
+            text={line}
           />
         );
-        count += 1;
-        lastIndex = forceBreak ? testIndex : previousTestIndex;
+        return lines;
       }
-
-      previousTestIndex = testIndex;
+      lines.push(
+        <fillText
+          x={this.theme.textarea.textBox[0]}
+          y={this.theme.textarea.textLeading * i + i * this.theme.speakerBoxFontSize}
+          text={line}
+        />
+      );
+      currentIndex += line.length;
     }
-
-    result.push(
-      <fillText
-        text={workingText.slice(lastIndex).trim()}
-        x={this.theme.textarea.textBox[0]}
-        y={this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)}
-      />
-    );
-    ctx.font = tempFont;
-    return result;
+    return lines;
   }
   render() {
     return super.render(
@@ -126,7 +111,7 @@ module.exports = class Textarea extends Showable {
               height={this.theme.textarea.textBox[3]}
             />
           }>
-            {this.calculateLines(this, this.theme.textarea)}
+            {this.calculateLines()}
           </clip>
         </textStyle>
       </fillStyle>

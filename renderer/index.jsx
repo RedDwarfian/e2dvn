@@ -197,7 +197,7 @@ module.exports = class Renderer extends EventEmitter2 {
           defintion.type
         ];
         this.showables.push(
-          new Constructor(defintion)
+          new Constructor(defintion, this.theme)
         );
       }
     }

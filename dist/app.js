@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 68);
+/******/ 	return __webpack_require__(__webpack_require__.s = 69);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -8154,8 +8154,8 @@ module.exports = {
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./act-1/test.js": 65,
-	"./main.js": 66
+	"./act-1/test.js": 66,
+	"./main.js": 67
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -8622,7 +8622,7 @@ module.exports = class Slider extends Showable {
 
 let Showable = __webpack_require__(1);
 let e2d = __webpack_require__(0);
-
+let parser = __webpack_require__(63);
 module.exports = class Textarea extends Showable {
   constructor(props, theme) {
     super(props);
@@ -8632,12 +8632,25 @@ module.exports = class Textarea extends Showable {
       speaker: '',
       previousSpeaker: null,
       speakerColor: '',
-      text: '',
+      lines: [],
       textIndex: 0,
       texture: theme.textarea.texture,
       previousTextIndex: -1,
       speed: 1,
       dirty: true
+    });
+
+    Object.defineProperty(this, 'text', {
+      get() {
+        return this.lines.join('\n');
+      },
+      set(value) {
+        parser.font = this.theme.textarea.textFont;
+        parser.maxWidth = this.theme.textarea.textBox[2];
+        this.lines = parser.parse(value);
+      },
+      configurable: false,
+      enumerable: true
     });
     this.load(props);
   }
@@ -8672,47 +8685,19 @@ module.exports = class Textarea extends Showable {
     return super.autoComplete();
   }
   calculateLines() {
-    let workingText = this.text.slice(0, this.textIndex).trim().replace('\r\n', '\n').replace('\r', '');
-    let result = [];
-    let index = [];
-    let i;
-    let lastIndex = 0;
-    let testIndex = 0;
-    let previousTestIndex = 0;
-    let testText = "";
-    let ctx = this.ctx;
-    let count = 0;
-    let forceBreak;
-    for (i = 0; i < workingText.length; i++) {
-      switch (workingText[i]) {
-        case " ":
-        case "\t":
-          index.push([i, 0]);
-          break;
-        case "\n":
-          index.push([i, 1]);
+    let currentIndex = 0;
+    let lines = [];
+    for (let i = 0; i < this.lines.length; i++) {
+      let line = this.lines[i];
+      if (line.length + currentIndex > this.textIndex) {
+        line = line.slice(0, this.textIndex - currentIndex);
+        lines.push(e2d.fillText(line, this.theme.textarea.textBox[0], this.theme.textarea.textLeading * i + i * this.theme.speakerBoxFontSize));
+        return lines;
       }
+      lines.push(e2d.fillText(line, this.theme.textarea.textBox[0], this.theme.textarea.textLeading * i + i * this.theme.speakerBoxFontSize));
+      currentIndex += line.length;
     }
-    index.push([workingText.length, 0]);
-    let tempFont = ctx.font;
-    ctx.font = this.theme.textarea.textFont;
-
-    for (i = 0; i < index.length; i++) {
-      [testIndex, forceBreak] = index[i];
-      testText = workingText.slice(lastIndex, testIndex).trim();
-
-      if (forceBreak === 1 || this.ctx.measureText(testText).width > this.theme.textarea.textBox[2]) {
-        result.push(e2d.fillText(forceBreak ? testText : workingText.slice(lastIndex, previousTestIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
-        count += 1;
-        lastIndex = forceBreak ? testIndex : previousTestIndex;
-      }
-
-      previousTestIndex = testIndex;
-    }
-
-    result.push(e2d.fillText(workingText.slice(lastIndex).trim(), this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + count * (this.theme.textarea.textFontSize + this.theme.textarea.textLeading)));
-    ctx.font = tempFont;
-    return result;
+    return lines;
   }
   render() {
     return super.render(e2d.drawImage(this.theme.textarea.texture), e2d.fillStyle(this.speakerColor, e2d.textStyle({
@@ -8721,7 +8706,7 @@ module.exports = class Textarea extends Showable {
     }, e2d.fillText(this.speaker, this.theme.textarea.speakerBox[0], this.theme.textarea.speakerBox[1]))), e2d.fillStyle(this.theme.textarea.color, e2d.textStyle({
       font: this.theme.textarea.textFont,
       textBaseline: 'top'
-    }, e2d.clip(e2d.rect(this.theme.textarea.textBox[0], this.theme.textarea.textBox[1], this.theme.textarea.textBox[2], this.theme.textarea.textBox[3]), this.calculateLines(this, this.theme.textarea)))));
+    }, e2d.clip(e2d.rect(this.theme.textarea.textBox[0], this.theme.textarea.textBox[1], this.theme.textarea.textBox[2], this.theme.textarea.textBox[3]), this.calculateLines()))));
   }
   serialize() {
     return super.serialize({
@@ -8759,6 +8744,7 @@ module.exports = class Interpreter extends EventEmitter2 {
       menu: [
         __webpack_require__(8)(this)
       ],
+      event: [],
       wait: Date.now(),
       waiting: false,
       Button: __webpack_require__(10),
@@ -8784,12 +8770,12 @@ module.exports = class Interpreter extends EventEmitter2 {
     })
     this.renderer.on('click', (showable) => {
       if (showable.onclick) {
-        this.menu.push(showable.onclick());
+        this.event.push(showable.onclick());
       }
     });
     this.renderer.on('value', (showable) => {
       if (showable.onvalue) {
-        this.menu.push(showable.onvalue());
+        this.event.push(showable.onvalue());
       }
     });
     this.renderer.on('mouse-down', () => {
@@ -8829,7 +8815,7 @@ module.exports = class Interpreter extends EventEmitter2 {
     this.renderer.emit('pop');
   }
   advance() {
-    if (this.renderer.active) {
+    if (this.event.length === 0 && this.renderer.active) {
       return;
     }
 
@@ -8839,15 +8825,16 @@ module.exports = class Interpreter extends EventEmitter2 {
       }
       this.waiting = false;
     }
-    let target = this.menu.length > 0 ? this.menu[this.menu.length - 1] : this.script;
+    let source = this.event.length > 0 ? this.event : this.menu;
+    let target = source.length > 0 ? source[source.length - 1] : this.script;
 
     let { done, value } = target.next();
     if (done) {
       //renderer.emit('pop');
-      if (this.menu.length > 0) {
-        this.menu.pop();
+      if (source.length > 0) {
+        source.pop();
       }
-      if (this.menu.length === 0) {
+      if (source.length === 0 && this.menu.length === 0) {
         if (this.queue.length === 0) {
           console.log("exit");
         } else {
@@ -8919,8 +8906,10 @@ module.exports = {
 		"json-loader": "^0.5.4",
 		"library-src-plugin": "^1.0.2",
 		"nw-builder": "^3.1.2",
+		"pegjs": "^0.10.0",
+		"pegjs-loader": "^0.5.0",
 		"save-pixels": "^2.3.4",
-		"webpack": "^2.2.0-rc.3",
+		"webpack": "^2.2.0",
 		"zeros": "^1.0.0"
 	},
 	"window": {
@@ -8941,7 +8930,7 @@ module.exports = {
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./hexagon/options.js": 67
+	"./hexagon/options.js": 68
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -8966,7 +8955,7 @@ webpackContext.id = 18;
 
 let e2d = __webpack_require__(0);
 let crel = __webpack_require__(2);
-let { window: { width, height, title } } = __webpack_require__(63);
+let { window: { width, height, title } } = __webpack_require__(64);
 let Background = __webpack_require__(9);
 let sortFunc = (left, right) => left.position.z < right.position.z ? -1 : 1;
 let { EventEmitter2 } = __webpack_require__(3);
@@ -8987,7 +8976,7 @@ module.exports = class Renderer extends EventEmitter2 {
     this.theme = theme;
     this.showables = [];
 
-    crel(document.body, { style: 'margin: 0; padding: 0; ' }, crel('div', { style: `margin: 0 auto; width: ${width}px; height: ${height}px;` }, this.canvas = crel('canvas', { width, height })));
+    crel(document.body, { style: 'margin: 0; padding: 0; ' }, crel('div', { style: `margin: 0 auto; width: ${ width }px; height: ${ height }px;` }, this.canvas = crel('canvas', { width, height })));
 
     this.ctx = this.canvas.getContext('2d');
     e2d.initialize(this.ctx);
@@ -9149,7 +9138,7 @@ module.exports = class Renderer extends EventEmitter2 {
       if (!index[ids[i]]) {
         let defintion = state[ids[i]];
         let Constructor = types[defintion.type];
-        this.showables.push(new Constructor(defintion));
+        this.showables.push(new Constructor(defintion, this.theme));
       }
     }
   }
@@ -9464,7 +9453,7 @@ module.exports = function* story(interpreter, script, seen, state) {
 
 var map = {
 	"./main.js": 8,
-	"./options.js": 64
+	"./options.js": 65
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -9803,6 +9792,549 @@ module.exports = {
 /* 63 */
 /***/ (function(module, exports) {
 
+module.exports = /*
+ * Generated by PEG.js 0.10.0.
+ *
+ * http://pegjs.org/
+ */
+(function() {
+  "use strict";
+
+  function peg$subclass(child, parent) {
+    function ctor() { this.constructor = child; }
+    ctor.prototype = parent.prototype;
+    child.prototype = new ctor();
+  }
+
+  function peg$SyntaxError(message, expected, found, location) {
+    this.message  = message;
+    this.expected = expected;
+    this.found    = found;
+    this.location = location;
+    this.name     = "SyntaxError";
+
+    if (typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, peg$SyntaxError);
+    }
+  }
+
+  peg$subclass(peg$SyntaxError, Error);
+
+  peg$SyntaxError.buildMessage = function(expected, found) {
+    var DESCRIBE_EXPECTATION_FNS = {
+          literal: function(expectation) {
+            return "\"" + literalEscape(expectation.text) + "\"";
+          },
+
+          "class": function(expectation) {
+            var escapedParts = "",
+                i;
+
+            for (i = 0; i < expectation.parts.length; i++) {
+              escapedParts += expectation.parts[i] instanceof Array
+                ? classEscape(expectation.parts[i][0]) + "-" + classEscape(expectation.parts[i][1])
+                : classEscape(expectation.parts[i]);
+            }
+
+            return "[" + (expectation.inverted ? "^" : "") + escapedParts + "]";
+          },
+
+          any: function(expectation) {
+            return "any character";
+          },
+
+          end: function(expectation) {
+            return "end of input";
+          },
+
+          other: function(expectation) {
+            return expectation.description;
+          }
+        };
+
+    function hex(ch) {
+      return ch.charCodeAt(0).toString(16).toUpperCase();
+    }
+
+    function literalEscape(s) {
+      return s
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g,  '\\"')
+        .replace(/\0/g, '\\0')
+        .replace(/\t/g, '\\t')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')
+        .replace(/[\x00-\x0F]/g,          function(ch) { return '\\x0' + hex(ch); })
+        .replace(/[\x10-\x1F\x7F-\x9F]/g, function(ch) { return '\\x'  + hex(ch); });
+    }
+
+    function classEscape(s) {
+      return s
+        .replace(/\\/g, '\\\\')
+        .replace(/\]/g, '\\]')
+        .replace(/\^/g, '\\^')
+        .replace(/-/g,  '\\-')
+        .replace(/\0/g, '\\0')
+        .replace(/\t/g, '\\t')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')
+        .replace(/[\x00-\x0F]/g,          function(ch) { return '\\x0' + hex(ch); })
+        .replace(/[\x10-\x1F\x7F-\x9F]/g, function(ch) { return '\\x'  + hex(ch); });
+    }
+
+    function describeExpectation(expectation) {
+      return DESCRIBE_EXPECTATION_FNS[expectation.type](expectation);
+    }
+
+    function describeExpected(expected) {
+      var descriptions = new Array(expected.length),
+          i, j;
+
+      for (i = 0; i < expected.length; i++) {
+        descriptions[i] = describeExpectation(expected[i]);
+      }
+
+      descriptions.sort();
+
+      if (descriptions.length > 0) {
+        for (i = 1, j = 1; i < descriptions.length; i++) {
+          if (descriptions[i - 1] !== descriptions[i]) {
+            descriptions[j] = descriptions[i];
+            j++;
+          }
+        }
+        descriptions.length = j;
+      }
+
+      switch (descriptions.length) {
+        case 1:
+          return descriptions[0];
+
+        case 2:
+          return descriptions[0] + " or " + descriptions[1];
+
+        default:
+          return descriptions.slice(0, -1).join(", ")
+            + ", or "
+            + descriptions[descriptions.length - 1];
+      }
+    }
+
+    function describeFound(found) {
+      return found ? "\"" + literalEscape(found) + "\"" : "end of input";
+    }
+
+    return "Expected " + describeExpected(expected) + " but " + describeFound(found) + " found.";
+  };
+
+  function peg$parse(input, options) {
+    options = options !== void 0 ? options : {};
+
+    var peg$FAILED = {},
+
+        peg$startRuleFunctions = { PARSER: peg$parsePARSER },
+        peg$startRuleFunction  = peg$parsePARSER,
+
+        peg$c0 = function(tokens) {
+        console.log(tokens);
+          let currentText = "";
+          ctx.font = getFont();
+          let maxWidth = getMaxWidth();
+          let lines = [];
+          for (let i = 0; i < tokens.length; i++) {
+            let { type, value } = tokens[i];
+            switch(type) {
+              case 'w':
+                currentText += value;
+                break;
+              case 'o':
+                let { width } = ctx.measureText(currentText + value);
+                if (width > maxWidth) {
+                  lines.push(currentText);
+                  currentText = value;
+                } else {
+                  currentText += value;
+                }
+                break;
+              case 'l':
+                lines.push(currentText);
+                currentText = "";
+                break;
+            }
+          }
+          lines.push(currentText);
+          return lines;
+        },
+        peg$c1 = /^[\t ]/,
+        peg$c2 = peg$classExpectation(["\t", " "], false, false),
+        peg$c3 = function() {
+          return { type: 'w', value: text() };
+        },
+        peg$c4 = /^[\r\n]/,
+        peg$c5 = peg$classExpectation(["\r", "\n"], false, false),
+        peg$c6 = /^[\n]/,
+        peg$c7 = peg$classExpectation(["\n"], false, false),
+        peg$c8 = /^[\r]/,
+        peg$c9 = peg$classExpectation(["\r"], false, false),
+        peg$c10 = function() {
+          return { type: 'l', value: text() };
+        },
+        peg$c11 = /^[^\t \n\r]/,
+        peg$c12 = peg$classExpectation(["\t", " ", "\n", "\r"], true, false),
+        peg$c13 = function() {
+         return { type: 'o', value: text() };
+        },
+
+        peg$currPos          = 0,
+        peg$savedPos         = 0,
+        peg$posDetailsCache  = [{ line: 1, column: 1 }],
+        peg$maxFailPos       = 0,
+        peg$maxFailExpected  = [],
+        peg$silentFails      = 0,
+
+        peg$result;
+
+    if ("startRule" in options) {
+      if (!(options.startRule in peg$startRuleFunctions)) {
+        throw new Error("Can't start parsing from rule \"" + options.startRule + "\".");
+      }
+
+      peg$startRuleFunction = peg$startRuleFunctions[options.startRule];
+    }
+
+    function text() {
+      return input.substring(peg$savedPos, peg$currPos);
+    }
+
+    function location() {
+      return peg$computeLocation(peg$savedPos, peg$currPos);
+    }
+
+    function expected(description, location) {
+      location = location !== void 0 ? location : peg$computeLocation(peg$savedPos, peg$currPos)
+
+      throw peg$buildStructuredError(
+        [peg$otherExpectation(description)],
+        input.substring(peg$savedPos, peg$currPos),
+        location
+      );
+    }
+
+    function error(message, location) {
+      location = location !== void 0 ? location : peg$computeLocation(peg$savedPos, peg$currPos)
+
+      throw peg$buildSimpleError(message, location);
+    }
+
+    function peg$literalExpectation(text, ignoreCase) {
+      return { type: "literal", text: text, ignoreCase: ignoreCase };
+    }
+
+    function peg$classExpectation(parts, inverted, ignoreCase) {
+      return { type: "class", parts: parts, inverted: inverted, ignoreCase: ignoreCase };
+    }
+
+    function peg$anyExpectation() {
+      return { type: "any" };
+    }
+
+    function peg$endExpectation() {
+      return { type: "end" };
+    }
+
+    function peg$otherExpectation(description) {
+      return { type: "other", description: description };
+    }
+
+    function peg$computePosDetails(pos) {
+      var details = peg$posDetailsCache[pos], p;
+
+      if (details) {
+        return details;
+      } else {
+        p = pos - 1;
+        while (!peg$posDetailsCache[p]) {
+          p--;
+        }
+
+        details = peg$posDetailsCache[p];
+        details = {
+          line:   details.line,
+          column: details.column
+        };
+
+        while (p < pos) {
+          if (input.charCodeAt(p) === 10) {
+            details.line++;
+            details.column = 1;
+          } else {
+            details.column++;
+          }
+
+          p++;
+        }
+
+        peg$posDetailsCache[pos] = details;
+        return details;
+      }
+    }
+
+    function peg$computeLocation(startPos, endPos) {
+      var startPosDetails = peg$computePosDetails(startPos),
+          endPosDetails   = peg$computePosDetails(endPos);
+
+      return {
+        start: {
+          offset: startPos,
+          line:   startPosDetails.line,
+          column: startPosDetails.column
+        },
+        end: {
+          offset: endPos,
+          line:   endPosDetails.line,
+          column: endPosDetails.column
+        }
+      };
+    }
+
+    function peg$fail(expected) {
+      if (peg$currPos < peg$maxFailPos) { return; }
+
+      if (peg$currPos > peg$maxFailPos) {
+        peg$maxFailPos = peg$currPos;
+        peg$maxFailExpected = [];
+      }
+
+      peg$maxFailExpected.push(expected);
+    }
+
+    function peg$buildSimpleError(message, location) {
+      return new peg$SyntaxError(message, null, null, location);
+    }
+
+    function peg$buildStructuredError(expected, found, location) {
+      return new peg$SyntaxError(
+        peg$SyntaxError.buildMessage(expected, found),
+        expected,
+        found,
+        location
+      );
+    }
+
+    function peg$parsePARSER() {
+      var s0, s1, s2;
+
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = peg$parseTOKEN();
+      while (s2 !== peg$FAILED) {
+        s1.push(s2);
+        s2 = peg$parseTOKEN();
+      }
+      if (s1 !== peg$FAILED) {
+        peg$savedPos = s0;
+        s1 = peg$c0(s1);
+      }
+      s0 = s1;
+
+      return s0;
+    }
+
+    function peg$parseTOKEN() {
+      var s0;
+
+      s0 = peg$parseWHITESPACE();
+      if (s0 === peg$FAILED) {
+        s0 = peg$parseLINEBREAK();
+        if (s0 === peg$FAILED) {
+          s0 = peg$parseOTHER();
+        }
+      }
+
+      return s0;
+    }
+
+    function peg$parseWHITESPACE() {
+      var s0, s1, s2;
+
+      s0 = peg$currPos;
+      s1 = [];
+      if (peg$c1.test(input.charAt(peg$currPos))) {
+        s2 = input.charAt(peg$currPos);
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c2); }
+      }
+      if (s2 !== peg$FAILED) {
+        while (s2 !== peg$FAILED) {
+          s1.push(s2);
+          if (peg$c1.test(input.charAt(peg$currPos))) {
+            s2 = input.charAt(peg$currPos);
+            peg$currPos++;
+          } else {
+            s2 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c2); }
+          }
+        }
+      } else {
+        s1 = peg$FAILED;
+      }
+      if (s1 !== peg$FAILED) {
+        peg$savedPos = s0;
+        s1 = peg$c3();
+      }
+      s0 = s1;
+
+      return s0;
+    }
+
+    function peg$parseLINEBREAK() {
+      var s0, s1, s2;
+
+      s0 = peg$currPos;
+      s1 = [];
+      if (peg$c4.test(input.charAt(peg$currPos))) {
+        s2 = input.charAt(peg$currPos);
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c5); }
+      }
+      if (s2 === peg$FAILED) {
+        if (peg$c6.test(input.charAt(peg$currPos))) {
+          s2 = input.charAt(peg$currPos);
+          peg$currPos++;
+        } else {
+          s2 = peg$FAILED;
+          if (peg$silentFails === 0) { peg$fail(peg$c7); }
+        }
+        if (s2 === peg$FAILED) {
+          if (peg$c8.test(input.charAt(peg$currPos))) {
+            s2 = input.charAt(peg$currPos);
+            peg$currPos++;
+          } else {
+            s2 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c9); }
+          }
+        }
+      }
+      if (s2 !== peg$FAILED) {
+        while (s2 !== peg$FAILED) {
+          s1.push(s2);
+          if (peg$c4.test(input.charAt(peg$currPos))) {
+            s2 = input.charAt(peg$currPos);
+            peg$currPos++;
+          } else {
+            s2 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c5); }
+          }
+          if (s2 === peg$FAILED) {
+            if (peg$c6.test(input.charAt(peg$currPos))) {
+              s2 = input.charAt(peg$currPos);
+              peg$currPos++;
+            } else {
+              s2 = peg$FAILED;
+              if (peg$silentFails === 0) { peg$fail(peg$c7); }
+            }
+            if (s2 === peg$FAILED) {
+              if (peg$c8.test(input.charAt(peg$currPos))) {
+                s2 = input.charAt(peg$currPos);
+                peg$currPos++;
+              } else {
+                s2 = peg$FAILED;
+                if (peg$silentFails === 0) { peg$fail(peg$c9); }
+              }
+            }
+          }
+        }
+      } else {
+        s1 = peg$FAILED;
+      }
+      if (s1 !== peg$FAILED) {
+        peg$savedPos = s0;
+        s1 = peg$c10();
+      }
+      s0 = s1;
+
+      return s0;
+    }
+
+    function peg$parseOTHER() {
+      var s0, s1, s2;
+
+      s0 = peg$currPos;
+      s1 = [];
+      if (peg$c11.test(input.charAt(peg$currPos))) {
+        s2 = input.charAt(peg$currPos);
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c12); }
+      }
+      if (s2 !== peg$FAILED) {
+        while (s2 !== peg$FAILED) {
+          s1.push(s2);
+          if (peg$c11.test(input.charAt(peg$currPos))) {
+            s2 = input.charAt(peg$currPos);
+            peg$currPos++;
+          } else {
+            s2 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c12); }
+          }
+        }
+      } else {
+        s1 = peg$FAILED;
+      }
+      if (s1 !== peg$FAILED) {
+        peg$savedPos = s0;
+        s1 = peg$c13();
+      }
+      s0 = s1;
+
+      return s0;
+    }
+
+
+      let self = this;
+      let ctx = document.createElement('canvas').getContext('2d');
+      function getFont() {
+        return self.font;
+      }
+      function getMaxWidth() {
+        return self.maxWidth;
+      }
+
+
+    peg$result = peg$startRuleFunction();
+
+    if (peg$result !== peg$FAILED && peg$currPos === input.length) {
+      return peg$result;
+    } else {
+      if (peg$result !== peg$FAILED && peg$currPos < input.length) {
+        peg$fail(peg$endExpectation());
+      }
+
+      throw peg$buildStructuredError(
+        peg$maxFailExpected,
+        peg$maxFailPos < input.length ? input.charAt(peg$maxFailPos) : null,
+        peg$maxFailPos < input.length
+          ? peg$computeLocation(peg$maxFailPos, peg$maxFailPos + 1)
+          : peg$computeLocation(peg$maxFailPos, peg$maxFailPos)
+      );
+    }
+  }
+
+  return {
+    SyntaxError: peg$SyntaxError,
+    parse:       peg$parse
+  };
+})();
+
+/***/ }),
+/* 64 */
+/***/ (function(module, exports) {
+
 module.exports = {
 	"name": "e2dvn",
 	"version": "1.0.0",
@@ -9842,8 +10374,10 @@ module.exports = {
 		"json-loader": "^0.5.4",
 		"library-src-plugin": "^1.0.2",
 		"nw-builder": "^3.1.2",
+		"pegjs": "^0.10.0",
+		"pegjs-loader": "^0.5.0",
 		"save-pixels": "^2.3.4",
-		"webpack": "^2.2.0-rc.3",
+		"webpack": "^2.2.0",
 		"zeros": "^1.0.0"
 	},
 	"window": {
@@ -9860,7 +10394,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports) {
 
 module.exports = function* menu(_interpreter) {
@@ -9889,7 +10423,7 @@ module.exports = function* menu(_interpreter) {
 };
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports) {
 
 module.exports = function* menu(_interpreter) {
@@ -9906,7 +10440,7 @@ module.exports = function* menu(_interpreter) {
 };
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports) {
 
 module.exports = function* menu(_interpreter) {
@@ -10019,7 +10553,7 @@ module.exports = function* menu(_interpreter) {
 };
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 let options = {
@@ -10063,8 +10597,8 @@ let _loadFont = (name, src) => {
   let font = new FontFaceObserver(name);
   let ff = `
     @font-face{
-      font-family: ${name};
-      src: url("${src}")
+      font-family: ${ name };
+      src: url("${ src }")
     }
   `;
   let tag = document.createElement('style');
@@ -10095,12 +10629,12 @@ options.titleTextColor = selectedColor;
 
 options.controlTextSize = 26;
 _loadFont('Puritan', __webpack_require__(42));
-options.controlFont = `${options.controlTextSize}px Puritan`;
+options.controlFont = `${ options.controlTextSize }px Puritan`;
 options.controlTextColor = normalColor;
 options.controlTextSelectedColor = selectedColor;
 
 options.choiceTextSize = 40;
-options.choiceFont = `${options.choiceTextSize}px Puritan`;
+options.choiceFont = `${ options.choiceTextSize }px Puritan`;
 options.choiceTextColor = normalColor;
 options.choiceTextSelectedColor = selectedColor;
 
@@ -10142,10 +10676,10 @@ options.textarea = {
   texture: _createImage(__webpack_require__(59)),
   speakerBox: [10, 10, 380, 20],
   speakerBoxFontSize: speakerBoxFontSize,
-  speakerBoxFont: `bold ${speakerBoxFontSize}px ${textareaSpeakerFont}`,
+  speakerBoxFont: `bold ${ speakerBoxFontSize }px ${ textareaSpeakerFont }`,
   textBox: [10, 46, 780, 150],
   textFontSize: textareaFontSize,
-  textFont: `${textareaFontSize}px ${textareaFont}`,
+  textFont: `${ textareaFontSize }px ${ textareaFont }`,
   textLeading: 10,
   color: `black`
 };
@@ -10154,7 +10688,7 @@ options.windowBackground = _createImage(__webpack_require__(60));
 module.exports = options;
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 let Interpreter = __webpack_require__(16);
