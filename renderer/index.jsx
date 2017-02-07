@@ -11,6 +11,7 @@ let types = {
   'character': require('../webpack-loader/renderer-loader!./controls/Character.jsx'),
   'checkbox': require('../webpack-loader/renderer-loader!./controls/Checkbox.jsx'),
   'slider': require('../webpack-loader/renderer-loader!./controls/Slider.jsx'),
+  'choice': require('../webpack-loader/renderer-loader!./controls/Choice.jsx'),
   'novelBackground': require('../webpack-loader/renderer-loader!./controls/NovelBackground.jsx'),
   'textarea': require('../webpack-loader/renderer-loader!./controls/Textarea.jsx'),
 };

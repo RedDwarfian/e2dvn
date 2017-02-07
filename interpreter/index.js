@@ -23,6 +23,7 @@ module.exports = class Interpreter extends EventEmitter2 {
       Character: require('../webpack-loader/renderer-loader!../renderer/controls/Character.jsx'),
       Checkbox: require('../webpack-loader/renderer-loader!../renderer/controls/Checkbox.jsx'),
       Slider: require('../webpack-loader/renderer-loader!../renderer/controls/Slider.jsx'),
+      Choice: require('../webpack-loader/renderer-loader!../renderer/controls/Choice.jsx'),
       NovelBackground,
       Textarea,
       Choice: null,

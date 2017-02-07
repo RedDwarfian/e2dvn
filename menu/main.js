@@ -27,6 +27,16 @@ let sliderTest = Slider({
   }
 });
 
+let choiceTest = Choice({
+  id: 'choice-test',
+  x: 100,
+  y: 300,
+  onclick: function*() {
+    console.log("Choice Clicked!");
+    test = true;
+  }
+})
+
 show(newGame, {
   a: 1
 });
