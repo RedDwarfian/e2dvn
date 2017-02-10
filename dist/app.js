@@ -8224,11 +8224,14 @@ module.exports = function* menu(_interpreter) {
     id: 'choice-test',
     x: 100,
     y: 300,
+    text: 'This looks like a really large button,\
+but it is, in fact, a choice.',
     onclick: function* () {
       console.log("Choice Clicked!");
       test = true;
     }
-  }, _interpreter.theme), _interpreter.apply(_cache, ...[{ id: 'choice-test', x: 100, y: 300, onclick: function* () {
+  }, _interpreter.theme), _interpreter.apply(_cache, ...[{ id: 'choice-test', x: 100, y: 300, text: 'This looks like a really large button,\
+but it is, in fact, a choice.', onclick: function* () {
       console.log("Choice Clicked!");test = true;
     } }]), Object.assign(_cache.last, _cache.position), _cache);
 
@@ -8239,6 +8242,10 @@ module.exports = function* menu(_interpreter) {
   sliderTest = _interpreter.renderer.find(sliderTest.id) || sliderTest, Object.assign(sliderTest.last, sliderTest.position), _interpreter.show(sliderTest, ...[{
     a: 1
   }]), sliderTest.start = Date.now(), sliderTest.hiding = false, sliderTest;
+
+  choiceTest = _interpreter.renderer.find(choiceTest.id) || choiceTest, Object.assign(choiceTest.last, choiceTest.position), _interpreter.show(choiceTest, ...[{
+    a: 1
+  }]), choiceTest.start = Date.now(), choiceTest.hiding = false, choiceTest;
 
   while (!test) {
     yield ['pause', void 0];
@@ -8775,12 +8782,13 @@ module.exports = class Textarea extends Showable {
       let line = this.lines[i];
       if (line.length + currentIndex > this.textIndex) {
         line = line.slice(0, this.textIndex - currentIndex);
-        lines.push(e2d.fillText(line, this.theme.textarea.textBox[0], this.theme.textarea.textLeading * i + i * this.theme.speakerBoxFontSize));
+        lines.push(e2d.fillText(line, this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + i * (this.theme.textarea.textLeading + this.theme.textarea.speakerBoxFontSize)));
         return lines;
       }
-      lines.push(e2d.fillText(line, this.theme.textarea.textBox[0], this.theme.textarea.textLeading * i + i * this.theme.speakerBoxFontSize));
+      lines.push(e2d.fillText(line, this.theme.textarea.textBox[0], this.theme.textarea.textBox[1] + i * (this.theme.textarea.textLeading + this.theme.textarea.speakerBoxFontSize)));
       currentIndex += line.length;
     }
+    debugger;
     return lines;
   }
   render() {
@@ -8838,7 +8846,6 @@ module.exports = class Interpreter extends EventEmitter2 {
       Choice: __webpack_require__(13),
       NovelBackground,
       Textarea,
-      Choice: null,
       historyEnabled: false,
       bg: new NovelBackground({
         id: 'nbg',
@@ -10022,7 +10029,6 @@ module.exports = /*
         peg$startRuleFunction  = peg$parsePARSER,
 
         peg$c0 = function(tokens) {
-        console.log(tokens);
           let currentText = "";
           ctx.font = getFont();
           let maxWidth = getMaxWidth();

@@ -31,6 +31,8 @@ let choiceTest = Choice({
   id: 'choice-test',
   x: 100,
   y: 300,
+  text: 'This looks like a really large button,\
+but it is, in fact, a choice.',
   onclick: function*() {
     console.log("Choice Clicked!");
     test = true;
@@ -41,9 +43,13 @@ show(newGame, {
   a: 1
 });
 
-show(sliderTest,{
+show(sliderTest, {
   a: 1
 });
+
+show(choiceTest, {
+  a: 1
+})
 
 waitFor(test);
 queue(

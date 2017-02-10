@@ -72,7 +72,7 @@ module.exports = class Textarea extends Showable {
         lines.push(
           <fillText
             x={this.theme.textarea.textBox[0]}
-            y={this.theme.textarea.textLeading * i + i * this.theme.speakerBoxFontSize}
+            y={this.theme.textarea.textBox[1] + i * (this.theme.textarea.textLeading + this.theme.textarea.speakerBoxFontSize)}
             text={line}
           />
         );
@@ -81,12 +81,13 @@ module.exports = class Textarea extends Showable {
       lines.push(
         <fillText
           x={this.theme.textarea.textBox[0]}
-          y={this.theme.textarea.textLeading * i + i * this.theme.speakerBoxFontSize}
+          y={this.theme.textarea.textBox[1] + i * (this.theme.textarea.textLeading + this.theme.textarea.speakerBoxFontSize)}
           text={line}
         />
       );
       currentIndex += line.length;
     }
+    debugger;
     return lines;
   }
   render() {

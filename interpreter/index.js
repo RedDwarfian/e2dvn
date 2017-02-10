@@ -26,7 +26,6 @@ module.exports = class Interpreter extends EventEmitter2 {
       Choice: require('../webpack-loader/renderer-loader!../renderer/controls/Choice.jsx'),
       NovelBackground,
       Textarea,
-      Choice: null,
       historyEnabled: false,
       bg: new NovelBackground({
         id: 'nbg',

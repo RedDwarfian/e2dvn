@@ -10,7 +10,6 @@
 }
 
 PARSER = tokens:TOKEN* {
-console.log(tokens);
   let currentText = "";
   ctx.font = getFont();
   let maxWidth = getMaxWidth();
